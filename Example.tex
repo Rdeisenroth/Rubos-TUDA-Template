@@ -1,4 +1,5 @@
 \documentclass[ngerman]{Tuda_Hausuebung}
+% Packages (nicht in Class File um CompileTime zu verbessern)
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[ngerman]{babel}
@@ -9,26 +10,25 @@
 \usepackage{mleftright}
 \usepackage{tikz}
 \usetikzlibrary{patterns, shapes, intersections, arrows, math, decorations,decorations.pathreplacing, decorations.pathmorphing, positioning, calc, automata, chains, shapes.geometric, arrows.meta}
-	
 \usepackage{tcolorbox}
 
-% Document definitions (please change here instead of in the document)
-    \sheetnumber{1}
-    \groupnumber{69}
-    \studentEins{Ruben Deisenroth}{9876543}
-    \studentZwei{Max Mustermann}{1234567}
-    \studentDrei{Peter Peterson}{0000000}
-    \groupleader{Senpai Yoda}
-    \date{\textbf{\sffamily Datum:} \today} % Ohne Angabe wird automatisch das heutige Datum eingefügt
-    \renewcommand*{\taskformat}{H\tasksep\thetask{}}
-    %\newenvironment{cpenumerate}[1][]{\begin{enumerate}[nosep, #1]}{\end{enumerate}}
+% Definitionen für das Dokument
+\sheetnumber{1}
+\groupnumber{69}
+\studentEins{Ruben Deisenroth}{9876543}
+\studentZwei{Max Mustermann}{1234567}
+\studentDrei{Peter Peterson}{0000000}
+\groupleader{Senpai Yoda}
+\date{\textbf{\sffamily Datum:} \today}
+\renewcommand*{\taskformat}{H\tasksep\thetask{}} % Taskprefix
 \begin{document}
 \title[Mathe 0]{Abgabe Hausübung\\im Fach\\ Mathematik 0}
 \maketitle{}
-\printGradeTable{}
+\printGradeTable{} % Erstellt eine Bewertungstabelle wie in Klausuren (Optionen für weglassen von Summe und Note Geplant)
 %\tableofcontents
 
 %% --Beginn Hausübung--%%
+% Übung 1
 \begin{task}[points=8,solution=true]{\mdseries Systematisches Testen von Methoden}
     \begin{cpenumerate}[label=\alph*)]
         \item Was ist 1+1?
@@ -40,10 +40,12 @@
 
     \end{cpenumerate}
 \end{task}
+% Übung 2
 \begin{task}[points=2,solution=true]{UwUOwO}
     b
 \end{task}
 \clearpage
+% Übung 3
 \begin{task}[points=5,solution=true]{Alternativer style}
     Such pretty much wow
     \begin{subtask}[title={Ganzzahladdition auf $\mathbb{N}$},points=2]
