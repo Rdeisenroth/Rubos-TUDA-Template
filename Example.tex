@@ -1,7 +1,5 @@
 \documentclass[ngerman]{Tuda_Hausuebung}
 % Packages (nicht in Class File um CompileTime zu verbessern)
-\usepackage[utf8]{inputenc}
-\usepackage[T1]{fontenc}
 \usepackage[ngerman]{babel}
 \usepackage{amsmath}
 \usepackage{amssymb}
@@ -12,15 +10,20 @@
 \usetikzlibrary{patterns, shapes, intersections, arrows, math, decorations,decorations.pathreplacing, decorations.pathmorphing, positioning, calc, automata, chains, shapes.geometric, arrows.meta}
 \usepackage{tcolorbox}
 
-% Definitionen für das Dokument
+% Definitionen für das Dokument (Bis auf studentEins alle Optional)
 \sheetnumber{1}
 \groupnumber{69}
 \studentEins{Ruben Deisenroth}{9876543}
 \studentZwei{Max Mustermann}{1234567}
 \studentDrei{Peter Peterson}{0000000}
 \groupleader{Senpai Yoda}
+\semester{WiSe 2020/21}
+\fachbereich{Informatik}
 \date{\textbf{\sffamily Datum:} \today}
 \renewcommand*{\taskformat}{H\tasksep\thetask{}} % Taskprefix
+\ConfigureHeadline{
+	headline={submittors-centered}
+}
 \begin{document}
 \title[Mathe 0]{Abgabe Hausübung\\im Fach\\ Mathematik 0}
 \maketitle{}

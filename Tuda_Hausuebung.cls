@@ -41,6 +41,7 @@
 % Packages
 \RequirePackage{enumitem}
 \RequirePackage{totcount}
+%\RequirePackage{xifthen}
 \regtotcounter{task}
 
 % Strings/Names
@@ -57,7 +58,7 @@
 
 \newcommand{\definevalueNoOverwrite}[2]{% Name, Content
   \ifx \value{subtask} 0\relax%
-  \definevalue{#1}{#2}%
+    \definevalue{#1}{#2}%
   \else%
     %
   \fi%
@@ -122,6 +123,8 @@
   \fi
 }
 
+\ExplSyntaxOn
+
 \newcommand*{\maketerm}{%
   \term{%
     \begin{minipage}[t]{.5\textwidth}
@@ -140,9 +143,12 @@
         \printSheetNumber{}\printGroupNumber{}\printGroupLeader{}
       \end{flushright}
     \end{minipage}
-    \vspace*{2ex}
+    \\\phantom{a}\\% Empty Line
+    \printSemester{}
+    \ifdefempty{\@date}{\tl_if_empty:NF \g_ptxcd_ex_fachbereich_tl{\\\phantom{a}\hfill\printFachbereich{}}}{\\\@date\phantom{a}\hfill\printFachbereich{}}
   }
 }
+\ExplSyntaxOff
 
 \newcommand*{\printGradeTable}{%
   \begin{minipage}{\textwidth}
@@ -199,9 +205,27 @@
 \ExplSyntaxOn
 \tl_new:N \g_ptxcd_ex_groupleader_tl
 \newcommand*{\groupleader}[1]{\tl_gset:Nn \g_ptxcd_ex_groupleader_tl {#1}}
-\groupnumber{}
+\groupleader{}
 \newcommand*{\getGroupLeader}{\g_ptxcd_ex_groupleader_tl}
 \newcommand*{\printGroupLeader}{\tl_if_empty:NF \g_ptxcd_ex_groupleader_tl {\sffamily\textbf{Übungsgruppenleiter:}\space\getGroupLeader\\}}
+\ExplSyntaxOff
+
+% Semester
+\ExplSyntaxOn
+\tl_new:N \g_ptxcd_ex_semester_tl
+\newcommand*{\semester}[1]{\tl_gset:Nn \g_ptxcd_ex_semester_tl {#1}}
+\semester{}
+\newcommand*{\getSemester}{\g_ptxcd_ex_semester_tl}
+\newcommand*{\printSemester}{\tl_if_empty:NF \g_ptxcd_ex_semester_tl {\phantom{a}\hfill\textsf{\textbf{Semester:}}\space\getSemester}}
+\ExplSyntaxOff
+
+% Fachbereich
+\ExplSyntaxOn
+\tl_new:N \g_ptxcd_ex_fachbereich_tl
+\newcommand*{\fachbereich}[1]{\tl_gset:Nn \g_ptxcd_ex_fachbereich_tl {#1}}
+\semester{}
+\newcommand*{\getFachbereich}{\g_ptxcd_ex_fachbereich_tl}
+\newcommand*{\printFachbereich}{\tl_if_empty:NF \g_ptxcd_ex_fachbereich_tl {\sffamily\textbf{Fachbereich:}\space\getFachbereich}}
 \ExplSyntaxOff
 
 \ExplSyntaxOn
@@ -286,7 +310,7 @@
               }
               \null\par
               \def\ptxcd_nextsep{}
-              \clist_map_inline:nn {@subtitle, @subsubtitle, g_ptxcd_ex_term_tl, @date} {
+              \clist_map_inline:nn {@subtitle, @subsubtitle, g_ptxcd_ex_term_tl} { %, @date
                 \tl_if_empty:cF {##1} {\ptxcd_nextsep\use:c {##1}\def\ptxcd_nextsep{\\}}
               }
               %\tl_if_empty:NF \g_ptxcd_ex_sheetnum_tl {\ptxcd_nextsep\sheetname\sheetsep\g_ptxcd_ex_sheetnum_tl}
@@ -335,7 +359,44 @@
   }}
 \ExplSyntaxOff
 
-
+\ExplSyntaxOn
+\clist_map_inline:nn {odd, even, oneside} {
+  \keys_define:nn {ptxcd/exercise/headline} {
+    #1 .choice:,
+    #1 / title-name-id .code:n = \tl_gset:cn {g_ptxcd_ex_headline_#1_tl} {
+      \g_ptxcd_shorttitle_tl\par
+      \StudentName\StudentID},
+    #1 / title-name .code:n = \tl_gset:cn {g_ptxcd_ex_headline_#1_tl} {
+      \g_ptxcd_shorttitle_tl\par
+      \smallskip
+      \StudentName},
+    #1 / title .code:n = \tl_gset:cn {g_ptxcd_ex_headline_#1_tl} {\g_ptxcd_shorttitle_tl},
+    #1 / name-id .code:n = \tl_gset:cn {g_ptxcd_ex_headline_#1_tl} {\StudentName\StudentID},
+    #1 / name .code:n = \tl_gset:cn {g_ptxcd_ex_headline_#1_tl} {\StudentName},
+    #1 / submittors .code:n = \tl_gset:cn {g_ptxcd_ex_headline_#1_tl} {%
+      \textbf{\sffamily\g_ptxcd_shorttitle_tl\space{}Abgabe\space{}von:}\space%
+      \@studentNameEins%
+      \ifthenelse{\isundefined{\@studentNameZwei}}{}{%
+        ,\space\@studentNameZwei%
+      }%
+      \ifthenelse{\isundefined{\@studentNameDrei}}{}{%
+        ,\space\@studentNameDrei%
+      }%
+    },
+    #1 / submittors-centered .code:n = \tl_gset:cn {g_ptxcd_ex_headline_#1_tl} {%
+      \centering\textbf{\sffamily\g_ptxcd_shorttitle_tl\space{}Abgabe\space{}von:}\space%
+      \@studentNameEins%
+      \ifthenelse{\isundefined{\@studentNameZwei}}{}{%
+        ,\space\@studentNameZwei%
+      }%
+      \ifthenelse{\isundefined{\@studentNameDrei}}{}{%
+        ,\space\@studentNameDrei%
+      }%
+    },
+    #1 / unknown .code:n = \tl_gset:cn {g_ptxcd_ex_headline_#1_tl} {##1}
+  }
+}
+\ExplSyntaxOff
 
 % Makros
 \newenvironment*{cpenumerate}[1][]{\begin{enumerate}[nosep, #1]}{\end{enumerate}}
