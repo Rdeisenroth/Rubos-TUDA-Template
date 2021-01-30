@@ -4,7 +4,7 @@
 % Sets the LaTeX version for the package to work.
 \NeedsTeXFormat{LaTeX2e}
 % Identification of the class and its date and version.
-\ProvidesClass{Tuda_Hausuebung} [Hausuebungsvorlage basierend auf TuDaExercise]
+\ProvidesClass{tuda_hausuebung} [Hausuebungsvorlage basierend auf TuDaExercise]
 
 
 % Studenten und Matrikelnummern
