@@ -1,28 +1,29 @@
-\documentclass[ngerman]{tuda_hausuebung}
+\documentclass[
+    ngerman,
+    accentcolor=3b,
+    load_common,
+    submission,
+    % dark_mode,
+    boxarc,
+]{rubos-tuda-template}
 % Packages (nicht in Class File um CompileTime zu verbessern)
-\usepackage[ngerman]{babel}
-\usepackage{amsmath}
-\usepackage{amssymb}
-\usepackage{amsthm}
-\usepackage{mathtools}
-\usepackage{mleftright}
-\usepackage{tikz}
-\usetikzlibrary{patterns, shapes, intersections, arrows, math, decorations,decorations.pathreplacing, decorations.pathmorphing, positioning, calc, automata, chains, shapes.geometric, arrows.meta}
-\usepackage{tcolorbox}
-\tcbuselibrary{skins}
-\usepackage{nccmath}
-\RequirePackage[framemethod=tikz]{mdframed} % Required for creating the theorem, definition, exercise and corollary boxes
 % Definitionen für das Dokument (Bis auf studentEins alle Optional)
 \sheetnumber{1}
 \groupnumber{69}
-\studentEins{Ruben Deisenroth}{9876543}
-\studentZwei{Max Mustermann}{1234567}
-\studentDrei{Peter Peterson}{0000000}
+\addSubmittor{Ruben Deisenroth}{9876543}
+\addSubmittor{Max Mustermann}{1234567}
+\addSubmittor{Peter Peterson}{0000000}
 \groupleader{Senpai Yoda}
 \semester{WiSe 2020/21}
 \fachbereich{Informatik}
-\date{\textbf{\sffamily Datum:} \today}
+\dozent{Prof. Dr. rer. nat. Foxy Schlaufux}
+\date{\today}
 \renewcommand*{\taskformat}{H\tasksep\thetask{}} % Taskprefix
+\termStyle{left-right-manual}
+% \termOrder{printAuthor,printSheetNumber,printGroupNumber,printContributor,printVersion,,printSemester,printDate,printFachbereich}
+\termLeft{printAuthor,printSubmittors}
+\termRight{printSheetNumber,printGroupNumber,printGroupLeader,printSemester}
+\term{\printDate{}\hfill\printFachbereich{}}
 \ConfigureHeadline{
 	headline={submittors-centered}
 }
@@ -92,46 +93,6 @@
         \small\sffamily\color{accentcolor}\thmname{#1}\space\thmnumber{#2}% Theorem text (e.g. Theorem 2.1)
         \thmnote{\space\sffamily\bfseries\color{black}---\space#3}% Optional theorem note
     }
-
-    \newmdenv[skipabove=7pt,
-        skipbelow=7pt,
-        rightline=false,
-        leftline=true,
-        topline=false,
-        bottomline=false,
-        backgroundcolor=accentcolor!10,
-        linecolor=accentcolor,
-        innerleftmargin=5pt,
-        innerrightmargin=5pt,
-        innertopmargin=5pt,
-        innerbottommargin=5pt,
-        leftmargin=0cm,
-        rightmargin=0cm,
-        linewidth=3pt,
-        roundcorner=5pt]{dBox}%
-
-    \newtcolorbox{def2}[1][]{
-        %listing engine=minted, % Minted verwenden
-        colback=accentcolor!10, %Hintergrundfarbe
-        colframe=white, % Randfarbe
-        arc=2pt,
-        %listing only,  % Sonst will er den Plain Text nach dem Minted Listing noch anfügen
-        %minted style=colorful, %Sieht actually worse aus imo
-        %minted language=java, % Sprache setzen
-        left=5pt, % Links Platz lassen
-        enhanced, % Erlaubt uns, den ramen zu zeichnen
-        fonttitle=\sffamily, % Titelschriftart auf 
-        overlay={ % Für Grauen Bereich links
-                \begin{tcbclipinterior}
-                    \fill[accentcolor] (frame.south west) rectangle ([xshift=4pt]frame.north west); % Zeilennummernbereich färben
-                \end{tcbclipinterior}
-            },
-        #1 % Weitere Argumente zulassen
-    }
-    \theoremstyle{ocrenumbox}%
-    %\newenvironment{definition}{\begin{dBox}\begin{definitionT}}{\end{definitionT}\end{dBox}}%
-    \newenvironment{definition}{\begin{def2}\begin{definitionT}}{\end{definitionT}\end{def2}}%
-    \newtheorem{definitionT}{\textsf{Definition}}[task]%
     \begin{definition}[Mitternachtsformel] Für eine Polynom zweiten Grades in der Form $a\cdot x^2+b\cdot x + c$ \\gilt für $a,b,c \in \mathbb{R}$ immer:%
         \makeatletter
         \newcommand{\leqnomode}{\tagsleft@true}
@@ -148,6 +109,7 @@
         test
     \end{definition}
 
+    % Demonstration der gefixten Überschriftenhöhe
     \begin{minipage}[t]{.5\textwidth}
         \subsection{--------} % Nur Schmale Zeichen
         asdf
@@ -156,10 +118,5 @@
         \subsection{()MBbdI$\vert$} % Zeichen mit Maximaler Höhe
         asdf $\vcenter{\hbox{\tikz{\node[draw]{hi};}}}$
     \end{minipage}
-
-
-    \begin{def2}
-        a
-    \end{def2}
 \end{task}
 \end{document}
