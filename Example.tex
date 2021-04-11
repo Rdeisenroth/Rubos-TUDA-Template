@@ -9,7 +9,9 @@
 \usepackage{tikz}
 \usetikzlibrary{patterns, shapes, intersections, arrows, math, decorations,decorations.pathreplacing, decorations.pathmorphing, positioning, calc, automata, chains, shapes.geometric, arrows.meta}
 \usepackage{tcolorbox}
-
+\tcbuselibrary{skins}
+\usepackage{nccmath}
+\RequirePackage[framemethod=tikz]{mdframed} % Required for creating the theorem, definition, exercise and corollary boxes
 % Definitionen für das Dokument (Bis auf studentEins alle Optional)
 \sheetnumber{1}
 \groupnumber{69}
@@ -27,7 +29,7 @@
 \begin{document}
 \title[Mathe 0]{Abgabe Hausübung\\im Fach\\ Mathematik 0}
 \maketitle{}
-\printGradeTable{} % Erstellt eine Bewertungstabelle wie in Klausuren (Optionen für weglassen von Summe und Note Geplant)
+%\printGradeTable{} % Erstellt eine Bewertungstabelle wie in Klausuren (Optionen für weglassen von Summe und Note Geplant)
 %\tableofcontents
 
 %% --Beginn Hausübung--%%
@@ -74,5 +76,90 @@
         \end{solution}
     \end{subtask}
 \end{task}
+\clearpage
+\begin{task}[points=2,solution=true]{Weitere Macros}
+    asdfgg
+    Boxed/framed environments
+    \newtheoremstyle{ocrenumbox}% Theorem style name
+    {0pt}% Space above
+    {0pt}% Space below
+    {\normalfont}% Body font
+    {}% Indent amount
+    {\small\bfseries\sffamily\color{accentcolor}}% Theorem head font
+    {\;}% Punctuation after theorem head
+    {0.25em}% Space after theorem head
+    {
+        \small\sffamily\color{accentcolor}\thmname{#1}\space\thmnumber{#2}% Theorem text (e.g. Theorem 2.1)
+        \thmnote{\space\sffamily\bfseries\color{black}---\space#3}% Optional theorem note
+    }
 
+    \newmdenv[skipabove=7pt,
+        skipbelow=7pt,
+        rightline=false,
+        leftline=true,
+        topline=false,
+        bottomline=false,
+        backgroundcolor=accentcolor!10,
+        linecolor=accentcolor,
+        innerleftmargin=5pt,
+        innerrightmargin=5pt,
+        innertopmargin=5pt,
+        innerbottommargin=5pt,
+        leftmargin=0cm,
+        rightmargin=0cm,
+        linewidth=3pt,
+        roundcorner=5pt]{dBox}%
+
+    \newtcolorbox{def2}[1][]{
+        %listing engine=minted, % Minted verwenden
+        colback=accentcolor!10, %Hintergrundfarbe
+        colframe=white, % Randfarbe
+        arc=2pt,
+        %listing only,  % Sonst will er den Plain Text nach dem Minted Listing noch anfügen
+        %minted style=colorful, %Sieht actually worse aus imo
+        %minted language=java, % Sprache setzen
+        left=5pt, % Links Platz lassen
+        enhanced, % Erlaubt uns, den ramen zu zeichnen
+        fonttitle=\sffamily, % Titelschriftart auf 
+        overlay={ % Für Grauen Bereich links
+                \begin{tcbclipinterior}
+                    \fill[accentcolor] (frame.south west) rectangle ([xshift=4pt]frame.north west); % Zeilennummernbereich färben
+                \end{tcbclipinterior}
+            },
+        #1 % Weitere Argumente zulassen
+    }
+    \theoremstyle{ocrenumbox}%
+    %\newenvironment{definition}{\begin{dBox}\begin{definitionT}}{\end{definitionT}\end{dBox}}%
+    \newenvironment{definition}{\begin{def2}\begin{definitionT}}{\end{definitionT}\end{def2}}%
+    \newtheorem{definitionT}{\textsf{Definition}}[task]%
+    \begin{definition}[Mitternachtsformel] Für eine Polynom zweiten Grades in der Form $a\cdot x^2+b\cdot x + c$ \\gilt für $a,b,c \in \mathbb{R}$ immer:%
+        \makeatletter
+        \newcommand{\leqnomode}{\tagsleft@true}
+        \newcommand{\reqnomode}{\tagsleft@false}
+        \makeatother
+        \leqnomode
+        \begin{fleqn}[\parindent+2em]
+            \begin{align}
+                x_{1/2} & =\frac{-b\pm\sqrt{b^{2}-4\cdot a \cdot c}}{2\cdot a}
+            \end{align}
+        \end{fleqn}
+    \end{definition}
+    \begin{definition}
+        test
+    \end{definition}
+
+    \begin{minipage}[t]{.5\textwidth}
+        \subsection{--------} % Nur Schmale Zeichen
+        asdf
+    \end{minipage}
+    \begin{minipage}[t]{.49\textwidth}
+        \subsection{()MBbdI$\vert$} % Zeichen mit Maximaler Höhe
+        asdf $\vcenter{\hbox{\tikz{\node[draw]{hi};}}}$
+    \end{minipage}
+
+
+    \begin{def2}
+        a
+    \end{def2}
+\end{task}
 \end{document}

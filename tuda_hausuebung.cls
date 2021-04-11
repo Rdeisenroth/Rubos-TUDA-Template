@@ -34,8 +34,8 @@
   marginpar=false,
   colorback=false,
   %logo=head,
-  leqno,
   fleqn,
+  leqno,
 ]{tudaexercise}
 
 % Packages
@@ -128,7 +128,7 @@
 \newcommand*{\maketerm}{%
   \term{%
     \begin{minipage}[t]{.5\textwidth}
-      \textbf{\sffamily Abgabe von:}\newline%
+      \textbf{\sffamily Abgabe\space{}von:}\newline%
       \@studentNameEins\space(Mat.:\space\@matrikelnummerEins)%
       \ifthenelse{\isundefined{\@studentNameZwei}}{}{%
         ,\newline\@studentNameZwei\space(Mat.:\space\@matrikelnummerZwei)%
@@ -347,7 +347,7 @@
         \exp_args:No \tl_if_empty:nF {\textmd{#4}}
         {:~}
       }
-      {\textmd{#4}}
+      {\textmd{#4}\ensuremath{\vcenter{\hbox{\tikz{\node[inner\space sep=0pt, text\space height=1.1em]{};}}}}}
       \tl_if_in:nnT {#1} {task} {
         \tl_if_empty:cTF{l_ptxcd_ex_#1_credit_tl}
         {\pointformat{\tl_use:c {l_ptxcd_ex_#1_points_int}}}
