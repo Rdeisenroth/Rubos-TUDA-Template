@@ -1,6 +1,6 @@
 \documentclass[
     ngerman,
-    accentcolor=3b,
+    color=1b,
     load_common,
     submission,
     % dark_mode,
@@ -61,8 +61,10 @@
         \end{solution}
     \end{subtask}
     \begin{subtask}[title={Irgend son Graph},points=2]
-        \gegeben $f(x)=0,5(x+1)^2-2$\\
-        \zuberechnen Nullstellen von $f(x)$\\
+        \begin{defBox}
+            \gegeben $f(x)=0,5(x+1)^2-2$\\
+            \zuberechnen Nullstellen von $f(x)$
+        \end{defBox}
         \begin{solution}
             \begin{align*}
                 0,5(x+1)^2-2                                                    & =0                                                                                                 &  & \vert \text{Klammer auflösen}                        \\
@@ -74,6 +76,9 @@
                 \frac{-1\pm \sqrt{4}}{1}                                        & =x_{1/2}                                                                                                                                                     \\
                 -1 \pm 2                                                        & =x_{1/2} \Rightarrow \underline{\underline{x_1                                       = 1, x_2=-3}}
             \end{align*}
+        \begin{grayInfoBox}
+            \antwort Die Funktion hat zwei Nullstellen, bei $x_1=1$ und bei $x_2=-1$.
+        \end{grayInfoBox}
         \end{solution}
     \end{subtask}
 \end{task}

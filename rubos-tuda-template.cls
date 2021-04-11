@@ -873,6 +873,7 @@
 \newcommand{\zubestimmen}{\textbf{\textsf{Zu bestimmen: }}}
 \newcommand{\anzugeben}{\textbf{\textsf{Anzugeben: }}}
 \newcommand{\loesung}{\textbf{\textsf{Lösung: }}}
+\newcommand{\antwort}{\textbf{\textsf{Antwort: }}}
 \newcommand{\rechnung}{\textbf{\textsf{Rechnung: }}}
 \newcommand{\fakebullet}{~\raisebox{-.2\height}{\llap{\textbullet}}~}
 \newcommand{\fakebullett}{~\llap{-}~}
