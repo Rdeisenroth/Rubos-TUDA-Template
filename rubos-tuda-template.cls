@@ -86,6 +86,41 @@
 
 \ExplSyntaxOn
 
+% Discover tudaci-Version
+\exp_args:NNnx \seq_set_split:Nnn \g_tuda_version_seq { ~ } { \use:c {ver@tudaexercise.cls} }
+\tl_set:Nx \g_tudaci_version_tl { \seq_item:Nn \g_tuda_version_seq { 2 } }
+\tl_set:Nx \g_tudaci_version_tl {\tl_tail:N \g_tudaci_version_tl}
+\regex_replace_once:nnN { [a-z] } { } \g_tudaci_version_tl
+
+\newcommand{\getTudaciVersion}[1]{
+  \tl_use:N \g_tudaci_version_tl
+}
+\cs_generate_variant:Nn \fp_set:Nn { Nx }
+\newcommand{\IfTudaciVersionAtLeastTF}[3]{
+  \fp_compare:nTF {\getTudaciVersion{} >= #1}{#2}{#3}
+}
+\newcommand{\IfTudaciVersionBetweenTF}[4]{
+  \fp_compare:nTF {#1<=\getTudaciVersion{}<=#2}{#3}{#4}
+}
+
+\cs_set_eq:NN\IfShellEscapeT \sys_if_shell_unrestricted:T
+\cs_set_eq:NN\IfShellEscapeF \sys_if_shell_unrestricted:F
+\cs_set_eq:NN\IfShellEscapeTF \sys_if_shell_unrestricted:TF
+
+
+\prg_new_conditional:Nnn \__ptxcd_if_dark_mode: {T,F,TF} {
+  \bool_if:NTF \g_dark_mode_bool
+  {\prg_return_true:}
+  {\prg_return_false:}
+}
+
+\cs_set_eq:NN\IfDarkModeT \__ptxcd_if_dark_mode:T
+\cs_set_eq:NN\IfDarkModeF \__ptxcd_if_dark_mode:F
+\cs_set_eq:NN\IfDarkModeTF \__ptxcd_if_dark_mode:TF
+\IfTudaciVersionAtLeastTF{3.12}{}{
+  \ClassError{rubos-tuda-template}{Die~Installierte~Tuvorlage~(\getTudaciVersion{})~ist~zu~alt~(mindestens~Version~3.12~wird~benötigt)}{Bitte~immer~die~neuste~Version~des~tuda-ci~CTAN~Paketes~installieren.}
+}
+
 % \newcommand{\loadcommon}{
 \bool_if:NT \g_ptxcd_ex_load_common_bool {
   % \pagecolor{black}\color{white}
@@ -377,37 +412,6 @@
     }
   }
 }
-
-\prg_new_conditional:Nnn \__ptxcd_if_dark_mode: {T,F,TF} {
-  \bool_if:NTF \g_dark_mode_bool
-  {\prg_return_true:}
-  {\prg_return_false:}
-}
-
-\cs_set_eq:NN\IfDarkModeT \__ptxcd_if_dark_mode:T
-\cs_set_eq:NN\IfDarkModeF \__ptxcd_if_dark_mode:F
-\cs_set_eq:NN\IfDarkModeTF \__ptxcd_if_dark_mode:TF
-
-% Discover tudaci-Version
-\exp_args:NNnx \seq_set_split:Nnn \g_tuda_version_seq { ~ } { \use:c {ver@tudaexercise.cls} }
-\tl_set:Nx \g_tudaci_version_tl { \seq_item:Nn \g_tuda_version_seq { 2 } }
-\tl_set:Nx \g_tudaci_version_tl {\tl_tail:N \g_tudaci_version_tl}
-\regex_replace_once:nnN { [a-z] } { } \g_tudaci_version_tl
-
-\newcommand{\getTudaciVersion}[1]{
-  \tl_use:N \g_tudaci_version_tl
-}
-\cs_generate_variant:Nn \fp_set:Nn { Nx }
-\newcommand{\IfTudaciVersionAtLeastTF}[3]{
-  \fp_compare:nTF {\getTudaciVersion{} >= #1}{#2}{#3}
-}
-\newcommand{\IfTudaciVersionBetweenTF}[4]{
-  \fp_compare:nTF {#1<=\getTudaciVersion{}<=#2}{#3}{#4}
-}
-
-\cs_set_eq:NN\IfShellEscapeT \sys_if_shell_unrestricted:T
-\cs_set_eq:NN\IfShellEscapeF \sys_if_shell_unrestricted:F
-\cs_set_eq:NN\IfShellEscapeTF \sys_if_shell_unrestricted:TF
 
 \ExplSyntaxOff
 
