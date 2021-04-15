@@ -1,5 +1,5 @@
-\def\fileversion{1.00}
-\def\filedate{2020/12/05}
+\def\fileversion{1.1}
+\def\filedate{2021/04/15}
 
 % Sets the LaTeX version for the package to work.
 \NeedsTeXFormat{LaTeX2e}
@@ -10,6 +10,7 @@
 % Packages that need to be loaded before TUDA-Exercise Class
 \RequirePackage[table]{xcolor} % Option has to be set before loading TuDaExercise
 \RequirePackage{pagecolor} % Used for dark Mode
+\PassOptionsToPackage{bookmarksnumbered}{hyperref} % Praktischer
 \RequirePackage{scrlfile}
 % Wir müssen imakeidx vor Hyperref laden, damit das Stichwortverzeichnis hyperlinks hat
 \AfterClass{scrartcl}{
@@ -864,7 +865,7 @@
 \lstloadlanguages{Java}
 \lstset{
   basicstyle=\footnotesize\ttfamily,
-  keywordstyle=\IfDarkModeTF{\color{cyan!70!blue}}{blue},
+  keywordstyle=\IfDarkModeTF{\color{cyan!70!blue}}{\color{blue}},
   stringstyle=\color{red},
   commentstyle=\color{green!50!black},
   showstringspaces=false,
@@ -886,9 +887,11 @@
 % --Makros--
 \newenvironment*{cpenumerate}[1][]{\begin{enumerate}[nosep, #1]}{\end{enumerate}}
 % \newcommand{\code}[2][java]{\mintinline{#1}{#2}}
-\IfShellEscapeT{
+\IfShellEscapeTF{
 \usemintedstyle{borland}
-\newmintinline[code]{java}{}
+\newmintinline[code]{java}{fontsize=\footnotesize}
+}{
+  \newcommand{\code}[1]{{\texttt{\footnotesize #1}}}
 }
 \newcommand{\raisedcode}[1]{\raisebox{.1em}{\code{#1}}}
 \newcommand{\bluecode}[1]{\code{\textcolor{\IfDarkModeTF{cyan}{blue}}{#1}}}
