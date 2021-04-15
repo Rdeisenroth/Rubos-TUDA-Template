@@ -70,7 +70,8 @@
 \RequirePackage{enumitem}
 \RequirePackage{mathtools}
 \RequirePackage{tcolorbox}
-\tcbuselibrary{skins,minted}
+\tcbuselibrary{skins}
+\csname sys_if_shell_unrestricted:T\endcsname{\tcbuselibrary{minted}}
 \RequirePackage{listings}
 \RequirePackage{totcount}
 \regtotcounter{task}
@@ -118,7 +119,7 @@
   \RequirePackage{tabularx}
   \RequirePackage{tikz}
   \ExplSyntaxOff % Tikz doesn't Like Expl3 :/
-  \usetikzlibrary{patterns, shapes, intersections, arrows, math, decorations,decorations.pathreplacing, decorations.pathmorphing, positioning, calc, automata, chains, matrix, arrows.meta, shapes.geometric, shadows.blur, shapes.symbols, backgrounds, tikzmark, angles}
+  \usetikzlibrary{3d, angles, animations, arrows, arrows.meta, arrows.spaced, automata, babel, backgrounds, bending, calc, calendar, chains, circuits.ee.IEC, circuits.logic.CDH, circuits.logic.IEC, circuits.logic.US, datavisualization, datavisualization.formats.functions, datavisualization.polar, decorations, decorations.footprints, decorations.fractals, decorations.markings, decorations.pathmorphing, decorations.pathreplacing, decorations.shapes, decorations.text, er, external, fadings, fit, fixedpointarithmetic, folding, fpu, graphs, graphs.standard, intersections, lindenmayersystems, math, matrix, patterns, patterns.meta, perspective, petri, plotmarks, positioning, quotes, rdf, scopes, shadings, shadows, shadows.blur, shapes, shapes.arrows, shapes.callouts, shapes.gates.logic.IEC, shapes.gates.logic.US, shapes.geometric, shapes.misc, shapes.multipart, shapes.symbols, spy, svg.path, through, tikzmark, topaths, trees, turtle, views}
   \ExplSyntaxOn
 
   % \RequirePackage{tikz-uml}
@@ -385,6 +386,27 @@
 \cs_set_eq:NN\IfDarkModeT \__ptxcd_if_dark_mode:T
 \cs_set_eq:NN\IfDarkModeF \__ptxcd_if_dark_mode:F
 \cs_set_eq:NN\IfDarkModeTF \__ptxcd_if_dark_mode:TF
+
+% Discover tudaci-Version
+\exp_args:NNnx \seq_set_split:Nnn \g_tuda_version_seq { ~ } { \use:c {ver@tudaexercise.cls} }
+\tl_set:Nx \g_tudaci_version_tl { \seq_item:Nn \g_tuda_version_seq { 2 } }
+\tl_set:Nx \g_tudaci_version_tl {\tl_tail:N \g_tudaci_version_tl}
+\regex_replace_once:nnN { [a-z] } { } \g_tudaci_version_tl
+
+\newcommand{\getTudaciVersion}[1]{
+  \tl_use:N \g_tudaci_version_tl
+}
+\cs_generate_variant:Nn \fp_set:Nn { Nx }
+\newcommand{\IfTudaciVersionAtLeastTF}[3]{
+  \fp_compare:nTF {\getTudaciVersion{} >= #1}{#2}{#3}
+}
+\newcommand{\IfTudaciVersionBetweenTF}[4]{
+  \fp_compare:nTF {#1<=\getTudaciVersion{}<=#2}{#3}{#4}
+}
+
+\cs_set_eq:NN\IfShellEscapeT \sys_if_shell_unrestricted:T
+\cs_set_eq:NN\IfShellEscapeF \sys_if_shell_unrestricted:F
+\cs_set_eq:NN\IfShellEscapeTF \sys_if_shell_unrestricted:TF
 
 \ExplSyntaxOff
 
@@ -800,39 +822,44 @@
 \newenvironment{definition}{\begin{defBox}\begin{definitionT}}{\end{definitionT}\end{defBox}}%
 \newenvironment{idea}{\begin{defBox}\begin{ideaT}}{\end{ideaT}\end{defBox}}%
 
-% Minted Line Number Styling
-\renewcommand{\theFancyVerbLine}{\tikz{\coordinate(a);\node[text width=5mm,inner sep=0pt,align=center]{\ttfamily\textcolor{white}{\scriptsize\arabic{FancyVerbLine}}};}}
+\IfShellEscapeTF{
+  % Minted Line Number Styling
+  \renewcommand{\theFancyVerbLine}{\tikz{\coordinate(a);\node[text width=5mm,inner sep=0pt,align=center]{\ttfamily\textcolor{white}{\scriptsize\arabic{FancyVerbLine}}};}}
 
-% Environment für meinen Style (Arg 1 = minted Options, Arg 2 = tcolorbox Options)
-\newtcblisting{codeBlock}[2][]{
-  listing engine=minted, % Minted verwenden
-  colback=\IfDarkModeTF{codebg}{fgcolor!10!\thepagecolor}, %Hintergrundfarbe
-  colframe=black!70, % Randfarbe
-  coltext=.,
-  listing only,  % Sonst will er den Plain Text nach dem Minted Listing noch anfügen
-  frame hidden,
-  boxrule=0pt,
-  arc=\boxarc,
-  %hbox, % This option could be used to limit the Length of Code Blocks automatically, but does not work with the minted Line Numbers
-  title style=\IfDarkModeTF{accentcolor!60!black}{black!90},
-  minted style=\IfDarkModeTF{paraiso-dark}{default}, %Sieht actually worse aus imo
-  minted language=java, % Sprache setzen
-  minted options={ %Minted Optionen
-      linenos=true,
-      numbersep=3mm,
-      texcl=true,
-      #1 % weitere optionen für Minted zulassen
-    },
-  left=7.1mm, % Links Platz lassen
-  enhanced, % Erlaubt uns, den ramen zu zeichnen
-  fonttitle=\sffamily, % Titelschriftart auf 
-  overlay={ % Für Grauen Bereich links
-      \begin{tcbclipinterior}
-        \fill[black!70] (frame.south west) rectangle ([xshift=5mm]frame.north west); % Zeilennummernbereich färben
-      \end{tcbclipinterior}
-    },
-  #2 % Weitere Argumente zulassen
+  % Environment für meinen Style (Arg 1 = minted Options, Arg 2 = tcolorbox Options)
+  \newtcblisting{codeBlock}[2][]{
+    listing engine=minted, % Minted verwenden
+    colback=\IfDarkModeTF{codebg}{fgcolor!10!\thepagecolor}, %Hintergrundfarbe
+    colframe=black!70, % Randfarbe
+    coltext=.,
+    listing only,  % Sonst will er den Plain Text nach dem Minted Listing noch anfügen
+    frame hidden,
+    boxrule=0pt,
+    arc=\boxarc,
+    %hbox, % This option could be used to limit the Length of Code Blocks automatically, but does not work with the minted Line Numbers
+    title style=\IfDarkModeTF{accentcolor!60!black}{black!90},
+    minted style=\IfDarkModeTF{paraiso-dark}{default}, %Sieht actually worse aus imo
+    minted language=java, % Sprache setzen
+    minted options={ %Minted Optionen
+        linenos=true,
+        numbersep=3mm,
+        texcl=true,
+        #1 % weitere optionen für Minted zulassen
+      },
+    left=7.1mm, % Links Platz lassen
+    enhanced, % Erlaubt uns, den ramen zu zeichnen
+    fonttitle=\sffamily, % Titelschriftart auf 
+    overlay={ % Für Grauen Bereich links
+        \begin{tcbclipinterior}
+          \fill[black!70] (frame.south west) rectangle ([xshift=5mm]frame.north west); % Zeilennummernbereich färben
+        \end{tcbclipinterior}
+      },
+    #2 % Weitere Argumente zulassen
+  }
+}{
+  \lstnewenvironment{codeBlock}[2][]{}{}%
 }
+
 
 \lstloadlanguages{Java}
 \lstset{
@@ -859,8 +886,10 @@
 % --Makros--
 \newenvironment*{cpenumerate}[1][]{\begin{enumerate}[nosep, #1]}{\end{enumerate}}
 % \newcommand{\code}[2][java]{\mintinline{#1}{#2}}
+\IfShellEscapeT{
 \usemintedstyle{borland}
 \newmintinline[code]{java}{}
+}
 \newcommand{\raisedcode}[1]{\raisebox{.1em}{\code{#1}}}
 \newcommand{\bluecode}[1]{\code{\textcolor{\IfDarkModeTF{cyan}{blue}}{#1}}}
 \newcommand{\red}[1]{\textcolor{red}{#1}}
