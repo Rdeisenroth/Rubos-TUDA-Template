@@ -77,6 +77,7 @@
 \RequirePackage{totcount}
 \regtotcounter{task}
 \RequirePackage{wrapfig}
+\RequirePackage{refcount}
 
 % Strings/Names
 \renewcaptionname*{ngerman}{\solutionname}{Lösung}
@@ -85,41 +86,6 @@
 
 
 \ExplSyntaxOn
-
-% Discover tudaci-Version
-\exp_args:NNnx \seq_set_split:Nnn \g_tuda_version_seq { ~ } { \use:c {ver@tudaexercise.cls} }
-\tl_set:Nx \g_tudaci_version_tl { \seq_item:Nn \g_tuda_version_seq { 2 } }
-\tl_set:Nx \g_tudaci_version_tl {\tl_tail:N \g_tudaci_version_tl}
-\regex_replace_once:nnN { [a-z] } { } \g_tudaci_version_tl
-
-\newcommand{\getTudaciVersion}[1]{
-  \tl_use:N \g_tudaci_version_tl
-}
-\cs_generate_variant:Nn \fp_set:Nn { Nx }
-\newcommand{\IfTudaciVersionAtLeastTF}[3]{
-  \fp_compare:nTF {\getTudaciVersion{} >= #1}{#2}{#3}
-}
-\newcommand{\IfTudaciVersionBetweenTF}[4]{
-  \fp_compare:nTF {#1<=\getTudaciVersion{}<=#2}{#3}{#4}
-}
-
-\cs_set_eq:NN\IfShellEscapeT \sys_if_shell_unrestricted:T
-\cs_set_eq:NN\IfShellEscapeF \sys_if_shell_unrestricted:F
-\cs_set_eq:NN\IfShellEscapeTF \sys_if_shell_unrestricted:TF
-
-
-\prg_new_conditional:Nnn \__ptxcd_if_dark_mode: {T,F,TF} {
-  \bool_if:NTF \g_dark_mode_bool
-  {\prg_return_true:}
-  {\prg_return_false:}
-}
-
-\cs_set_eq:NN\IfDarkModeT \__ptxcd_if_dark_mode:T
-\cs_set_eq:NN\IfDarkModeF \__ptxcd_if_dark_mode:F
-\cs_set_eq:NN\IfDarkModeTF \__ptxcd_if_dark_mode:TF
-\IfTudaciVersionAtLeastTF{3.12}{}{
-  \ClassError{rubos-tuda-template}{Die~Installierte~Tuvorlage~(\getTudaciVersion{})~ist~zu~alt~(mindestens~Version~3.12~wird~benötigt)}{Bitte~immer~die~neuste~Version~des~tuda-ci~CTAN~Paketes~installieren.}
-}
 
 % \newcommand{\loadcommon}{
 \bool_if:NT \g_ptxcd_ex_load_common_bool {
@@ -413,6 +379,37 @@
   }
 }
 
+\prg_new_conditional:Nnn \__ptxcd_if_dark_mode: {T,F,TF} {
+  \bool_if:NTF \g_dark_mode_bool
+  {\prg_return_true:}
+  {\prg_return_false:}
+}
+
+\cs_set_eq:NN\IfDarkModeT \__ptxcd_if_dark_mode:T
+\cs_set_eq:NN\IfDarkModeF \__ptxcd_if_dark_mode:F
+\cs_set_eq:NN\IfDarkModeTF \__ptxcd_if_dark_mode:TF
+
+% Discover tudaci-Version
+\exp_args:NNnx \seq_set_split:Nnn \g_tuda_version_seq { ~ } { \use:c {ver@tudaexercise.cls} }
+\tl_set:Nx \g_tudaci_version_tl { \seq_item:Nn \g_tuda_version_seq { 2 } }
+\tl_set:Nx \g_tudaci_version_tl {\tl_tail:N \g_tudaci_version_tl}
+\regex_replace_once:nnN { [a-z] } { } \g_tudaci_version_tl
+
+\newcommand{\getTudaciVersion}[1]{
+  \tl_use:N \g_tudaci_version_tl
+}
+\cs_generate_variant:Nn \fp_set:Nn { Nx }
+\newcommand{\IfTudaciVersionAtLeastTF}[3]{
+  \fp_compare:nTF {\getTudaciVersion{} >= #1}{#2}{#3}
+}
+\newcommand{\IfTudaciVersionBetweenTF}[4]{
+  \fp_compare:nTF {#1<=\getTudaciVersion{}<=#2}{#3}{#4}
+}
+
+\cs_set_eq:NN\IfShellEscapeT \sys_if_shell_unrestricted:T
+\cs_set_eq:NN\IfShellEscapeF \sys_if_shell_unrestricted:F
+\cs_set_eq:NN\IfShellEscapeTF \sys_if_shell_unrestricted:TF
+
 \ExplSyntaxOff
 
 
@@ -436,7 +433,8 @@
 \setlist[description]{style = multiline, leftmargin = 4cm, align = parright,font=\mdseries}
 
 \renewcommand*{\thetask}{%
-  \arabic{task}
+  \texorpdfstring{}{H}%
+  \arabic{task}%
 }
 
 \ExplSyntaxOn
@@ -897,6 +895,15 @@
 }{
   \newcommand{\code}[1]{{\texttt{\footnotesize #1}}}
 }
+\ExplSyntaxOn
+\newcommand{\refexercise}[1]{
+  \int_gzero_new:N \g_ptxcd_tmp_int
+  \int_gset:Nn \g_ptxcd_tmp_int {\value{task}}
+  \setcounter{task}{\getrefnumber{#1}}
+  \hyperref[#1]{\taskformat}
+  \setcounter{task}{\int_use:N \g_ptxcd_tmp_int}
+  }
+\ExplSyntaxOff
 \newcommand{\raisedcode}[1]{\raisebox{.1em}{\code{#1}}}
 \newcommand{\bluecode}[1]{\code{\textcolor{\IfDarkModeTF{cyan}{blue}}{#1}}}
 \newcommand{\red}[1]{\textcolor{red}{#1}}
@@ -923,6 +930,7 @@
 \newcommand{\toprightpointer}[1]{{\node[inner sep=0pt] (lbl) at (.north) [xshift=.3cm,yshift=.8cm] {\textcolor{orange}{#1}}; \draw[->,orange] ($(lbl.south)-(.05cm,0)$) -- ($(.north)+(.1cm,-.15mm)$);}}
 \newcommand{\topleftpointer}[1]{{\node[inner sep=0pt] (lbl) at (.north) [xshift=-.3cm,yshift=.8cm] {\textcolor{orange}{#1}}; \draw[->,orange] ($(lbl.south)+(.05cm,0)$) -- ($(.north)-(.1cm,.15mm)$);}}
 \newcommand{\inlinejava}[1]{\lstinline[style=java]{#1}} % Wie in FOP- und AuD
+\newcommand{\hyraisedlink}[1]{\Hy@raisedlink{\hypertarget{#1}{}}}
 % Colors
 
 %Color Definitions
