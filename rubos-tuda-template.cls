@@ -70,6 +70,7 @@
 \RequirePackage[labelfont=normalfont, position=bottom]{subcaption}
 \RequirePackage{enumitem}
 \RequirePackage{mathtools}
+\RequirePackage{mathrsfs}
 \RequirePackage{tcolorbox}
 \tcbuselibrary{skins}
 \csname sys_if_shell_unrestricted:T\endcsname{\tcbuselibrary{minted}}
