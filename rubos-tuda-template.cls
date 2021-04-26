@@ -1,5 +1,5 @@
-\def\fileversion{1.1}
-\def\filedate{2021/04/15}
+\def\fileversion{1.2}
+\def\filedate{2021/04/26}
 
 % Sets the LaTeX version for the package to work.
 \NeedsTeXFormat{LaTeX2e}
@@ -30,6 +30,27 @@
 
 % Additional Class Options
 \keys_define:nn {ptxcd/exercise} {
+  boxarc .code:n = \prop_gput:Nnn \g_ptxcd_template_opts_prop {boxarc} {#1},
+  boxarc .initial:n = {0pt},
+  boxarc .default:n = {3pt},
+  dark_mode .code:n = \pagecolor{black}\color{white}\selectcolormodel{RGB}\bool_gset_true:N \g_dark_mode_bool,
+  manual_term .bool_gset:N = \g_manual_term_bool,
+  manual_term .initial:n = false,
+  manual_term .default:n = true,
+  summary .code:n = \bool_if:nTF \g_is_submission_bool {\ClassError{rubos-tuda-template}{summary\space can't\space be\space used\space with\space submission\space mode\space enabled}{disable\space submission\space mode}}{\bool_gset_true:N \g_is_summary_bool\tl_gset:Nn \datename {Stand}},
+  submission .code:n = \bool_if:nTF \g_is_summary_bool{\ClassError{rubos-tuda-template}{submission\space can't\space be\space used\space with\space summary\space mode\space enabled}{disable\space summary\space mode}}{\bool_gset_true:N \g_is_submission_bool},
+  load_common .bool_gset:N = \g_ptxcd_ex_load_common_bool,
+  load_common .initial:n = false,
+  load_common . default:n = true,
+  default_row_color .bool_gset_inverse:N =  \g_ptxcd_ex_fancy_rowcolor_bool,
+  default_row_color .initial:n = false,
+  default_row_color .default:n = true,
+  shell_escape .bool_gset:N = \g_rubos_shell_escape_bool,
+  shell_escape .initial:n = true,
+  shell_escape .default:n = true,
+}
+% Compatibility with older versions
+\keys_define:nn {TUDa/pub} {
   boxarc .code:n = \prop_gput:Nnn \g_ptxcd_template_opts_prop {boxarc} {#1},
   boxarc .initial:n = {0pt},
   boxarc .default:n = {3pt},
@@ -204,7 +225,12 @@
 \ExplSyntaxOn
 
 % Sheet number
-\newcommand*{\getSheetnumber}{\g_ptxcd_ex_sheetnum_tl}
+\newcommand*{\getSheetnumber}{
+  \IfTudaciVersionAtLeastTF{3.0}{
+    \g_ptxcd_ex_sheetnum_tl
+  }{
+    \g_TUDa_ex_sheetnum_tl
+  }}
 \newcommand*{\printSheetNumber}{\tl_if_empty:NF \g_ptxcd_ex_sheetnum_tl {\sffamily\textbf{Übungsblatt\space{}Nummer:}\space\padzeroes{\getSheetnumber}}}
 
 % Sheet Version
@@ -295,7 +321,11 @@
 % \newcommand*{\printFachbereich}{\tl_if_empty:NF \g_ptxcd_ex_fachbereich_tl {\sffamily\textbf{Fachbereich\space\getFachbereich}}}
 
 % Short Title
-\newcommand*{\getShortTitle}{\g_ptxcd_shorttitle_tl}
+\newcommand*{\getShortTitle}{\IfTudaciVersionAtLeastTF{3.0}{
+    \g_ptxcd_shorttitle_tl
+  }{
+    \g_TUDa_shorttitle_tl
+  }}
 
 % Author
 \tl_gclear_new:N \printAuthor
@@ -486,6 +516,16 @@
 
 \IfDarkModeT{\IfFileExists{tuda_logo_inverted.pdf}{\tl_gset:Nn \g_ptxcd_logofile_tl {tuda_logo_inverted.pdf}}{}}
 
+\IfTudaciVersionBetweenTF{2.10}{2.11}{
+  \cs_new:Nn \ptxcd_define_captionFallback:Nn {
+    \providecommand*#1{
+      \msg_warning:nnxxx{tudapub} {unknown-language}
+      {\languagename} {\exp_not:N #1} {#2}
+      \def#1{#2}
+    }
+  }
+}{}
+
 \cs_new:Nn \ptxcd_declare_caption:Nnnn {
   \ptxcd_define_captionFallback:Nn #1 {#2}
   \defcaptionname{ngerman, german}{#1}{#2}
@@ -508,157 +548,316 @@
 \renewcommand*{\@author}{
   \begingroup
   \hyphenpenalty=100000
-  \seq_use:Nnnn \g_ptxcd_author_seq {~\authorandname{}~} {,~} {~\&~}
+  \IfTudaciVersionAtLeastTF{3.0}{
+    \seq_use:Nnnn \g_ptxcd_author_seq {~\authorandname{}~} {,~} {~\&~}
+  }{
+    \seq_use:Nnnn \g_TUDa_author_seq {~\authorandname{}~} {,~} {~\&~}
+  }
   \endgroup
 }
 
-\renewcommand*{\@maketitle}{%
-  % \maketerm{}% Might Move Term Creation here soon
-  \global\@topnum=\z@
-  \setparsizes{\z@}{\z@}{\z@\@plus 1fil}\par@updaterelative
-  \vspace*{-\dim_eval:n {
-      \headheight
-      -\c_ptxcd_largerule_dim -\c_ptxcd_rulesep_dim
-      +\headsep
-      +\ht\strutbox
-      +\p@
-    }}
-  \par
-  \nointerlineskip
-  \begingroup
-  \setlength{\fboxsep}{\z@}
-  \bool_if:NT \g_ptxcd_colorback_bool {\colorbox{accentcolor}}{\parbox[t]{\linewidth}{
-      \rule{0pt}{\bool_if:NTF \g_ptxcd_smalltitle_bool {.25} {.5}\c_ptxcd_logoheight_dim}
-      \par\nointerlineskip
-      \raisebox{-\height}{%
-        \begin{minipage}[t]{\dimexpr\linewidth-2.2\c_ptxcd_logoheight_dim-1ex}
-          \bool_if:NT \g_ptxcd_colorback_bool  {\begin{addmargin}{3mm}}
-              \raggedright
-              \bool_if:NT \g_ptxcd_colorback_bool {\color{textonaccentcolor}}
-              \tl_if_empty:NF \@titlehead {\usekomafont{titlehead}{\@titlehead\par}}
-              \leavevmode\usekomafont{title}%
-              {\usekomafont{title}\bool_if:NTF \g_ptxcd_smalltitle_bool {\LARGE} {\huge} {\@title\par}}%
-              \vskip 1em
-              \bool_if:NF \g_ptxcd_ex_compatibility_bool
-              {
-                {\ifx\@subtitle\@empty\else\usekomafont{subtitle}\@subtitle\par\fi}%
-                \gdef\@subtitle{}
-                \vskip .5em
-              }
-              % Standart Author Position
-              % {
-              %   \xdef\@author {\@author}
-              %   \ifx\@author\@empty\else\usekomafont{author}\@author\par\fi
-              % }
-              \vskip .5em
-              \bool_if:NTF \g_ptxcd_colorback_bool {\end{addmargin}} {\par}
-        \end{minipage}}
-      \tl_if_empty:NF \g_ptxcd_logofile_tl {
-        \hfill\raisebox{\dim_eval:n {
-            \bool_if:NTF \g_ptxcd_colorback_bool
-            {-\height}
-            {-.9\c_ptxcd_logoheight_dim}
-          }}
-        [0pt]
-        [\dim_eval:n {
-            \bool_if:NTF \g_ptxcd_smalltitle_bool
-            {\bool_if:NTF \g_ptxcd_colorback_bool {1.15}{1}}
-            {\bool_if:NTF \g_ptxcd_colorback_bool {1.5}{1.3}
-            }\c_ptxcd_logoheight_dim}]
-        {\makebox[2.2\c_ptxcd_logoheight_dim][l]{\includegraphics[height=\c_ptxcd_logoheight_dim]{\g_ptxcd_logofile_tl}}}
-      }
-      \par\medskip
-    }}
-  \par
-  \nointerlineskip
-  \rule{\linewidth}{\g_ptxcd_titlerule_dim}
-  % subtitle fields if not compat
-  \exp_args:Nf \tl_if_empty:nF {\seq_use:Nnnn \g_ptxcd_author_seq {~\authorandname{}~} {,~} {~\&~}\seq_use:Nnnn \g_ptxcd_contributor_seq {~\authorandname{}~} {,~} {~\authorandname{}~}\g_ptxcd_ex_sheetnum_tl\@date\g_ptxcd_ex_term_tl\use:c {@subsubtitle}\@subtitle}{
-    \par\nointerlineskip
-    \bool_if:NT \g_ptxcd_colorback_bool {\colorbox{accentcolor}}{
-      \parbox{\linewidth}{
-        \begin{minipage}{\linewidth}
-          \bool_if:NT \g_ptxcd_colorback_bool {
-            \color{textonaccentcolor}
-            \begin{addmargin}{3mm}
-              }
-              \null\par
-              % Term
-              \bool_if:NTF \g_manual_term_bool{
-                \g_ptxcd_ex_term_tl
-              }
-              {
-                \def\ptxcd_nextsep{}
-                \bool_gset_true:N \g_tmpa_left_bool
-                \clist_map_inline:Nn \g_ptxcd_ex_term_order_clist {
-                  % Process different term Styles
-                  \str_case_e:nnF {\g_ptxcd_ex_term_style_tl} {
-                    {left} {
-                        \tl_if_empty:cF {##1} {
-                          \seq_put_right:cn {\bool_if:nTF \g_tmpa_left_bool {g_ptxcd_term_left_seq} {g_ptxcd_term_right_seq}} {\use:c {##1}}
-                        }
-                      }
-                      {center} {
-                        \tl_if_empty:cF {##1} {
-                          \seq_put_right:cn {\bool_if:nTF \g_tmpa_left_bool {g_ptxcd_term_left_seq} {g_ptxcd_term_right_seq}} {\use:c {##1}}
-                        }
-                      }
-                      {left-right} {
-                        \tl_if_empty:cF {##1} {
-                          \seq_put_right:cn {\bool_if:nTF \g_tmpa_left_bool {g_ptxcd_term_left_seq} {g_ptxcd_term_right_seq}} {\use:c {##1}}\bool_set:Nn \g_tmpa_left_bool {!\g_tmpa_left_bool}
-                        }
-                      }
-                      {left-right-manual} {
-                        % Do Nothing lol
-                      }
-                  }
-                  {
-                    \ClassError{rubos_tuda_template}{Unknown Term style Option: \use:c {\g_ptxcd_ex_term_style_tl}}{Available options are: left, center, left-right (default)}
-                  }
+\IfTudaciVersionAtLeastTF{3.0}{
+  \renewcommand*{\@maketitle}{%
+    % \maketerm{}% Might Move Term Creation here soon
+    \global\@topnum=\z@
+    \setparsizes{\z@}{\z@}{\z@\@plus 1fil}\par@updaterelative
+    \vspace*{-\dim_eval:n {
+        \headheight
+        -\c_ptxcd_largerule_dim -\c_ptxcd_rulesep_dim
+        +\headsep
+        +\ht\strutbox
+        +\p@
+      }}
+    \par
+    \nointerlineskip
+    \begingroup
+    \setlength{\fboxsep}{\z@}
+    \bool_if:NT \g_ptxcd_colorback_bool {\colorbox{accentcolor}}{\parbox[t]{\linewidth}{
+        \rule{0pt}{\bool_if:NTF \g_ptxcd_smalltitle_bool {.25} {.5}\c_ptxcd_logoheight_dim}
+        \par\nointerlineskip
+        \raisebox{-\height}{%
+          \begin{minipage}[t]{\dimexpr\linewidth-2.2\c_ptxcd_logoheight_dim-1ex}
+            \bool_if:NT \g_ptxcd_colorback_bool  {\begin{addmargin}{3mm}}
+                \raggedright
+                \bool_if:NT \g_ptxcd_colorback_bool {\color{textonaccentcolor}}
+                \tl_if_empty:NF \@titlehead {\usekomafont{titlehead}{\@titlehead\par}}
+                \leavevmode\usekomafont{title}%
+                {\usekomafont{title}\bool_if:NTF \g_ptxcd_smalltitle_bool {\LARGE} {\huge} {\@title\par}}%
+                \vskip 1em
+                \bool_if:NF \g_ptxcd_ex_compatibility_bool
+                {
+                  {\ifx\@subtitle\@empty\else\usekomafont{subtitle}\@subtitle\par\fi}%
+                  \gdef\@subtitle{}
+                  \vskip .5em
                 }
-                % Left Side
-                \begin{minipage}[t]{\seq_if_empty:NF {\g_ptxcd_term_right_seq}{.6}\linewidth}
-                  \str_if_eq:eeT{\g_ptxcd_ex_term_style_tl} {center} {\centering}
-                  \seq_use:Nnnn \g_ptxcd_term_left_seq {\mbox{}\\} {\mbox{}\\} {\mbox{}\\}
-                  \gdef\ptxcd_nextsep{\\}
-                \end{minipage}
-                \seq_if_empty:NF {\g_ptxcd_term_right_seq}{
-                  \begin{minipage}[t]{.4\linewidth}
-                    \raggedleft
-                    \begin{flushright}
-                      \seq_use:Nnnn \g_ptxcd_term_right_seq {\mbox{}\\} {\mbox{}\\} {\mbox{}\\}
-                    \end{flushright}
+                % Standart Author Position
+                % {
+                %   \xdef\@author {\@author}
+                %   \ifx\@author\@empty\else\usekomafont{author}\@author\par\fi
+                % }
+                \vskip .5em
+                \bool_if:NTF \g_ptxcd_colorback_bool {\end{addmargin}} {\par}
+          \end{minipage}}
+        \tl_if_empty:NF \g_ptxcd_logofile_tl {
+          \hfill\raisebox{\dim_eval:n {
+              \bool_if:NTF \g_ptxcd_colorback_bool
+              {-\height}
+              {-.9\c_ptxcd_logoheight_dim}
+            }}
+          [0pt]
+          [\dim_eval:n {
+              \bool_if:NTF \g_ptxcd_smalltitle_bool
+              {\bool_if:NTF \g_ptxcd_colorback_bool {1.15}{1}}
+              {\bool_if:NTF \g_ptxcd_colorback_bool {1.5}{1.3}
+              }\c_ptxcd_logoheight_dim}]
+          {\makebox[2.2\c_ptxcd_logoheight_dim][l]{\includegraphics[height=\c_ptxcd_logoheight_dim]{\g_ptxcd_logofile_tl}}}
+        }
+        \par\medskip
+      }}
+    \par
+    \nointerlineskip
+    \rule{\linewidth}{\g_ptxcd_titlerule_dim}
+    % subtitle fields if not compat
+    \exp_args:Nf \tl_if_empty:nF {\seq_use:Nnnn \g_ptxcd_author_seq {~\authorandname{}~} {,~} {~\&~}\seq_use:Nnnn \g_ptxcd_contributor_seq {~\authorandname{}~} {,~} {~\authorandname{}~}\g_ptxcd_ex_sheetnum_tl\@date\g_ptxcd_ex_term_tl\use:c {@subsubtitle}\@subtitle}{
+      \par\nointerlineskip
+      \bool_if:NT \g_ptxcd_colorback_bool {\colorbox{accentcolor}}{
+        \parbox{\linewidth}{
+          \begin{minipage}{\linewidth}
+            \bool_if:NT \g_ptxcd_colorback_bool {
+              \color{textonaccentcolor}
+              \begin{addmargin}{3mm}
+                }
+                \null\par
+                % Term
+                \bool_if:NTF \g_manual_term_bool{
+                  \g_ptxcd_ex_term_tl
+                }
+                {
+                  \def\ptxcd_nextsep{}
+                  \bool_gset_true:N \g_tmpa_left_bool
+                  \clist_map_inline:Nn \g_ptxcd_ex_term_order_clist {
+                    % Process different term Styles
+                    \str_case_e:nnF {\g_ptxcd_ex_term_style_tl} {
+                      {left} {
+                          \tl_if_empty:cF {##1} {
+                            \seq_put_right:cn {\bool_if:nTF \g_tmpa_left_bool {g_ptxcd_term_left_seq} {g_ptxcd_term_right_seq}} {\use:c {##1}}
+                          }
+                        }
+                        {center} {
+                          \tl_if_empty:cF {##1} {
+                            \seq_put_right:cn {\bool_if:nTF \g_tmpa_left_bool {g_ptxcd_term_left_seq} {g_ptxcd_term_right_seq}} {\use:c {##1}}
+                          }
+                        }
+                        {left-right} {
+                          \tl_if_empty:cF {##1} {
+                            \seq_put_right:cn {\bool_if:nTF \g_tmpa_left_bool {g_ptxcd_term_left_seq} {g_ptxcd_term_right_seq}} {\use:c {##1}}\bool_set:Nn \g_tmpa_left_bool {!\g_tmpa_left_bool}
+                          }
+                        }
+                        {left-right-manual} {
+                          % Do Nothing lol
+                        }
+                    }
+                    {
+                      \ClassError{rubos_tuda_template}{Unknown Term style Option: \use:c {\g_ptxcd_ex_term_style_tl}}{Available options are: left, center, left-right (default)}
+                    }
+                  }
+                  % Left Side
+                  \begin{minipage}[t]{\seq_if_empty:NF {\g_ptxcd_term_right_seq}{.6}\linewidth}
+                    \str_if_eq:eeT{\g_ptxcd_ex_term_style_tl} {center} {\centering}
+                    \seq_use:Nnnn \g_ptxcd_term_left_seq {\mbox{}\\} {\mbox{}\\} {\mbox{}\\}
                     \gdef\ptxcd_nextsep{\\}
                   \end{minipage}
-                  \tl_if_empty:NF \g_ptxcd_ex_term_tl {\ptxcd_nextsep\g_ptxcd_ex_term_tl}
+                  \seq_if_empty:NF {\g_ptxcd_term_right_seq}{
+                    \begin{minipage}[t]{.4\linewidth}
+                      \raggedleft
+                      \begin{flushright}
+                        \seq_use:Nnnn \g_ptxcd_term_right_seq {\mbox{}\\} {\mbox{}\\} {\mbox{}\\}
+                      \end{flushright}
+                      \gdef\ptxcd_nextsep{\\}
+                    \end{minipage}
+                    \tl_if_empty:NF \g_ptxcd_ex_term_tl {\ptxcd_nextsep\g_ptxcd_ex_term_tl}
+                  }
+                  % \clist_map_inline:nn {@subtitle, @subsubtitle, g_ptxcd_ex_term_tl} {
+                  %   \tl_if_empty:cF {##1} {\ptxcd_nextsep\use:c {##1}\def\ptxcd_nextsep{\\}}
+                  % }
+                  % \tl_if_empty:NF \g_ptxcd_ex_sheetnum_tl {\ptxcd_nextsep\sheetname\sheetsep\g_ptxcd_ex_sheetnum_tl}
                 }
-                % \clist_map_inline:nn {@subtitle, @subsubtitle, g_ptxcd_ex_term_tl} {
-                %   \tl_if_empty:cF {##1} {\ptxcd_nextsep\use:c {##1}\def\ptxcd_nextsep{\\}}
-                % }
-                % \tl_if_empty:NF \g_ptxcd_ex_sheetnum_tl {\ptxcd_nextsep\sheetname\sheetsep\g_ptxcd_ex_sheetnum_tl}
-              }
 
-              \bool_if:NT \g_ptxcd_colorback_bool {\end{addmargin}}
-        \end{minipage}
-        \vspace*{\dp\strutbox}
-      }}\par\nointerlineskip
-    \rule{\linewidth}{\g_ptxcd_titlerule_dim}
-  }
-  \par
-  \bool_if:NT  \g_ptxcd_headontitle_bool {
-    \if@twoside
-      \box_use:N \g_ptxcd_ex_headline_odd_box
-    \else
-      \box_use:N \g_ptxcd_ex_headline_oneside_box
-    \fi
+                \bool_if:NT \g_ptxcd_colorback_bool {\end{addmargin}}
+          \end{minipage}
+          \vspace*{\dp\strutbox}
+        }}\par\nointerlineskip
+      \rule{\linewidth}{\g_ptxcd_titlerule_dim}
+    }
     \par
-    \rule{\linewidth}{\g_ptxcd_titlerule_dim}
-    \par
+    \bool_if:NT  \g_ptxcd_headontitle_bool {
+      \if@twoside
+        \box_use:N \g_ptxcd_ex_headline_odd_box
+      \else
+        \box_use:N \g_ptxcd_ex_headline_oneside_box
+      \fi
+      \par
+      \rule{\linewidth}{\g_ptxcd_titlerule_dim}
+      \par
+    }
+    \endgroup
+    \vskip 2em
+    \ConfigureHeadline{}
+  }%
+}{
+
+  \IfTudaciVersionBetweenTF{2.10}{2.11}{
+    \renewcommand*{\@maketitle}{%
+      \global\@topnum=\z@
+      \setparsizes{\z@}{\z@}{\z@\@plus 1fil}\par@updaterelative
+      \vspace*{-\dim_eval:n {
+          \headheight
+          -\c_TUDa_largerule_dim -\c_TUDa_rulesep_dim
+          +\headsep
+          +\ht\strutbox
+          +\p@
+        }}
+      \par
+      \nointerlineskip
+      \raisebox{\dim_eval:n {
+          -.5\c_TUDa_logoheight_dim
+        }}[0pt][\dim_eval:n {\bool_if:NTF \g_TUDa_smalltitle_bool {.25} {.5}\c_TUDa_logoheight_dim}]{
+        \bool_if:NT \g_TUDa_colorback_bool {\color{accentcolor}\rule{\linewidth}{.5\c_TUDa_logoheight_dim}}
+      }
+      \par\nointerlineskip
+      \begingroup
+      \setlength{\fboxsep}{\z@}
+      \bool_if:NT \g_TUDa_colorback_bool {\colorbox{accentcolor}}{\parbox[t]{\linewidth}{
+          \raisebox{-\height}{%
+            \begin{minipage}[t]{\dimexpr\linewidth-2.2\c_TUDa_logoheight_dim-1ex}
+              \bool_if:NT \g_TUDa_colorback_bool  {\begin{addmargin}{3mm}}
+                  \raggedright
+                  \bool_if:NT \g_TUDa_colorback_bool {\color{textonaccentcolor}}
+                  \tl_if_empty:NF \@titlehead {\usekomafont{titlehead}{\@titlehead\par}}
+                  \leavevmode\usekomafont{title}%
+                  {\usekomafont{title}\bool_if:NTF \g_TUDa_smalltitle_bool {\LARGE} {\huge} {\@title\par}}%
+                  \vskip 1em
+                  \bool_if:NF \g_TUDa_ex_compatibility_bool
+                  {
+                    {\ifx\@subtitle\@empty\else\usekomafont{subtitle}\@subtitle\par\fi}%
+                    \gdef\@subtitle{}
+                    \vskip .5em
+                  }
+                  % {\ifx\@author\@empty\else\usekomafont{author}\@author\par\fi}%
+                  \vskip .5em
+                  \bool_if:NTF \g_TUDa_colorback_bool {\end{addmargin}} {\par}
+            \end{minipage}}
+          \tl_if_empty:NF \g_TUDa_logofile_tl {
+            \hfill\raisebox{\dim_eval:n {
+                \bool_if:NTF \g_TUDa_colorback_bool
+                {-\height}
+                {-.9\c_TUDa_logoheight_dim}
+              }}
+            [0pt]
+            [\dim_eval:n {
+                \bool_if:NTF \g_TUDa_smalltitle_bool
+                {\bool_if:NTF \g_TUDa_colorback_bool {1.15}{1}}
+                {\bool_if:NTF \g_TUDa_colorback_bool {1.5}{1.3}
+                }\c_TUDa_logoheight_dim}]
+            {\makebox[2.2\c_TUDa_logoheight_dim][l]{\includegraphics[height=\c_TUDa_logoheight_dim]{\g_TUDa_logofile_tl}}}
+          }
+          \par\medskip
+        }}
+      \par
+      \nointerlineskip
+      \rule{\linewidth}{\g_TUDa_titlerule_dim}
+      % subtitle fields if not compat
+      \exp_args:Nf \tl_if_empty:nF {\seq_use:Nnnn \g_TUDa_author_seq {~\authorandname{}~} {,~} {~\&~}\seq_use:Nnnn \g_ptxcd_contributor_seq {~\authorandname{}~} {,~} {~\authorandname{}~}\g_TUDa_ex_sheetnum_tl\@date\g_TUDa_ex_term_tl\use:c {@subsubtitle}\@subtitle}{
+        \par\nointerlineskip
+        \bool_if:NT \g_TUDa_colorback_bool {\colorbox{accentcolor}}{
+          \parbox{\linewidth}{
+            \begin{minipage}{\linewidth}
+              \bool_if:NT \g_TUDa_colorback_bool {
+                \color{textonaccentcolor}
+                \begin{addmargin}{3mm}
+                  }
+                  \null\par
+                  % Term
+                  \bool_if:NTF \g_manual_term_bool{
+                    \g_TUDa_ex_term_tl
+                  }
+                  {
+                    \def\ptxcd_nextsep{}
+                    \bool_gset_true:N \g_tmpa_left_bool
+                    \clist_map_inline:Nn \g_TUDa_ex_term_tl {
+                      % Process different term Styles
+                      \str_case_e:nnF {\g_ptxcd_ex_term_style_tl} {
+                        {left} {
+                            \tl_if_empty:cF {##1} {
+                              \seq_put_right:cn {\bool_if:nTF \g_tmpa_left_bool {g_ptxcd_term_left_seq} {g_ptxcd_term_right_seq}} {\use:c {##1}}
+                            }
+                          }
+                          {center} {
+                            \tl_if_empty:cF {##1} {
+                              \seq_put_right:cn {\bool_if:nTF \g_tmpa_left_bool {g_ptxcd_term_left_seq} {g_ptxcd_term_right_seq}} {\use:c {##1}}
+                            }
+                          }
+                          {left-right} {
+                            \tl_if_empty:cF {##1} {
+                              \seq_put_right:cn {\bool_if:nTF \g_tmpa_left_bool {g_ptxcd_term_left_seq} {g_ptxcd_term_right_seq}} {\use:c {##1}}\bool_set:Nn \g_tmpa_left_bool {!\g_tmpa_left_bool}
+                            }
+                          }
+                          {left-right-manual} {
+                            % Do Nothing lol
+                          }
+                      }
+                      {
+                        \ClassError{rubos_tuda_template}{Unknown Term style Option: \use:c {\g_ptxcd_ex_term_style_tl}}{Available options are: left, center, left-right (default)}
+                      }
+                    }
+                    % Left Side
+                    \begin{minipage}[t]{\seq_if_empty:NF {\g_ptxcd_term_right_seq}{.6}\linewidth}
+                      \str_if_eq:eeT{\g_ptxcd_ex_term_style_tl} {center} {\centering}
+                      \seq_use:Nnnn \g_ptxcd_term_left_seq {\mbox{}\\} {\mbox{}\\} {\mbox{}\\}
+                      \gdef\ptxcd_nextsep{\\}
+                    \end{minipage}
+                    \seq_if_empty:NF {\g_ptxcd_term_right_seq}{
+                      \begin{minipage}[t]{.4\linewidth}
+                        \raggedleft
+                        \begin{flushright}
+                          \seq_use:Nnnn \g_ptxcd_term_right_seq {\mbox{}\\} {\mbox{}\\} {\mbox{}\\}
+                        \end{flushright}
+                        \gdef\ptxcd_nextsep{\\}
+                      \end{minipage}
+                      \tl_if_empty:NF \g_TUDa_ex_term_tl {\ptxcd_nextsep\g_TUDa_ex_term_tl}
+                    }
+                    % \clist_map_inline:nn {@subtitle, @subsubtitle, g_ptxcd_ex_term_tl} {
+                    %   \tl_if_empty:cF {##1} {\ptxcd_nextsep\use:c {##1}\def\ptxcd_nextsep{\\}}
+                    % }
+                    % \tl_if_empty:NF \g_TUDa_ex_sheetnum_tl {\ptxcd_nextsep\sheetname\sheetsep\g_TUDa_ex_sheetnum_tl}
+                  }
+                  \bool_if:NT \g_TUDa_colorback_bool {\end{addmargin}}
+            \end{minipage}
+            \vspace*{\dp\strutbox}
+          }}\par\nointerlineskip
+        \rule{\linewidth}{\g_TUDa_titlerule_dim}
+      }
+      \par
+      \bool_if:NT  \g_TUDa_headontitle_bool {
+        \if@twoside
+          \box_use:N \g_TUDa_ex_headline_odd_box
+        \else
+          \box_use:N \g_TUDa_ex_headline_oneside_box
+        \fi
+        \par
+        \rule{\linewidth}{\g_TUDa_titlerule_dim}
+        \par
+      }
+      \endgroup
+      \vskip 2em
+      \ConfigureHeadline{}
+    }%
+  }{
+    \ClassError{rubos-tuda-template}{Tu-Template~Version~zu~alt.}{Bitte~die~neuste~tuda-ci~Version~installieren.}
   }
-  \endgroup
-  \vskip 2em
-  \ConfigureHeadline{}
-}%
+
+}
+
 
 % Better Task Titles
 \IfTudaciVersionAtLeastTF{3.13}{
@@ -704,16 +903,6 @@
 \clist_map_inline:nn {odd, even, oneside} {
   \keys_define:nn {ptxcd/exercise/headline} {
     #1 .choice:,
-    #1 / title-name-id .code:n = \tl_gset:cn {g_ptxcd_ex_headline_#1_tl} {
-      \g_ptxcd_shorttitle_tl\par
-      \StudentName\StudentID},
-    #1 / title-name .code:n = \tl_gset:cn {g_ptxcd_ex_headline_#1_tl} {
-      \g_ptxcd_shorttitle_tl\par
-      \smallskip
-      \StudentName},
-    #1 / title .code:n = \tl_gset:cn {g_ptxcd_ex_headline_#1_tl} {\g_ptxcd_shorttitle_tl},
-    #1 / name-id .code:n = \tl_gset:cn {g_ptxcd_ex_headline_#1_tl} {\StudentName\StudentID},
-    #1 / name .code:n = \tl_gset:cn {g_ptxcd_ex_headline_#1_tl} {\StudentName},
     #1 / aud .code:n = \tl_gset:cn {g_ptxcd_ex_headline_#1_tl} {
       \textbf{\g_ptxcd_shorttitle_tl}\tl_if_empty:NF \g_ptxcd_ex_semester_tl {\space{}im\space\textbf{\g_ptxcd_ex_semester_tl}}\tl_if_empty:NF \g_ptxcd_ex_dozent_tl {\space{}bei\space\textbf{\g_ptxcd_ex_dozent_tl}}\hfill Übungsblatt\space{}\padzeroes[2]{\g_ptxcd_ex_sheetnum_tl}\par
       \StudentName\StudentID},
@@ -740,6 +929,37 @@
     #1 / summary-centered .code:n = \tl_gset:cn {g_ptxcd_ex_headline_#1_tl} {%
       \centering\textbf{\sffamily\g_ptxcd_shorttitle_tl\space{}Zusammenfassung}\space{}von\space{}\seq_use:Nnnn \g_ptxcd_author_seq {~\authorandname{}~} {,~} {~\authorandname{}~}},
     #1 / unknown .code:n = \tl_gset:cn {g_ptxcd_ex_headline_#1_tl} {##1}
+  }
+}
+\clist_map_inline:nn {odd, even, oneside} {
+  \keys_define:nn {TUDa/exercise/headline} {
+    #1 .choice:,
+    #1 / aud .code:n = \tl_gset:cn {g_TUDa_ex_headline_#1_tl} {
+      \textbf{\g_TUDa_shorttitle_tl}\tl_if_empty:NF \g_ptxcd_ex_semester_tl {\space{}im\space\textbf{\g_ptxcd_ex_semester_tl}}\tl_if_empty:NF \g_ptxcd_ex_dozent_tl {\space{}bei\space\textbf{\g_ptxcd_ex_dozent_tl}}\hfill Übungsblatt\space{}\padzeroes[2]{\g_TUDa_ex_sheetnum_tl}\par
+      \StudentName\StudentID},
+    #1 / submittors-detailed .code:n = \tl_gset:cn {g_TUDa_ex_headline_#1_tl} { % Diese Option ist eher für Einzelabgaben gedacht, da sie sonst sehr viel Platz weg nimmt
+      \textbf{\g_TUDa_shorttitle_tl}\tl_if_empty:NF \g_ptxcd_ex_semester_tl {\space{}im\space\textbf{\g_ptxcd_ex_semester_tl}}\tl_if_empty:NF \g_ptxcd_ex_dozent_tl {\space{}bei\space\textbf{\g_ptxcd_ex_dozent_tl}}\hfill Übungsblatt\space{}\padzeroes[2]{\g_TUDa_ex_sheetnum_tl}\par
+      \gdef\ptxcd_nextsep_submittors{}
+      \seq_map_inline:Nn \g_ptxcd_submittors_seq {
+        \ptxcd_nextsep_submittors Name\StudentNamesep\hrulefill ####1\hrulefill\qquad\StudentIDname\StudentIDsep \exp_args:Nx\str_map_inline:Nn {\getMatrikelnummer{####1}} {\numberFormBox{########1}}\gdef\ptxcd_nextsep_submittors{\par}
+      }
+    },
+    #1 / submittors-semi-detailed .code:n = \tl_gset:cn {g_TUDa_ex_headline_#1_tl} { % Diese Option ist eher für Einzelabgaben gedacht, da sie sonst sehr viel Platz weg nimmt
+      \textbf{\g_TUDa_shorttitle_tl}\tl_if_empty:NF \g_ptxcd_ex_semester_tl {\space{}im\space\textbf{\g_ptxcd_ex_semester_tl}}\tl_if_empty:NF \g_ptxcd_ex_dozent_tl {\space{}bei\space\textbf{\g_ptxcd_ex_dozent_tl}}\hfill Übungsblatt\space{}\padzeroes[2]{\g_TUDa_ex_sheetnum_tl}\par
+      \seq_if_empty:NF\g_ptxcd_submittors_seq {\textbf{Abgabe\space{}von:}\space
+        \seq_use:Nnnn \g_ptxcd_submittors_seq {~\authorandname{}~} {,~} {~\authorandname{}~}}
+    },
+    #1 / submittors .code:n = {\tl_gset:cn {g_TUDa_ex_headline_#1_tl} {
+          \textbf{\textsf{\g_TUDa_shorttitle_tl\space{}Abgabe}}\seq_if_empty:NF\g_ptxcd_submittors_seq {\textbf{\textsf{\space{}von:}}\space
+            \seq_use:Nnnn \g_ptxcd_submittors_seq {~\authorandname{}~} {,~} {~\authorandname{}~}}
+        }},
+    #1 / submittors-centered .code:n = {\tl_gset:cn {g_TUDa_ex_headline_#1_tl} {
+          \centering\textbf{\textsf{\g_TUDa_shorttitle_tl\space{}Abgabe}}\seq_if_empty:NF\g_ptxcd_submittors_seq {\textbf{\textsf{\space{}von:}}\space
+            \seq_use:Nnnn \g_ptxcd_submittors_seq {~\authorandname{}~} {,~} {~\authorandname{}~}}
+        }},
+    #1 / summary-centered .code:n = \tl_gset:cn {g_TUDa_ex_headline_#1_tl} {%
+      \centering\textbf{\sffamily\g_TUDa_shorttitle_tl\space{}Zusammenfassung}\space{}von\space{}\seq_use:Nnnn \g_TUDa_author_seq {~\authorandname{}~} {,~} {~\authorandname{}~}},
+    #1 / unknown .code:n = \tl_gset:cn {g_TUDa_ex_headline_#1_tl} {##1}
   }
 }
 
