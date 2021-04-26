@@ -49,7 +49,7 @@
   shell_escape .initial:n = true,
   shell_escape .default:n = true,
 }
-% Compatibility with older versions
+% Compatibility with older versions (We can't use version check makros before loading the class)
 \keys_define:nn {TUDa/pub} {
   boxarc .code:n = \prop_gput:Nnn \g_ptxcd_template_opts_prop {boxarc} {#1},
   boxarc .initial:n = {0pt},
