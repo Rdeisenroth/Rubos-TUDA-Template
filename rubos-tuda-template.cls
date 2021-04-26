@@ -34,6 +34,7 @@
   boxarc .initial:n = {0pt},
   boxarc .default:n = {3pt},
   dark_mode .code:n = \pagecolor{black}\color{white}\selectcolormodel{RGB}\bool_gset_true:N \g_dark_mode_bool,
+  dark~mode .code:n = \pagecolor{black}\color{white}\selectcolormodel{RGB}\bool_gset_true:N \g_dark_mode_bool,
   manual_term .bool_gset:N = \g_manual_term_bool,
   manual_term .initial:n = false,
   manual_term .default:n = true,
@@ -42,9 +43,15 @@
   load_common .bool_gset:N = \g_ptxcd_ex_load_common_bool,
   load_common .initial:n = false,
   load_common . default:n = true,
+  load~common .bool_gset:N = \g_ptxcd_ex_load_common_bool,
+  load~common .initial:n = false,
+  load~common . default:n = true,
   default_row_color .bool_gset_inverse:N =  \g_ptxcd_ex_fancy_rowcolor_bool,
   default_row_color .initial:n = false,
   default_row_color .default:n = true,
+  shell_escape .bool_gset:N = \g_rubos_shell_escape_bool,
+  shell_escape .initial:n = true,
+  shell_escape .default:n = true,
 }
 \ExplSyntaxOff
 
@@ -73,7 +80,9 @@
 \RequirePackage{mathrsfs}
 \RequirePackage{tcolorbox}
 \tcbuselibrary{skins}
-\csname sys_if_shell_unrestricted:T\endcsname{\tcbuselibrary{minted}}
+\ExplSyntaxOn
+\csname sys_if_shell_unrestricted:T\endcsname{\bool_if:NT \g_rubos_shell_escape_bool {\tcbuselibrary{minted}}}
+\ExplSyntaxOff
 \RequirePackage{listings}
 \RequirePackage{totcount}
 \regtotcounter{task}
@@ -81,7 +90,8 @@
 \RequirePackage{refcount}
 
 % Strings/Names
-\renewcaptionname*{ngerman}{\solutionname}{Lösung}
+\providecaptionname*{ngerman, german}{\solutionname}{Lösung}
+\renewcaptionname*{ngerman, german}{\solutionname}{Lösung}
 
 % --Helper Commands--
 
@@ -130,6 +140,23 @@
 }
 % }
 % \loadcommon{}
+
+% Discover tudaci-Version
+\exp_args:NNnx \seq_set_split:Nnn \g_tuda_version_seq { ~ } { \use:c {ver@tudaexercise.cls} }
+\tl_set:Nx \g_tudaci_version_tl { \seq_item:Nn \g_tuda_version_seq { 2 } }
+\tl_set:Nx \g_tudaci_version_tl {\tl_tail:N \g_tudaci_version_tl}
+\regex_replace_once:nnN { [a-z] } { } \g_tudaci_version_tl
+
+\newcommand{\getTudaciVersion}[1]{
+  \tl_use:N \g_tudaci_version_tl
+}
+\cs_generate_variant:Nn \fp_set:Nn { Nx }
+\newcommand{\IfTudaciVersionAtLeastTF}[3]{
+  \fp_compare:nTF {\getTudaciVersion{} >= #1}{#2}{#3}
+}
+\newcommand{\IfTudaciVersionBetweenTF}[4]{
+  \fp_compare:nTF {#1<=\getTudaciVersion{}<=#2}{#3}{#4}
+}
 
 % Zero Padding (Pads Number with the wanted amount of zeros)
 \int_new:N \l_limit_var_int
@@ -346,7 +373,7 @@
 % }
 
 % Modify GetPoints Command to work with makros
-\renewcommand{\getPoints}[1]{
+\def\getPoints#1{
   \exp_args:NNx \prop_get:NnNTF \g__ptxcd_loaded_points_prop {#1} \l_tmpa_tl
   {\l_tmpa_tl}
   {\nfss@text{\reset@font\bfseries??}}
@@ -390,26 +417,18 @@
 \cs_set_eq:NN\IfDarkModeF \__ptxcd_if_dark_mode:F
 \cs_set_eq:NN\IfDarkModeTF \__ptxcd_if_dark_mode:TF
 
-% Discover tudaci-Version
-\exp_args:NNnx \seq_set_split:Nnn \g_tuda_version_seq { ~ } { \use:c {ver@tudaexercise.cls} }
-\tl_set:Nx \g_tudaci_version_tl { \seq_item:Nn \g_tuda_version_seq { 2 } }
-\tl_set:Nx \g_tudaci_version_tl {\tl_tail:N \g_tudaci_version_tl}
-\regex_replace_once:nnN { [a-z] } { } \g_tudaci_version_tl
-
-\newcommand{\getTudaciVersion}[1]{
-  \tl_use:N \g_tudaci_version_tl
-}
-\cs_generate_variant:Nn \fp_set:Nn { Nx }
-\newcommand{\IfTudaciVersionAtLeastTF}[3]{
-  \fp_compare:nTF {\getTudaciVersion{} >= #1}{#2}{#3}
-}
-\newcommand{\IfTudaciVersionBetweenTF}[4]{
-  \fp_compare:nTF {#1<=\getTudaciVersion{}<=#2}{#3}{#4}
+\prg_new_conditional:Nnn \__rubos_if_shell_escape: {T,F,TF} {
+  \bool_if:NTF \g_rubos_shell_escape_bool
+  {\sys_if_shell_unrestricted:TF
+    {\prg_return_true:}
+    {\prg_return_false:}
+  }
+  {\prg_return_false:}
 }
 
-\cs_set_eq:NN\IfShellEscapeT \sys_if_shell_unrestricted:T
-\cs_set_eq:NN\IfShellEscapeF \sys_if_shell_unrestricted:F
-\cs_set_eq:NN\IfShellEscapeTF \sys_if_shell_unrestricted:TF
+\cs_set_eq:NN\IfShellEscapeT \__rubos_if_shell_escape:T
+\cs_set_eq:NN\IfShellEscapeF \__rubos_if_shell_escape:F
+\cs_set_eq:NN\IfShellEscapeTF \__rubos_if_shell_escape:TF
 
 \ExplSyntaxOff
 
@@ -646,33 +665,36 @@
 }%
 
 % Better Task Titles
-\renewcommand*\sectionlinesformat[4]{%
-  \parbox{\linewidth}{
-    \bool_if:cT {g__ptxcd_ruled_#1_bool} {
-      \rule[5\g_ptxcd_titlerule_dim]{\linewidth}{\g_ptxcd_titlerule_dim}\par\nointerlineskip
-    }
-    \@hangfrom{%
-      \hskip #2#3}{
-      \tl_if_eq:nnT {#1} {task} {
-        \exp_args:No \tl_if_empty:nF {#4}
-        {:~}
-        \bool_if:NT \l__ptxcd_points_auto_bool {
-          \exp_args:NNx \prop_get:NnN \g__ptxcd_loaded_points_prop {\thetask} \l_ptxcd_tmp_tl
-          \quark_if_no_value:NF \l_ptxcd_tmp_tl {
-            \fp_set:Nn \l_ptxcd_ex_task_points_fp {\l_ptxcd_tmp_tl}
+\IfTudaciVersionAtLeastTF{3.13}{
+  \renewcommand*\sectionlinesformat[4]{%
+    \parbox{\linewidth}{
+      \bool_if:cT {g__ptxcd_ruled_#1_bool} {
+        \rule[5\g_ptxcd_titlerule_dim]{\linewidth}{\g_ptxcd_titlerule_dim}\par\nointerlineskip
+      }
+      \@hangfrom{%
+        \hskip #2#3}{
+        \tl_if_eq:nnT {#1} {task} {
+          \exp_args:No \tl_if_empty:nF {#4}
+          {:~}
+          \bool_if:NT \l__ptxcd_points_auto_bool {
+            \exp_args:NNx \prop_get:NnN \g__ptxcd_loaded_points_prop {\thetask} \l_ptxcd_tmp_tl
+            \quark_if_no_value:NF \l_ptxcd_tmp_tl {
+              \fp_set:Nn \l_ptxcd_ex_task_points_fp {\l_ptxcd_tmp_tl}
+            }
           }
         }
-      }
-      {#4\ensuremath{\vcenter{\hbox{\tikz{\node[inner\space sep=0pt, text\space height=1.1em]{};}}}}}% Übungstitel mit Seriefen
-      \tl_if_in:nnT {#1} {task} {
-        \tl_if_empty:cTF{l_ptxcd_ex_#1_credit_tl}
-        {\pointformat{\fp_to_decimal:c {l_ptxcd_ex_#1_points_fp}}}
-        {\creditformat{\tl_use:c {l_ptxcd_ex_#1_credit_tl}}}
-      }
-      \rule[-\dp\strutbox]{0pt}{\dp\strutbox}\par}\nointerlineskip
-    \skip_vertical:n {\ptxcd_titlerule_sep: -\dp\strutbox}
-    \bool_if:cT {g__ptxcd_ruled_#1_bool} {\smash{\rule{\linewidth}{\g_ptxcd_titlerule_dim}}}
-  }}
+        {#4\ensuremath{\vcenter{\hbox{\tikz{\node[inner\space sep=0pt, text\space height=1.1em]{};}}}}}% Übungstitel mit Seriefen
+        \tl_if_in:nnT {#1} {task} {
+          \tl_if_empty:cTF{l_ptxcd_ex_#1_credit_tl}
+          {\pointformat{\fp_to_decimal:c {l_ptxcd_ex_#1_points_fp}}}
+          {\creditformat{\tl_use:c {l_ptxcd_ex_#1_credit_tl}}}
+        }
+        \rule[-\dp\strutbox]{0pt}{\dp\strutbox}\par}\nointerlineskip
+      \skip_vertical:n {\ptxcd_titlerule_sep: -\dp\strutbox}
+      \bool_if:cT {g__ptxcd_ruled_#1_bool} {\smash{\rule{\linewidth}{\g_ptxcd_titlerule_dim}}}
+    }}
+}{}
+
 
 \newcommand*{\numberFormBox}[1]{
   \rule{\fboxrule}{1ex}
@@ -891,8 +913,8 @@
 \newenvironment*{cpenumerate}[1][]{\begin{enumerate}[nosep, #1]}{\end{enumerate}}
 % \newcommand{\code}[2][java]{\mintinline{#1}{#2}}
 \IfShellEscapeTF{
-\usemintedstyle{borland}
-\newmintinline[code]{java}{fontsize=\footnotesize}
+  \usemintedstyle{borland}
+  \newmintinline[code]{java}{fontsize=\footnotesize}
 }{
   \newcommand{\code}[1]{{\texttt{\footnotesize #1}}}
 }
@@ -903,7 +925,7 @@
   \setcounter{task}{\getrefnumber{#1}}
   \hyperref[#1]{\taskformat}
   \setcounter{task}{\int_use:N \g_ptxcd_tmp_int}
-  }
+}
 \ExplSyntaxOff
 \newcommand{\raisedcode}[1]{\raisebox{.1em}{\code{#1}}}
 \newcommand{\bluecode}[1]{\code{\textcolor{\IfDarkModeTF{cyan}{blue}}{#1}}}
