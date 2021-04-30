@@ -290,7 +290,7 @@
   }
 
   % Logik zum rausfinden ob es einen subtask gibt
-  \newcommand{\IfSubtaskTF}[3][\thetask]{
+  \newcommand{\IfSubtasksTF}[3][\thetask]{
     \exp_args:NNf \prop_if_in:NnTF \g__ptxcd_loaded_subpoints_prop {#1} {#2} {#3}
   }
 
