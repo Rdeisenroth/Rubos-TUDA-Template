@@ -1,11 +1,13 @@
-\def\fileversion{1.2}
-\def\filedate{2021/04/26}
+\def\fileversion{1.2.2}
+\def\filedate{2021/04/30}
 
 % Sets the LaTeX version for the package to work.
 \NeedsTeXFormat{LaTeX2e}
 % Identification of the class and its date and version.
 \ProvidesClass{rubos-tuda-template} [LaTeX Vorlage für Hausübungen, Zusammenfassungen und Abgaben basierend auf TuDaExercise]
 
+% Made by Ruben Deisenroth, 2021
+% Available at https://github.com/Rdeisenroth/TUDA-Hausuebungstemplate/blob/main/rubos-tuda-template.cls
 
 % Packages that need to be loaded before TUDA-Exercise Class
 \RequirePackage[table]{xcolor} % Option has to be set before loading TuDaExercise
@@ -196,7 +198,7 @@
   #2
 }
 
-% Term Creation (Information Area below the Title)
+% Term Creation (Information Area below the Title, depreceated)
 \newcommand*{\maketerm}{%
   \term{%
     \begin{minipage}[t]{.5\textwidth}%
@@ -217,6 +219,130 @@
     \printDueDate{}
   }
 }
+
+\IfTudaciVersionAtLeastTF{3.13}{
+  \prop_gclear_new:N \g__ptxcd_subpoints_collector_prop
+  \prop_gclear_new:N \g__ptxcd_loaded_subpoints_prop
+  \RenewDocumentEnvironment{subtask}{o}{
+    \tl_if_in:nnT {#1} {=} {
+      \keys_set:nn {ptxcd/subtask} {#1}
+    }
+    \bool_if:NTF \l_ptxcd_ex_subtask_fallback_bool {
+      \@subtask{\IfNoValueF{#1}{#1}}
+    }{
+      \@subtask{\l_ptxcd_ex_title_tl}
+    }
+
+    % % Get task subpoints prop
+    \exp_args:NNe \prop_get:NnNTF \g__ptxcd_subpoints_collector_prop {\thetask} \l_temp_task_points_tl
+    {
+      % Task entry exists
+      \prop_clear_new:N \l_temp_task_points_prop
+      \exp_args:NNe \prop_set_from_keyval:Nn \l_temp_task_points_prop {
+        \l_temp_task_points_tl
+      }
+      \prop_put:Nxx \l_temp_task_points_prop {\thesubtask} {\fp_use:N \l_ptxcd_ex_subtask_points_fp}
+      \tl_clear_new:N \l_temp_task_points_tl
+      \prop_map_inline:Nn  \l_temp_task_points_prop {
+        \tl_put_right:Nn \l_temp_task_points_tl {##1=##2,}
+      }
+      \prop_gput:Nxx \g__ptxcd_subpoints_collector_prop {\thetask} {\l_temp_task_points_tl}
+    }
+    {
+      % Task entry does not exist
+      \prop_gput:Nxx \g__ptxcd_subpoints_collector_prop
+      {\thetask} {\thesubtask=\fp_use:N \l_ptxcd_ex_subtask_points_fp}
+    }
+  }{}
+
+  \newcommand*{\ptxcd@LoadSubPoints}[1]{
+    \prop_gset_from_keyval:Nn \g__ptxcd_loaded_subpoints_prop {
+      #1
+    }
+  }
+
+  \bool_if:NT \g__ptxcd_points_bool {
+    \BeforeClosingMainAux{
+      \tl_clear:N \l_tmpc_tl
+      \prop_map_inline:Nn  \g__ptxcd_subpoints_collector_prop {
+        \tl_put_right:Nn \l_tmpc_tl {#1={#2},}
+      }
+      \iow_now:Nx \@auxout{
+        \exp_not:N \ptxcd@LoadSubPoints{\l_tmpc_tl}
+      }
+    }
+  }
+
+  \def\getSubPoints#1#2{
+    \exp_args:NNx \prop_get:NnNTF \g__ptxcd_loaded_subpoints_prop {#1} \l_temp_task_points_tl
+    {
+      \prop_clear_new:N \l_temp_task_points_prop
+      \exp_args:NNe \prop_set_from_keyval:Nn \l_temp_task_points_prop {
+        \l_temp_task_points_tl
+      }
+
+      \exp_args:NNx \prop_get:NnNTF \l_temp_task_points_prop {#2} \l_temp_subtask_points_tl {
+        \l_temp_subtask_points_tl
+      }
+      {\nfss@text{\reset@font\bfseries???}}
+    }
+    {\nfss@text{\reset@font\bfseries??}}
+  }
+
+  % Logik zum rausfinden ob es einen subtask gibt
+  \newcommand{\IfSubtaskTF}[3][\thetask]{
+    \exp_args:NNf \prop_if_in:NnTF \g__ptxcd_loaded_subpoints_prop {#1} {#2} {#3}
+  }
+
+
+  \NewDocumentCommand{\mapTasks}{sO{1}m}{
+    % \cs_gset_nopar:Nn \__ptxcd_map_points_helper:nn {#3}
+    \prop_if_empty:NTF \g__ptxcd_loaded_points_prop {
+      \msg_warning:nn {tudaexercise} {empty-point-mapping}
+      %  \__ptxcd_map_points_helper:nn {?task?} {?points?}
+    }{
+      \int_gset:Nn \g_ptxcd_tmp_int {\value{task}}
+      \setcounter{task}{#2}
+      \bool_gset_true:N \g_tmpa_bool
+      \bool_while_do:Nn \g_tmpa_bool
+      {
+        \exp_args:NNx \prop_get:NnNTF \g__ptxcd_loaded_points_prop {\thetask} \l_tmpa_tl
+        {
+          \fp_compare:nF {\l_tmpa_tl = 0}
+          {
+            \group_begin:
+
+            \providecommand{\brotest}[1]{hi}
+            \providecommand{\mapSubtasks}[1]{
+              \exp_args:NNx \prop_get:NnNTF \g__ptxcd_loaded_subpoints_prop {\thetask} \l_temp_task_points_tl
+              {
+                \prop_clear_new:N \l_temp_task_points_mapping_prop
+                \exp_args:NNe \prop_set_from_keyval:Nn \l_temp_task_points_mapping_prop {
+                  \l_temp_task_points_tl
+                }
+                \int_zero_new:N \l_ptxcd_tmpp_int
+                \int_set:Nn \l_ptxcd_tmpp_int {\value{subtask}}
+                \setcounter{subtask}{1}
+                \prop_map_inline:Nn \l_temp_task_points_mapping_prop {
+                  ##1
+                  \stepcounter{subtask}
+                }
+                \setcounter{subtask}{\int_use:N \l_ptxcd_tmpp_int}
+              }
+              {}
+            }
+            #3
+            \group_end:
+          }
+        }
+        {\bool_gset_false:N \g_tmpa_bool}
+        \stepcounter{task}
+      }
+      \setcounter{task}{\int_use:N \g_ptxcd_tmp_int}
+    }
+  }
+}
+
 
 \ExplSyntaxOff
 

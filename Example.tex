@@ -36,6 +36,7 @@
 %\tableofcontents
 
 %% --Beginn Hausübung--%%
+
 % Übung 1
 \begin{task}[points=8,solution=true]{\mdseries Systematisches Testen von Methoden}
     \begin{cpenumerate}[label=\alph*)]
@@ -54,7 +55,7 @@
 \end{task}
 \clearpage
 % Übung 3
-\begin{task}[points=5,solution=true]{Alternativer style}
+\begin{task}[points=auto,solution=true]{Alternativer style}
     Such pretty much wow
     \begin{subtask}[title={Ganzzahladdition auf \texorpdfstring{$\mathbb{N}$}{N}},points=3]
         Was ist 69+420?
@@ -126,4 +127,21 @@
         asdf $\vcenter{\hbox{\tikz{\node[draw]{hi};}}}$
     \end{minipage}
 \end{task}\\
+
+\begin{task}[points=0]{Punktetabellen (WIP)}
+
+\begin{itemize}
+    \mapTasks{
+        \item H \thetask{}: \IfSubtaskTF{%
+        Gesamt \getPoints{\thetask} Punkte
+        \begin{itemize}
+            \mapSubtasks{\item \thesubtask{} 
+            = \getSubPoints{\thetask}{\thesubtask}}
+        \end{itemize}
+        }{%
+            \getPoints{\thetask} Punkte
+        }
+    }
+\end{itemize}
+\end{task}
 \end{document}
