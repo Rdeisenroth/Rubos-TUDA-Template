@@ -308,7 +308,7 @@
       {
         \exp_args:NNx \prop_get:NnNTF \g__ptxcd_loaded_points_prop {\thetask} \l_tmpa_tl
         {
-          \fp_compare:nF {\l_tmpa_tl = 0}
+          \bool_if:nT {#1 || !\fp_compare_p:n {\l_tmpa_tl = 0}}
           {
             \group_begin:
 
