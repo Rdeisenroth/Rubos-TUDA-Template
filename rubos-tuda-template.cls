@@ -1,5 +1,5 @@
-\def\fileversion{1.2.2}
-\def\filedate{2021/04/30}
+\def\fileversion{1.2.3}
+\def\filedate{2021/05/03}
 
 % Sets the LaTeX version for the package to work.
 \NeedsTeXFormat{LaTeX2e}
@@ -310,29 +310,9 @@
         {
           \bool_if:nT {#1 || !\fp_compare_p:n {\l_tmpa_tl = 0}}
           {
-            \group_begin:
-
-            \providecommand{\brotest}[1]{hi}
-            \providecommand{\mapSubtasks}[1]{
-              \exp_args:NNx \prop_get:NnNTF \g__ptxcd_loaded_subpoints_prop {\thetask} \l_temp_task_points_tl
-              {
-                \prop_clear_new:N \l_temp_task_points_mapping_prop
-                \exp_args:NNe \prop_set_from_keyval:Nn \l_temp_task_points_mapping_prop {
-                  \l_temp_task_points_tl
-                }
-                \int_zero_new:N \l_ptxcd_tmpp_int
-                \int_set:Nn \l_ptxcd_tmpp_int {\value{subtask}}
-                \setcounter{subtask}{1}
-                \prop_map_inline:Nn \l_temp_task_points_mapping_prop {
-                  ##1
-                  \stepcounter{subtask}
-                }
-                \setcounter{subtask}{\int_use:N \l_ptxcd_tmpp_int}
-              }
-              {}
-            }
+            % \group_begin:
             #3
-            \group_end:
+            % \group_end:
           }
         }
         {\bool_gset_false:N \g_tmpa_bool}
@@ -340,6 +320,26 @@
       }
       \setcounter{task}{\int_use:N \g_ptxcd_tmp_int}
     }
+  }
+
+  % Subtasks mapping
+  \NewDocumentCommand{\mapSubtasks}{sO{1}m}{
+    \exp_args:NNx \prop_get:NnNTF \g__ptxcd_loaded_subpoints_prop {\thetask} \l_temp_task_points_tl
+    {
+      \prop_clear_new:N \l_temp_task_points_mapping_prop
+      \exp_args:NNe \prop_set_from_keyval:Nn \l_temp_task_points_mapping_prop {
+        \l_temp_task_points_tl
+      }
+      \int_zero_new:N \l_ptxcd_tmpp_int
+      \int_set:Nn \l_ptxcd_tmpp_int {\value{subtask}}
+      \setcounter{subtask}{#2}
+      \prop_map_inline:Nn \l_temp_task_points_mapping_prop {
+        #3
+        \stepcounter{subtask}
+      }
+      \setcounter{subtask}{\int_use:N \l_ptxcd_tmpp_int}
+    }
+    {}
   }
 }
 
