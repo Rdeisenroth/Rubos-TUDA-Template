@@ -1,5 +1,5 @@
-\def\fileversion{1.2.4}
-\def\filedate{2021/05/11}
+\def\fileversion{1.2.5}
+\def\filedate{2021/05/23}
 
 % Sets the LaTeX version for the package to work.
 \NeedsTeXFormat{LaTeX2e}
@@ -137,6 +137,7 @@
   % \RequirePackage[utf8]{inputenc} % Already loaded before cs quotes
   \RequirePackage{karnaughmap}
   \RequirePackage{latexsym}
+  \RequirePackage{lastpage}
   \RequirePackage{longtable}
   \RequirePackage{makecell}
   \RequirePackage[framemethod=tikz]{mdframed}
@@ -144,7 +145,9 @@
   \RequirePackage[longtable]{multirow}
   \RequirePackage{nccmath}
   \RequirePackage{placeins}
+  \RequirePackage{pgfplots}
   \RequirePackage{proof}
+  \RequirePackage{qtree}
   \RequirePackage{ragged2e}
   \RequirePackage{stackengine}
   \RequirePackage{standalone}
@@ -152,6 +155,7 @@
   \RequirePackage{tikz}
   \ExplSyntaxOff % Tikz doesn't Like Expl3 :/
   \usetikzlibrary{3d, angles, animations, arrows, arrows.meta, arrows.spaced, automata, babel, backgrounds, bending, calc, calendar, chains, circuits.ee.IEC, circuits.logic.CDH, circuits.logic.IEC, circuits.logic.US, datavisualization, datavisualization.formats.functions, datavisualization.polar, decorations, decorations.footprints, decorations.fractals, decorations.markings, decorations.pathmorphing, decorations.pathreplacing, decorations.shapes, decorations.text, er, external, fadings, fit, fixedpointarithmetic, folding, fpu, graphs, graphs.standard, intersections, lindenmayersystems, math, matrix, patterns, patterns.meta, perspective, petri, plotmarks, positioning, quotes, rdf, scopes, shadings, shadows, shadows.blur, shapes, shapes.arrows, shapes.callouts, shapes.gates.logic.IEC, shapes.gates.logic.US, shapes.geometric, shapes.misc, shapes.multipart, shapes.symbols, spy, svg.path, through, tikzmark, topaths, trees, turtle, views}
+  \RequirePackage{tikz-qtree}
   \ExplSyntaxOn
 
   % \RequirePackage{tikz-uml}
@@ -1031,7 +1035,7 @@
     #1 .choice:,
     #1 / aud .code:n = \tl_gset:cn {g_ptxcd_ex_headline_#1_tl} {
       \textbf{\g_ptxcd_shorttitle_tl}\tl_if_empty:NF \g_ptxcd_ex_semester_tl {\space{}im\space\textbf{\g_ptxcd_ex_semester_tl}}\tl_if_empty:NF \g_ptxcd_ex_dozent_tl {\space{}bei\space\textbf{\g_ptxcd_ex_dozent_tl}}\tl_if_empty:NF \g_ptxcd_ex_sheetnum_tl {\hfill Übungsblatt\space{}\padzeroes[2]{\g_ptxcd_ex_sheetnum_tl}}\par
-      \StudentName\StudentID},
+      \StudentNamename\StudentNamesep\IfSolutionT{\rlap{\textbf{\textsf{~Musterlösung}}}}\hrulefill\qquad\StudentIDname\StudentIDsep\prg_replicate:nn {7} {\numberFormBox{\IfSolutionT{\textbf{\textsf{0}}}}}},
     #1 / submittors-detailed .code:n = \tl_gset:cn {g_ptxcd_ex_headline_#1_tl} { % Diese Option ist eher für Einzelabgaben gedacht, da sie sonst sehr viel Platz weg nimmt
       \textbf{\g_ptxcd_shorttitle_tl}\tl_if_empty:NF \g_ptxcd_ex_semester_tl {\space{}im\space\textbf{\g_ptxcd_ex_semester_tl}}\tl_if_empty:NF \g_ptxcd_ex_dozent_tl {\space{}bei\space\textbf{\g_ptxcd_ex_dozent_tl}}\hfill Übungsblatt\space{}\padzeroes[2]{\g_ptxcd_ex_sheetnum_tl}\par
       \gdef\ptxcd_nextsep_submittors{}
