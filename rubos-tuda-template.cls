@@ -367,45 +367,62 @@
 }
 
 
-\NewDocumentCommand{\mapTasks}{sO{1}m}{
-  % \cs_gset_nopar:Nn \__ptxcd_map_points_helper:nn {#3}
-  \prop_if_empty:NTF \g__ptxcd_loaded_points_prop {
-    \msg_warning:nn {tudaexercise} {empty-point-mapping}
-    %  \__ptxcd_map_points_helper:nn {?task?} {?points?}
-  }{
-    \int_gset:Nn \g_ptxcd_tmp_int {\value{task}}
-    \setcounter{task}{#2}
-    \bool_gset_true:N \g_tmpa_bool
-    \bool_while_do:Nn \g_tmpa_bool
-    {
-      \exp_args:NNx \prop_get:NnNTF \g__ptxcd_loaded_points_prop {\thetask} \l_tmpa_tl
-      {
-        \bool_if:nT {#1 || !\fp_compare_p:n {\l_tmpa_tl = 0}}
-        {
-          % \group_begin:
-          #3
-          % \group_end:
-        }
-      }
-      {\bool_gset_false:N \g_tmpa_bool}
-      \stepcounter{task}
-    }
-    \setcounter{task}{\int_use:N \g_ptxcd_tmp_int}
+% \NewDocumentCommand{\mapTasks}{sO{1}m}{
+%   % \cs_gset_nopar:Nn \__ptxcd_map_points_helper:nn {#3}
+%   \prop_if_empty:NTF \g__ptxcd_loaded_points_prop {
+%     \msg_warning:nn {tudaexercise} {empty-point-mapping}
+%     %  \__ptxcd_map_points_helper:nn {?task?} {?points?}
+%   }{
+%     \int_gset:Nn \g_ptxcd_tmp_int {\value{task}}
+%     \setcounter{task}{#2}
+%     \bool_gset_true:N \g_tmpa_bool
+%     \bool_while_do:Nn \g_tmpa_bool
+%     {
+%       \exp_args:NNx \prop_get:NnNTF \g__ptxcd_loaded_points_prop {\thetask} \l_tmpa_tl
+%       {
+%         \bool_if:nT {#1 || !\fp_compare_p:n {\l_tmpa_tl = 0}}
+%         {
+%           % \group_begin:
+%           #3
+%           % \group_end:
+%         }
+%       }
+%       {\bool_gset_false:N \g_tmpa_bool}
+%       \stepcounter{task}
+%     }
+%     \setcounter{task}{\int_use:N \g_ptxcd_tmp_int}
+%   }
+% }
+% Star currently useless
+\NewDocumentCommand{\mapTasks}{sO{1}O{-1}m}{
+\prop_clear_new:N \l_temp_task_mapping_prop
+\exp_args:NNf \prop_set_from_keyval:Nn \l_temp_task_mapping_prop {
+  \g__ptxcd_task_properties_loaded_tl
+}
+\int_zero_new:N \l_ptxcd_orig_task_int
+\int_set:Nn \l_ptxcd_orig_task_int {\value{task}}
+\setcounter{task}{#2}
+\prop_map_inline:Nn \l_temp_task_mapping_prop {
+  \bool_if:nT {\int_compare_p:n {##1 >= #2} && (\int_compare_p:n {#3 = -1} || \int_compare_p:n {##1 <= #3})}{
+    \setcounter{task}{##1}
+    #4
   }
+}
+\setcounter{task}{\int_use:N \l_ptxcd_orig_task_int}
 }
 
 % Subtasks mapping
 \NewDocumentCommand{\mapSubtasks}{sO{1}m}{
-  \rubos_prop_nested_get:NxNTF \g__ptxcd_task_properties_loaded_tl {\the\value{task},subtasks} \l_temp_task_points_tl
+  \rubos_prop_nested_get:NxNTF \g__ptxcd_task_properties_loaded_tl {\the\value{task},subtasks} \l_temp_subtask_points_tl
   {
-    \prop_clear_new:N \l_temp_task_points_mapping_prop
-    \exp_args:NNf \prop_set_from_keyval:Nn \l_temp_task_points_mapping_prop {
-      \l_temp_task_points_tl
+    \prop_clear_new:N \l_temp_subtask_mapping_prop
+    \exp_args:NNf \prop_set_from_keyval:Nn \l_temp_subtask_mapping_prop {
+      \l_temp_subtask_points_tl
     }
     \int_zero_new:N \l_ptxcd_orig_subtask_int
     \int_set:Nn \l_ptxcd_orig_subtask_int {\value{subtask}}
     \setcounter{subtask}{#2}
-    \prop_map_inline:Nn \l_temp_task_points_mapping_prop {
+    \prop_map_inline:Nn \l_temp_subtask_mapping_prop {
       \int_compare:nT {##1 >= #2}{
         \setcounter{subtask}{##1}
         #3
@@ -584,7 +601,6 @@
 \cs_set_eq:NN\nestedset \rubos_prop_nested_set:nn
 
 \prg_new_conditional:Npnn \__rubos_is_prop_list:n #1 { p, T, F, TF } {
-
   \bool_if:nT {\tl_if_empty_p:n {#1} || \tl_if_blank_p:n {#1}} {\prg_return_true:}
   \bool_set_true:N \l_rubos_is_prop_bool
   \exp_args:Nf \clist_map_inline:nn {#1} {
