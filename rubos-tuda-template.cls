@@ -1,5 +1,5 @@
-\def\fileversion{1.3.0}
-\def\filedate{2021/05/31}
+\def\fileversion{1.3.2}
+\def\filedate{2021/06/19}
 
 % Sets the LaTeX version for the package to work.
 \NeedsTeXFormat{LaTeX2e}
@@ -123,8 +123,7 @@
 \RequirePackage{refcount}
 
 % Strings/Names
-\providecaptionname*{ngerman, german}{\solutionname}{Lösung}
-\renewcaptionname*{ngerman, german}{\solutionname}{Lösung}
+\defcaptionname*{ngerman, german}{\solutionname}{Lösung}
 
 
 % --Helper Commands--
@@ -173,7 +172,7 @@
   \usetikzlibrary{3d, angles, animations, arrows, arrows.meta, arrows.spaced, automata, babel, backgrounds, bending, calc, calendar, chains, circuits.ee.IEC, circuits.logic.CDH, circuits.logic.IEC, circuits.logic.US, datavisualization, datavisualization.formats.functions, datavisualization.polar, decorations, decorations.footprints, decorations.fractals, decorations.markings, decorations.pathmorphing, decorations.pathreplacing, decorations.shapes, decorations.text, er, external, fadings, fit, fixedpointarithmetic, folding, fpu, graphs, graphs.standard, intersections, lindenmayersystems, math, matrix, patterns, patterns.meta, perspective, petri, plotmarks, positioning, quotes, rdf, scopes, shadings, shadows, shadows.blur, shapes, shapes.arrows, shapes.callouts, shapes.gates.logic.IEC, shapes.gates.logic.US, shapes.geometric, shapes.misc, shapes.multipart, shapes.symbols, spy, svg.path, through, tikzmark, topaths, trees, turtle, views}
   \RequirePackage{tikz-qtree}
   \ExplSyntaxOn
-
+  \RequirePackage[color=accentcolor,textcolor=white,textwidth=.8cm,textsize=small,loadshadowlibrary]{todonotes}
   % \RequirePackage{tikz-uml}
   \RequirePackage{xifthen}
 }

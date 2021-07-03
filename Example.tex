@@ -6,8 +6,10 @@
     % dark_mode,
     % solution=true,
     boxarc,
+    fleqn,
     % manual_term, % Restore original Functionality to term
     % shell_escape = false, % Kompatibilität mit sharelatex
+    T1,
 ]{rubos-tuda-template}
 % Packages (nicht in Class File um CompileTime zu verbessern)
 % Definitionen für das Dokument (Bis auf studentEins alle Optional)
@@ -103,16 +105,11 @@
         \thmnote{\space\sffamily\bfseries\color{black}---\space#3}% Optional theorem note
     }
     \begin{definition}[Mitternachtsformel] Für eine Polynom zweiten Grades in der Form $a\cdot x^2+b\cdot x + c$ \\gilt für $a,b,c \in \mathbb{R}$ immer:%
-        \makeatletter
-        \newcommand{\leqnomode}{\tagsleft@true}
-        \newcommand{\reqnomode}{\tagsleft@false}
-        \makeatother
-        \leqnomode
-        \begin{fleqn}[\parindent+2em]
+
             \begin{align}
                 x_{1/2} & =\frac{-b\pm\sqrt{b^{2}-4\cdot a \cdot c}}{2\cdot a}
             \end{align}
-        \end{fleqn}
+
     \end{definition}
     \begin{definition}
         test
@@ -133,7 +130,8 @@
         \subsection{\texorpdfstring{()MBbdI$\vert$}{()MBbdI|}} % Zeichen mit Maximaler Höhe
         asdf $\vcenter{\hbox{\tikz{\node[draw]{hi};}}}$
     \end{minipage}
-\end{task}\\
+\end{task}
+\todo{TODO}
 \clearpage
 \begin{task}[points=0]{Punktetabellen (WIP)}
 
