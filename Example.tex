@@ -29,7 +29,7 @@
 % \termOrder{printAuthor,printSheetNumber,printGroupNumber,printContributor,printVersion,,printSemester,printDate,printFachbereich}
 \termLeft{printAuthor,printSubmittors}
 \termRight{printSheetNumber,printGroupNumber,printGroupLeader,printSemester}
-\term{\printDate{}\hfill\printFachbereich{}}
+\term{\vspace{\baselineskip}\printDate{}\hfill\printFachbereich{}}
 \ConfigureHeadline{
 	headline={submittors-centered}
 }
@@ -122,11 +122,11 @@
     $\varphi, \psi$
 
     % Demonstration der gefixten Überschriftenhöhe
-    \begin{minipage}[t]{.5\textwidth}
+    \begin{minipage}[t]{.5\textwidth-1pt}
         \subsection{--------} % Nur Schmale Zeichen
         asdf
-    \end{minipage}
-    \begin{minipage}[t]{.49\textwidth}
+    \end{minipage}\hspace{2pt}%
+    \begin{minipage}[t]{.5\textwidth-1pt}
         \subsection{\texorpdfstring{()MBbdI$\vert$}{()MBbdI|}} % Zeichen mit Maximaler Höhe
         asdf $\vcenter{\hbox{\tikz{\node[draw]{hi};}}}$
     \end{minipage}
@@ -136,6 +136,7 @@
 \begin{task}[points=0]{Punktetabellen (WIP)}
 
     \begin{itemize}
+        \IfPointsLoadedF{\item ??}
         \mapTasks{
         \item \taskformat{}: \IfSubtasksTF{%
                   Gesamt \getPoints{\thetask} Punkte

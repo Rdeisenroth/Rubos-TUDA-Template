@@ -1,5 +1,5 @@
-\def\fileversion{1.3.2}
-\def\filedate{2021/06/19}
+\def\fileversion{1.3.4}
+\def\filedate{2021/07/26}
 
 % Sets the LaTeX version for the package to work.
 \NeedsTeXFormat{LaTeX2e}
@@ -10,7 +10,7 @@
 % Available at https://github.com/Rdeisenroth/TUDA-Hausuebungstemplate/blob/main/rubos-tuda-template.cls
 
 % Packages that need to be loaded before TUDA-Exercise Class
-\RequirePackage[table]{xcolor} % Option has to be set before loading TuDaExercise
+\RequirePackage[table, dvipsnames]{xcolor} % Option has to be set before loading TuDaExercise
 \RequirePackage{pagecolor} % Used for dark Mode
 \PassOptionsToPackage{bookmarksnumbered}{hyperref} % Praktischer
 \RequirePackage{scrlfile}
@@ -23,55 +23,44 @@
 \bool_gset_false:N \g_dark_mode_bool
 \bool_gset_false:N \g_manual_term_bool
 \bool_gset_false:N \g_is_summary_bool
+\bool_gset_false:N \g_is_main_file_bool
 \bool_gset_false:N \g_is_submission_bool
 \bool_gset_false:N \g_ptxcd_ex_load_common_bool
 \bool_gset_true:N \g_ptxcd_ex_fancy_rowcolor_bool
 \tl_gclear_new:N \datename
 \tl_gset:Nn \datename {Datum}
+\tl_gclear_new:N \g_rubos_external_label_prefix_tl
+\tl_gset:Nn \g_rubos_external_label_prefix_tl {ext:}
 \prop_new:N \g_ptxcd_template_opts_prop
 
+\tl_gclear_new:N \g_rubos_keys_tl
+\tl_gset:Nn \g_rubos_keys_tl {
+  boxarc .code:n = \prop_gput:Nnn \g_ptxcd_template_opts_prop {boxarc} {#1},
+  boxarc .initial:n = {0pt},
+  boxarc .default:n = {3pt},
+  dark_mode .code:n = \pagecolor{black}\color{white}\selectcolormodel{RGB}\bool_gset_true:N \g_dark_mode_bool,
+  manual_term .bool_gset:N = \g_manual_term_bool,
+  manual_term .initial:n = false,
+  manual_term .default:n = true,
+  summary .code:n = \bool_if:nTF \g_is_submission_bool {\ClassError{rubos-tuda-template}{summary\space can't\space be\space used\space with\space submission\space mode\space enabled}{disable\space submission\space mode}}{\bool_gset_true:N \g_is_summary_bool\tl_gset:Nn \datename {Stand}},
+  submission .code:n = \bool_if:nTF \g_is_summary_bool{\ClassError{rubos-tuda-template}{submission\space can't\space be\space used\space with\space summary\space mode\space enabled}{disable\space summary\space mode}}{\bool_gset_true:N \g_is_submission_bool},
+  load_common .bool_gset:N = \g_ptxcd_ex_load_common_bool,
+  load_common .initial:n = false,
+  load_common . default:n = true,
+  default_row_color .bool_gset_inverse:N = \g_ptxcd_ex_fancy_rowcolor_bool,
+  default_row_color .initial:n = false,
+  default_row_color .default:n = true,
+  shell_escape .bool_gset:N = \g_rubos_shell_escape_bool,
+  shell_escape .initial:n = true,
+  shell_escape .default:n = true,
+  main .bool_gset:N = \g_is_main_file_bool,
+  main .initial:n = false,
+  main .default:n = true,
+}
 % Additional Class Options
-\keys_define:nn {ptxcd/exercise} {
-  boxarc .code:n = \prop_gput:Nnn \g_ptxcd_template_opts_prop {boxarc} {#1},
-  boxarc .initial:n = {0pt},
-  boxarc .default:n = {3pt},
-  dark_mode .code:n = \pagecolor{black}\color{white}\selectcolormodel{RGB}\bool_gset_true:N \g_dark_mode_bool,
-  manual_term .bool_gset:N = \g_manual_term_bool,
-  manual_term .initial:n = false,
-  manual_term .default:n = true,
-  summary .code:n = \bool_if:nTF \g_is_submission_bool {\ClassError{rubos-tuda-template}{summary\space can't\space be\space used\space with\space submission\space mode\space enabled}{disable\space submission\space mode}}{\bool_gset_true:N \g_is_summary_bool\tl_gset:Nn \datename {Stand}},
-  submission .code:n = \bool_if:nTF \g_is_summary_bool{\ClassError{rubos-tuda-template}{submission\space can't\space be\space used\space with\space summary\space mode\space enabled}{disable\space summary\space mode}}{\bool_gset_true:N \g_is_submission_bool},
-  load_common .bool_gset:N = \g_ptxcd_ex_load_common_bool,
-  load_common .initial:n = false,
-  load_common . default:n = true,
-  default_row_color .bool_gset_inverse:N =  \g_ptxcd_ex_fancy_rowcolor_bool,
-  default_row_color .initial:n = false,
-  default_row_color .default:n = true,
-  shell_escape .bool_gset:N = \g_rubos_shell_escape_bool,
-  shell_escape .initial:n = true,
-  shell_escape .default:n = true,
-}
+\exp_args:Nno \keys_define:nn {ptxcd/exercise} { \g_rubos_keys_tl }
 % Compatibility with older versions (We can't use version check makros before loading the class)
-\keys_define:nn {TUDa/pub} {
-  boxarc .code:n = \prop_gput:Nnn \g_ptxcd_template_opts_prop {boxarc} {#1},
-  boxarc .initial:n = {0pt},
-  boxarc .default:n = {3pt},
-  dark_mode .code:n = \pagecolor{black}\color{white}\selectcolormodel{RGB}\bool_gset_true:N \g_dark_mode_bool,
-  manual_term .bool_gset:N = \g_manual_term_bool,
-  manual_term .initial:n = false,
-  manual_term .default:n = true,
-  summary .code:n = \bool_if:nTF \g_is_submission_bool {\ClassError{rubos-tuda-template}{summary\space can't\space be\space used\space with\space submission\space mode\space enabled}{disable\space submission\space mode}}{\bool_gset_true:N \g_is_summary_bool\tl_gset:Nn \datename {Stand}},
-  submission .code:n = \bool_if:nTF \g_is_summary_bool{\ClassError{rubos-tuda-template}{submission\space can't\space be\space used\space with\space summary\space mode\space enabled}{disable\space summary\space mode}}{\bool_gset_true:N \g_is_submission_bool},
-  load_common .bool_gset:N = \g_ptxcd_ex_load_common_bool,
-  load_common .initial:n = false,
-  load_common . default:n = true,
-  default_row_color .bool_gset_inverse:N =  \g_ptxcd_ex_fancy_rowcolor_bool,
-  default_row_color .initial:n = false,
-  default_row_color .default:n = true,
-  shell_escape .bool_gset:N = \g_rubos_shell_escape_bool,
-  shell_escape .initial:n = true,
-  shell_escape .default:n = true,
-}
+\exp_args:Nno \keys_define:nn {TUDa/pub} { \g_rubos_keys_tl }
 \ExplSyntaxOff
 
 \DeclareOption*{\PassOptionsToClass{\CurrentOption}{tudaexercise}}
@@ -94,6 +83,7 @@
 \RequirePackage{booktabs}
 \RequirePackage[font=small, labelfont=sc, position=bottom]{caption}
 \RequirePackage[labelfont=normalfont, position=bottom]{subcaption}
+\PassOptionsToPackage{inline}{enumitem}
 \RequirePackage{enumitem}
 \RequirePackage{mathtools}
 \RequirePackage{silence}
@@ -152,21 +142,24 @@
   % \RequirePackage[utf8]{inputenc} % Already loaded before cs quotes
   \RequirePackage{karnaughmap}
   \RequirePackage{latexsym}
-  \RequirePackage{lastpage}
   \RequirePackage{longtable}
   \RequirePackage{makecell}
   \RequirePackage[framemethod=tikz]{mdframed}
   \RequirePackage{mleftright}
   \RequirePackage[longtable]{multirow}
   \RequirePackage{nccmath}
+  \RequirePackage{pageslts}
+  \pagenumbering{arabic}
   \RequirePackage{placeins}
   \RequirePackage{pgfplots}
+  \pgfplotsset{compat=1.17}
   \RequirePackage{proof}
   \RequirePackage{qtree}
   \RequirePackage{ragged2e}
   \RequirePackage{stackengine}
   \RequirePackage{standalone}
   \RequirePackage{tabularx}
+  \RequirePackage{tagging}
   \RequirePackage{tikz}
   \ExplSyntaxOff % Tikz doesn't Like Expl3 :/
   \usetikzlibrary{3d, angles, animations, arrows, arrows.meta, arrows.spaced, automata, babel, backgrounds, bending, calc, calendar, chains, circuits.ee.IEC, circuits.logic.CDH, circuits.logic.IEC, circuits.logic.US, datavisualization, datavisualization.formats.functions, datavisualization.polar, decorations, decorations.footprints, decorations.fractals, decorations.markings, decorations.pathmorphing, decorations.pathreplacing, decorations.shapes, decorations.text, er, external, fadings, fit, fixedpointarithmetic, folding, fpu, graphs, graphs.standard, intersections, lindenmayersystems, math, matrix, patterns, patterns.meta, perspective, petri, plotmarks, positioning, quotes, rdf, scopes, shadings, shadows, shadows.blur, shapes, shapes.arrows, shapes.callouts, shapes.gates.logic.IEC, shapes.gates.logic.US, shapes.geometric, shapes.misc, shapes.multipart, shapes.symbols, spy, svg.path, through, tikzmark, topaths, trees, turtle, views}
@@ -392,6 +385,17 @@
 %     \setcounter{task}{\int_use:N \g_ptxcd_tmp_int}
 %   }
 % }
+
+\prg_new_conditional:Nnn \__rubos_if_points_loaded: {T,F,TF} {
+  \tl_if_empty:NTF \g__ptxcd_task_properties_loaded_tl
+  {\prg_return_false:}
+  {\prg_return_true:}
+}
+
+\cs_set_eq:NN\IfPointsLoadedT \__rubos_if_points_loaded:T
+\cs_set_eq:NN\IfPointsLoadedF \__rubos_if_points_loaded:F
+\cs_set_eq:NN\IfPointsLoadedTF \__rubos_if_points_loaded:TF
+
 % Star currently useless
 \NewDocumentCommand{\mapTasks}{sO{1}O{-1}m}{
 \prop_clear_new:N \l_temp_task_mapping_prop
@@ -1118,19 +1122,24 @@
                   % Left Side
                   \begin{minipage}[t]{\seq_if_empty:NF {\g_ptxcd_term_right_seq}{.6}\linewidth}
                     \str_if_eq:eeT{\g_ptxcd_ex_term_style_tl} {center} {\centering}
-                    \seq_use:Nnnn \g_ptxcd_term_left_seq {\mbox{}\\} {\mbox{}\\} {\mbox{}\\}
-                    \gdef\ptxcd_nextsep{\\}
+                    \seq_use:Nnnn \g_ptxcd_term_left_seq {\mbox{}\par} {\mbox{}\par} {\mbox{}\par}
+                    \gdef\ptxcd_nextsep{\par}
                   \end{minipage}
                   \seq_if_empty:NF {\g_ptxcd_term_right_seq}{
                     \begin{minipage}[t]{.4\linewidth}
                       \raggedleft
                       \begin{flushright}
-                        \seq_use:Nnnn \g_ptxcd_term_right_seq {\mbox{}\\} {\mbox{}\\} {\mbox{}\\}
+                        \seq_use:Nnnn \g_ptxcd_term_right_seq {\mbox{}\par} {\mbox{}\par} {\mbox{}\par}
                       \end{flushright}
-                      \gdef\ptxcd_nextsep{\\}
+                      \gdef\ptxcd_nextsep{\par}
                     \end{minipage}
-                    \tl_if_empty:NF \g_ptxcd_ex_term_tl {\ptxcd_nextsep\g_ptxcd_ex_term_tl}
                   }
+                  % \vspace{-\abovedisplayskip}
+                  \bool_if:nT { !\seq_if_empty_p:N \g_ptxcd_term_left_seq || !\seq_if_empty_p:N \g_ptxcd_term_right_seq } {
+                    \vspace*{\lineskip}
+                    \par
+                  }
+                  \tl_if_empty:NF \g_ptxcd_ex_term_tl {\g_ptxcd_ex_term_tl}
                   % \clist_map_inline:nn {@subtitle, @subsubtitle, g_ptxcd_ex_term_tl} {
                   %   \tl_if_empty:cF {##1} {\ptxcd_nextsep\use:c {##1}\def\ptxcd_nextsep{\\}}
                   % }
@@ -1596,6 +1605,37 @@
   \hyperref[#1]{\taskformat}
   \setcounter{task}{\int_use:N \g_ptxcd_tmp_int}
 }
+
+\newcommand{\includeinvertablegraphics}[2][]{% Grafik wird beim Dark Mode automatisch Invertiert (rgb)
+  \IfDarkModeTF{\includegraphics[decodearray={1.0~0.0~1.0~0.0~1.0~0.0},#1]{#2}}{\includegraphics[#1]{#2}}
+}
+\newcommand{\includeinvertablegrayscalegraphics}[2][]{% Grafik wird beim Dark Mode automatisch Invertiert (grayscale)
+  \IfDarkModeTF{\includegraphics[decodearray={1.0~0.0},#1]{#2}}{\includegraphics[#1]{#2}}
+}
+
+\newcommand{\setextlblprefix}[1]{
+  \tl_if_empty:cTF {#1} {
+    \tl_gset:Nn \g_rubos_external_label_prefix_tl {ext:}
+    } {
+      \tl_gset:Nn \g_rubos_external_label_prefix_tl {#1}
+  }
+}
+
+% References from external Files
+\newcommand{\extref}[2][\g_rubos_external_label_prefix_tl]{
+  \bool_if:NTF \g_is_main_file_bool {
+    \ref{#2}
+  } {
+    \ref{#1#2}
+  }
+}
+\NewDocumentCommand\exthyperref{oO{\g_rubos_external_label_prefix_tl}m}{
+  \bool_if:NTF \g_is_main_file_bool {
+    \hyperref[#1]{#3}
+  } {
+    \hyperref[#2#1]{#3}
+  }
+}
 \ExplSyntaxOff
 \newcommand{\raisedcode}[1]{\raisebox{.1em}{\code{#1}}}
 \newcommand{\bluecode}[1]{\code{\textcolor{\IfDarkModeTF{cyan}{blue}}{#1}}}
@@ -1624,6 +1664,20 @@
 \newcommand{\topleftpointer}[1]{{\node[inner sep=0pt] (lbl) at (.north) [xshift=-.3cm,yshift=.8cm] {\textcolor{orange}{#1}}; \draw[->,orange] ($(lbl.south)+(.05cm,0)$) -- ($(.north)-(.1cm,.15mm)$);}}
 \newcommand{\inlinejava}[1]{\lstinline[style=java]{#1}} % Wie in FOP- und AuD
 \newcommand{\hyraisedlink}[1]{\Hy@raisedlink{\hypertarget{#1}{}}}
+% Boxes surrounded by borders for information and warnings.
+\newcommand{\info}[1]{%
+  \begin{defBox}%
+    #1
+  \end{defBox}
+}
+\newcommand{\warning}[1]{
+    \begin{defBox}
+      \fatsf{Warnung:} #1
+    \end{defBox}
+}
+% Workarounds and similar stuff.
+\DeclareOldFontCommand{\it}{\normalfont\itshape}{\mathit}
+
 % Colors
 
 %Color Definitions
