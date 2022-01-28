@@ -1,5 +1,5 @@
-\def\fileversion{1.3.4}
-\def\filedate{2021/07/26}
+\def\fileversion{1.3.5}
+\def\filedate{2022/01/28}
 
 % Sets the LaTeX version for the package to work.
 \NeedsTeXFormat{LaTeX2e}
@@ -12,7 +12,7 @@
 % Packages that need to be loaded before TUDA-Exercise Class
 \RequirePackage[table, dvipsnames]{xcolor} % Option has to be set before loading TuDaExercise
 \RequirePackage{pagecolor} % Used for dark Mode
-\PassOptionsToPackage{bookmarksnumbered}{hyperref} % Praktischer
+\PassOptionsToPackage{bookmarksnumbered}{hyperref} % Nummerierte Bookmarks
 \definecolor{rubos@anthrazitgrau}{HTML}{293133}
 \RequirePackage{scrlfile}
 % Wir müssen imakeidx vor Hyperref laden, damit das Stichwortverzeichnis hyperlinks hat
@@ -773,6 +773,7 @@
   \tl_gset:Nn \g_ptxcd_ex_semester_tl {#1}
   \tl_if_empty:NF \g_ptxcd_ex_semester_tl {\tl_gset:Nn \printSemester {\textsf{\textbf{Semester:~}}\getSemester}}
 }
+\semester{}
 \newcommand*{\getSemester}{\g_ptxcd_ex_semester_tl}
 
 % Fachbereich
@@ -782,7 +783,7 @@
   \tl_gset:Nn \g_ptxcd_ex_fachbereich_tl {#1}
   \tl_if_empty:NF \g_ptxcd_ex_fachbereich_tl {\tl_gset:Nn \printFachbereich {\textsf{\textbf{Fachbereich:~}}\getFachbereich}}
 }
-\semester{}
+\fachbereich{}
 \newcommand*{\getFachbereich}{\g_ptxcd_ex_fachbereich_tl}
 % \newcommand*{\printFachbereich}{\tl_if_empty:NF \g_ptxcd_ex_fachbereich_tl {\sffamily\textbf{Fachbereich\space\getFachbereich}}}
 
@@ -985,18 +986,20 @@
   }
 }{}
 
-\cs_new:Nn \ptxcd_declare_caption:Nnnn {
-  \ptxcd_define_captionFallback:Nn #1 {#2}
-  \defcaptionname{ngerman, german}{#1}{#2}
-  \defcaptionname{english, USenglish, american}{#1}{#3}
-  \defcaptionname{UKenglish, british}{#1}{#4}
-}
+\IfTudaciVersionBetweenTF{3.0}{3.19}{
+  \cs_new:Nn \ptxcd_declare_caption:Nnnn {
+    \ptxcd_define_captionFallback:Nn #1 {#2}
+    \defcaptionname{ngerman, german}{#1}{#2}
+    \defcaptionname{english, USenglish, american}{#1}{#3}
+    \defcaptionname{UKenglish, british}{#1}{#4}
+  }
 
-\cs_new:Nn \ptxcd_declare_caption:Nnn {
-  \ptxcd_declare_caption:Nnnn #1 {#2} {#3} {#3}
-}
+  \cs_new:Nn \ptxcd_declare_caption:Nnn {
+    \ptxcd_declare_caption:Nnnn #1 {#2} {#3} {#3}
+  }
 
-\ptxcd_declare_caption:Nnn \authorandname {und} {and}
+  \ptxcd_declare_caption:Nnn \authorandname {und} {and}
+}{}
 
 \newcommand*{\@contributor}{
   \begingroup
@@ -1617,8 +1620,8 @@
 \newcommand{\setextlblprefix}[1]{
   \tl_if_empty:cTF {#1} {
     \tl_gset:Nn \g_rubos_external_label_prefix_tl {ext:}
-    } {
-      \tl_gset:Nn \g_rubos_external_label_prefix_tl {#1}
+  } {
+    \tl_gset:Nn \g_rubos_external_label_prefix_tl {#1}
   }
 }
 
@@ -1672,9 +1675,9 @@
   \end{defBox}
 }
 \newcommand{\warning}[1]{
-    \begin{defBox}
-      \fatsf{Warnung:} #1
-    \end{defBox}
+  \begin{defBox}
+    \fatsf{Warnung:} #1
+  \end{defBox}
 }
 % Workarounds and similar stuff.
 \DeclareOldFontCommand{\it}{\normalfont\itshape}{\mathit}
