@@ -1,4 +1,4 @@
-\def\fileversion{1.3.5}
+\def\fileversion{1.4}
 \def\filedate{2022/01/28}
 
 % Sets the LaTeX version for the package to work.
@@ -6,9 +6,9 @@
 % Identification of the class and its date and version.
 \ProvidesClass{rubos-tuda-template} [LaTeX Vorlage für Hausübungen, Zusammenfassungen und Abgaben basierend auf TuDaExercise]
 
-% Made by Ruben Deisenroth, 2021
+% Made by Ruben Deisenroth, 2022
 % Available at https://github.com/Rdeisenroth/TUDA-Hausuebungstemplate/blob/main/rubos-tuda-template.cls
-
+\RequirePackage[minted_workaround]{rubos-common}
 % Packages that need to be loaded before TUDA-Exercise Class
 \RequirePackage[table, dvipsnames]{xcolor} % Option has to be set before loading TuDaExercise
 \RequirePackage{pagecolor} % Used for dark Mode
@@ -20,8 +20,8 @@
   \RequirePackage{imakeidx}
   \RequirePackage{xr-hyper}
 }
+
 \ExplSyntaxOn
-\bool_gset_false:N \g_dark_mode_bool
 \bool_gset_false:N \g_manual_term_bool
 \bool_gset_false:N \g_is_summary_bool
 \bool_gset_false:N \g_is_main_file_bool
@@ -32,14 +32,11 @@
 \tl_gset:Nn \datename {Datum}
 \tl_gclear_new:N \g_rubos_external_label_prefix_tl
 \tl_gset:Nn \g_rubos_external_label_prefix_tl {ext:}
-\prop_new:N \g_ptxcd_template_opts_prop
 
 \tl_gclear_new:N \g_rubos_keys_tl
 \tl_gset:Nn \g_rubos_keys_tl {
-  boxarc .code:n = \prop_gput:Nnn \g_ptxcd_template_opts_prop {boxarc} {#1},
-  boxarc .initial:n = {0pt},
-  boxarc .default:n = {3pt},
-  dark_mode .code:n = \pagecolor{rubos@anthrazitgrau}\color{white}\selectcolormodel{RGB}\bool_gset_true:N \g_dark_mode_bool,
+  boxarc .code:n = \PassOptionsToPackage{\CurrentOption}{rubos-common},
+  dark_mode .code:n = \PassOptionsToPackage{\CurrentOption}{rubos-common},
   manual_term .bool_gset:N = \g_manual_term_bool,
   manual_term .initial:n = false,
   manual_term .default:n = true,
@@ -48,12 +45,8 @@
   load_common .bool_gset:N = \g_ptxcd_ex_load_common_bool,
   load_common .initial:n = false,
   load_common . default:n = true,
-  default_row_color .bool_gset_inverse:N = \g_ptxcd_ex_fancy_rowcolor_bool,
-  default_row_color .initial:n = false,
-  default_row_color .default:n = true,
-  shell_escape .bool_gset:N = \g_rubos_shell_escape_bool,
-  shell_escape .initial:n = true,
-  shell_escape .default:n = true,
+  fancy_row_color .code:n = \PassOptionsToPackage{\CurrentOption}{rubos-common},
+  shell_escape .code:n = \PassOptionsToPackage{\CurrentOption}{rubos-common},
   main .bool_gset:N = \g_is_main_file_bool,
   main .initial:n = false,
   main .default:n = true,
@@ -138,6 +131,7 @@
   \RequirePackage{etoolbox}
   % \RequirePackage[T1]{fontenc}
   \RequirePackage{forest}
+  \RequirePackage{fontawesome}
   \RequirePackage{framed}
   \RequirePackage{import}
   % \RequirePackage[utf8]{inputenc} % Already loaded before cs quotes
@@ -188,27 +182,6 @@
 }
 \newcommand{\IfTudaciVersionBetweenTF}[4]{
   \fp_compare:nTF {#1<=\getTudaciVersion{}<=#2}{#3}{#4}
-}
-
-% Zero Padding (Pads Number with the wanted amount of zeros)
-\int_new:N \l_limit_var_int
-\int_new:N \l_amount_var_int
-\NewDocumentCommand{\padzeroes}{O{2}m}{
-  \int_set:Nn \l_limit_var_int {1}
-  \int_set:Nn \l_amount_var_int {#1}
-  \bool_set_true:N \l_tmpa_bool
-  \bool_while_do:Nn \l_tmpa_bool
-  {
-    \int_compare:nTF {\l_amount_var_int > 0} {
-      \int_compare:nT {#2 < \l_limit_var_int} {
-        0
-      }
-      \int_set:Nn \l_limit_var_int {\int_eval:n {\l_limit_var_int * 10}}
-      \int_set:Nn \l_amount_var_int {\int_eval:n {\l_amount_var_int -1}}
-    }
-    {\bool_set_false:N \l_tmpa_bool}
-  }
-  #2
 }
 
 % Term Creation (Information Area below the Title, depreceated)
@@ -437,16 +410,6 @@
   {}
 }
 }{}
-
-% Just a basic recursion test
-\newcommand{\rubosfib}[1]{
-  \int_compare:nTF{#1 < 2}
-  {
-    #1
-  }{
-    \int_eval:n {\rubosfib{\int_eval:n {#1 - 1}} + \rubosfib{\int_eval:n {#1 - 2}}}
-  }
-}
 
 % #1: Token List which is a nested Property List (like: {3={a)=3,b)=2,},4={a)=5,b)=3,c)=8}})
 % #2: Comma List (List of the keys to get the desired value)
@@ -699,93 +662,35 @@
   }}
 \newcommand*{\printSheetNumber}{\tl_if_empty:NF \g_ptxcd_ex_sheetnum_tl {\sffamily\textbf{Übungsblatt\space{}Nummer:}\space\padzeroes{\getSheetnumber}}}
 
-% Sheet Version
-\tl_new:N \g_ptxcd_ex_sheetver_tl
-\tl_gclear_new:N \printVersion
-\newcommand*{\version}[1]{
-  \tl_gset:Nn \g_ptxcd_ex_sheetver_tl {#1}
-  \tl_if_empty:NF \g_ptxcd_ex_sheetver_tl {\tl_gset:Nn \printVersion {\sffamily\textbf{v\getVersion}}}
-}
-\newcommand*{\getVersion}{\g_ptxcd_ex_sheetver_tl}
-
 % Group Number
-\tl_new:N \g_ptxcd_ex_groupnum_tl
-\tl_gclear_new:N \printGroupNumber
-\newcommand*{\groupnumber}[1]{
-  \tl_gset:Nn \g_ptxcd_ex_groupnum_tl {#1}
-  \tl_if_empty:NF \g_ptxcd_ex_groupnum_tl {\tl_gset:Nn \printGroupNumber {\sffamily\textbf{Übungsgruppe\space{}Nummer:}\space\padzeroes{\getGroupnumber}}}
-}
-\newcommand*{\getGroupnumber}{\g_ptxcd_ex_groupnum_tl}
+\DeclareDocumentProperty{groupNumber}[][\textsf{\textbf{Übungsgruppe~Nummer:~}*}]
+\cs_set_eq:NN \groupnumber \groupNumber % Legacy Support
 
 % Group Leader
-\tl_new:N \g_ptxcd_ex_groupleader_tl
-\tl_gclear_new:N \printGroupLeader
-\newcommand*{\groupleader}[1]{
-  \tl_gset:Nn \g_ptxcd_ex_groupleader_tl {#1}
-  \tl_if_empty:NF \g_ptxcd_ex_groupleader_tl {\tl_gset:Nn \printGroupLeader {\sffamily\textbf{Übungsgruppenleiter:}\space\getGroupLeader}}
-}
-\newcommand*{\getGroupLeader}{\g_ptxcd_ex_groupleader_tl}
+\DeclareDocumentProperty{groupLeader}[][\textsf{\textbf{Übungsgruppenleiter:~}*}]
+\cs_set_eq:NN \groupleader \groupLeader % Legacy Support
 
 % Dozent
-\tl_new:N \g_ptxcd_ex_dozent_tl
-\tl_gclear_new:N \printDozent
-\newcommand*{\dozent}[1]{
-  \tl_gset:Nn \g_ptxcd_ex_dozent_tl {#1}
-  \tl_if_empty:NF \g_ptxcd_ex_dozent_tl {\tl_gset:Nn \printDozent {\sffamily\textbf{\getDozent}}}
-}
-\newcommand*{\getDozent}{\g_ptxcd_ex_dozent_tl}
+\DeclareDocumentProperty{dozent}[][\textsf{\textbf{Dozent:~}*}]
+
 
 % Topic
-\tl_new:N \g_ptxcd_ex_topic_tl
-\tl_gclear_new:N \printTopic
-\newcommand*{\topic}[1]{
-  \tl_gset:Nn \g_ptxcd_ex_topic_tl {#1}
-  \tl_if_empty:NF \g_ptxcd_ex_topic_tl {\tl_gset:Nn \printTopic {\sffamily\textbf{Themen:}\hfill\getTopic{}}}
-}
-\newcommand*{\getTopic}{\g_ptxcd_ex_topic_tl}
+\DeclareDocumentProperty{topic}[][\textsf{\textbf{Themen:~}*}]
 
 % slides
-\tl_new:N \g_ptxcd_ex_slides_tl
-\tl_gclear_new:N \printSlides
-\newcommand*{\slides}[1]{
-  \tl_gset:Nn \g_ptxcd_ex_slides_tl {#1}
-  \tl_if_empty:NF \g_ptxcd_ex_slides_tl {\tl_gset:Nn \printSlides {\sffamily\textbf{Relevante\space{}Foliensätze:}\hfill\getSlides{}}}
-}
-\newcommand*{\getSlides}{\g_ptxcd_ex_slides_tl}
+\DeclareDocumentProperty{slides}[][\sffamily\textbf{\sffamily\textbf{Relevante\space{}Foliensätze:}\hfill *}]
 
 % Due Date
-\tl_new:N \g_ptxcd_ex_due_date_tl
-\tl_gclear_new:N \printDueDate
-\newcommand*{\dueDate}[1]{
-  \tl_gset:Nn \g_ptxcd_ex_due_date_tl {#1}
-  \tl_if_empty:NF \g_ptxcd_ex_due_date_tl {\tl_gset:Nn \printDueDate {\sffamily\textbf{Abgabe\space{}der\space{}Hausübung:}\hfill\getDueDate{}}}
-}
-\dueDate{}
-\newcommand*{\getDueDate}{\g_ptxcd_ex_due_date_tl}
+\DeclareDocumentProperty{dueDate}[][\sffamily\textbf{Abgabe~der~Hausübung:}\hfill *]
 
 % Total Points
 \newcommand*{\printTotalPoints}{\textbf{\textsf{Maximal\space{}erreichbare\space{}Punkte:}}\hfill\getPointsTotal{}\space{}\fp_compare:nTF {\getPointsTotal{}=1}\PointName\PointsName}
 
 % Semester
-\tl_new:N \g_ptxcd_ex_semester_tl
-\tl_gclear_new:N \printSemester
-\newcommand*{\semester}[1]{
-  \tl_gset:Nn \g_ptxcd_ex_semester_tl {#1}
-  \tl_if_empty:NF \g_ptxcd_ex_semester_tl {\tl_gset:Nn \printSemester {\textsf{\textbf{Semester:~}}\getSemester}}
-}
-\semester{}
-\newcommand*{\getSemester}{\g_ptxcd_ex_semester_tl}
+\DeclareDocumentProperty{semester}[][\textsf{\textbf{Semester:~}*}]
 
 % Fachbereich
-\tl_new:N \g_ptxcd_ex_fachbereich_tl
-\tl_gclear_new:N \printFachbereich
-\newcommand*{\fachbereich}[1]{
-  \tl_gset:Nn \g_ptxcd_ex_fachbereich_tl {#1}
-  \tl_if_empty:NF \g_ptxcd_ex_fachbereich_tl {\tl_gset:Nn \printFachbereich {\textsf{\textbf{Fachbereich:~}}\getFachbereich}}
-}
-\fachbereich{}
-\newcommand*{\getFachbereich}{\g_ptxcd_ex_fachbereich_tl}
-% \newcommand*{\printFachbereich}{\tl_if_empty:NF \g_ptxcd_ex_fachbereich_tl {\sffamily\textbf{Fachbereich\space\getFachbereich}}}
+\DeclareDocumentProperty{fachbereich}[][\textsf{\textbf{Fachbereich:~}*}]
 
 % Short Title
 \newcommand*{\getShortTitle}{\IfTudaciVersionAtLeastTF{3.0}{
@@ -893,29 +798,6 @@
   }
 }
 
-\prg_new_conditional:Nnn \__ptxcd_if_dark_mode: {T,F,TF} {
-  \bool_if:NTF \g_dark_mode_bool
-  {\prg_return_true:}
-  {\prg_return_false:}
-}
-
-\cs_set_eq:NN\IfDarkModeT \__ptxcd_if_dark_mode:T
-\cs_set_eq:NN\IfDarkModeF \__ptxcd_if_dark_mode:F
-\cs_set_eq:NN\IfDarkModeTF \__ptxcd_if_dark_mode:TF
-
-\prg_new_conditional:Nnn \__rubos_if_shell_escape: {T,F,TF} {
-  \bool_if:NTF \g_rubos_shell_escape_bool
-  {\sys_if_shell_unrestricted:TF
-    {\prg_return_true:}
-    {\prg_return_false:}
-  }
-  {\prg_return_false:}
-}
-
-\cs_set_eq:NN\IfShellEscapeT \__rubos_if_shell_escape:T
-\cs_set_eq:NN\IfShellEscapeF \__rubos_if_shell_escape:F
-\cs_set_eq:NN\IfShellEscapeTF \__rubos_if_shell_escape:TF
-
 \ExplSyntaxOff
 
 
@@ -944,7 +826,7 @@
 }
 
 \ExplSyntaxOn
-\def\boxarc{\prop_item:Nn \g_ptxcd_template_opts_prop {boxarc}} % Used for Code Blocks, Info boxes, etc.
+\def\rubos@boxarc{\prop_item:Nn \g_rubos_document_opts_prop {boxarc}} % Used for Code Blocks, Info boxes, etc.
 
 \ExplSyntaxOff
 
@@ -969,12 +851,11 @@
 % Advanced Styling
 \ExplSyntaxOn
 
-% Row Color
-\bool_if:NT \g_ptxcd_ex_fancy_rowcolor_bool {
-  \rowcolors{2}{\thepagecolor}{fgcolor!10!\thepagecolor}
+\IfDarkModeT{
+  \IfFileExists{tuda_logo_inverted.pdf} {
+    \tl_gset:Nn \g_ptxcd_logofile_tl {tuda_logo_inverted.pdf}
+  } {}
 }
-
-\IfDarkModeT{\IfFileExists{tuda_logo_inverted.pdf}{\tl_gset:Nn \g_ptxcd_logofile_tl {tuda_logo_inverted.pdf}}{}}
 
 \IfTudaciVersionBetweenTF{2.10}{2.11}{
   \cs_new:Nn \ptxcd_define_captionFallback:Nn {
@@ -1432,175 +1313,9 @@
 
 \ExplSyntaxOff
 
-% --Environments and Boxes--
-
-% definition Environment Style
-\newtheoremstyle{mydefinition}% Theorem style name
-{0pt}% Space above
-{0pt}% Space below
-{\normalfont}% Body font
-{}% Indent amount
-{\small\bfseries\sffamily\color{accentcolor}}% Theorem head font
-{\;}% Punctuation after theorem head
-{0.25em}% Space after theorem head
-{
-  \small\sffamily\color{accentcolor}\thmname{#1}% Theorem text (e.g. Theorem 2.1)
-  \thmnote{\space\sffamily\bfseries\color{fgcolor}---\space#3}% Optional theorem note
-}
-
-% A Gray Info Box (gray bar on the Left+ light gray background)
-\newtcolorbox{grayInfoBox}[1][]{
-  colback=\IfDarkModeTF{white!10!\thepagecolor}{gray!10}, %Hintergrundfarbe
-  % colback=fgcolor!10!\thepagecolor, %Hintergrundfarbe
-  coltext=.,
-  colframe=gray, % Randfarbe
-  frame hidden,
-  title style=black!80,
-  arc=\boxarc,
-  boxrule=0pt,
-  left=5pt, % Links Platz lassen
-  enhanced, % Erlaubt uns, den ramen zu zeichnen
-  fonttitle=\sffamily, % Titelschriftart auf 
-  overlay={ % Für Grauen Bereich links
-      \begin{tcbclipinterior}
-        \fill[gray] (frame.south west) rectangle ([xshift=4pt]frame.north west); % Zeilennummernbereich färben
-      \end{tcbclipinterior}
-    },
-  #1 % Weitere Argumente zulassen
-}
-
-% A Normal Information Box (Accentcolor bar on the left)
-\newtcolorbox{infoBox}[1][]{
-  colback=\thepagecolor, %Hintergrundfarbe
-  colframe=accentcolor, % Randfarbe
-  coltext=.,
-  frame hidden,
-  title style=gray,
-  arc=\boxarc,
-  boxrule=0pt,
-  left=5pt, % Links Platz lassen
-  enhanced, % Erlaubt uns, den ramen zu zeichnen
-  fonttitle=\sffamily, % Titelschriftart auf 
-  overlay={ % Für Grauen Bereich links
-      \begin{tcbclipinterior}
-        \fill[accentcolor] (frame.south west) rectangle ([xshift=4pt]frame.north west); % Zeilennummernbereich färben
-      \end{tcbclipinterior}
-    },
-  #1 % Weitere Argumente zulassen
-}
-
-% An Important Information Box (Accentcolor bar on the left+ light Accentcolor BG)
-\newtcolorbox{defBox}[1][]{
-  colback=\IfDarkModeTF{accentcolor!20!\thepagecolor}{accentcolor!10!\thepagecolor}, %Hintergrundfarbe
-  colframe=accentcolor, % Randfarbe
-  coltext=.,
-  frame hidden,
-  title style=accentcolor,
-  arc=\boxarc,
-  boxrule=0pt,
-  left=5pt, % Links Platz lassen
-  enhanced, % Erlaubt uns, den ramen zu zeichnen
-  fonttitle=\sffamily, % Titelschriftart auf 
-  overlay={ % Für Grauen Bereich links
-      \begin{tcbclipinterior}
-        \fill[accentcolor] (frame.south west) rectangle ([xshift=4pt]frame.north west); % Zeilennummernbereich färben
-      \end{tcbclipinterior}
-    },
-  #1 % Weitere Argumente zulassen
-}
-
-% Box like The one Used for Code Blocks, just without Code Block
-\newtcolorbox{normalBox}[1][]{%
-  colback=fgcolor!10!\thepagecolor, %Hintergrundfarbe
-  colframe=black!70, % Randfarbe
-  coltext=.,
-  boxrule=0pt,
-  frame hidden,
-  title style=black!70,
-  arc=\boxarc,
-  left=5pt, % Links Platz lassen
-  enhanced, % Erlaubt uns, den ramen zu zeichnen
-  fonttitle=\sffamily, % Titelschriftart auf 
-  #1 % Weitere Argumente zulassen
-}
-
-% Definition Environment
-\theoremstyle{mydefinition}%
-\newtheorem{definitionT}{\textsf{Definition}}%
-\newtheorem{ideaT}{\textsf{Idee}}%
-\newenvironment{definition}{\begin{defBox}\begin{definitionT}}{\end{definitionT}\end{defBox}}%
-\newenvironment{idea}{\begin{defBox}\begin{ideaT}}{\end{ideaT}\end{defBox}}%
-
-\IfShellEscapeTF{
-  % Minted Line Number Styling
-  \renewcommand{\theFancyVerbLine}{\tikz{\coordinate(a);\node[text width=5mm,inner sep=0pt,align=center]{\ttfamily\textcolor{white}{\scriptsize\arabic{FancyVerbLine}}};}}
-
-  % Environment für meinen Style (Arg 1 = minted Options, Arg 2 = tcolorbox Options)
-  \newtcblisting{codeBlock}[2][]{
-    listing engine=minted, % Minted verwenden
-    colback=\IfDarkModeTF{codebg}{fgcolor!10!\thepagecolor}, %Hintergrundfarbe
-    colframe=black!70, % Randfarbe
-    coltext=.,
-    listing only,  % Sonst will er den Plain Text nach dem Minted Listing noch anfügen
-    frame hidden,
-    boxrule=0pt,
-    arc=\boxarc,
-    %hbox, % This option could be used to limit the Length of Code Blocks automatically, but does not work with the minted Line Numbers
-    title style=\IfDarkModeTF{accentcolor!60!\thepagecolor}{black!90},
-    minted style=\IfDarkModeTF{paraiso-dark}{default}, %Sieht actually worse aus imo
-    minted language=java, % Sprache setzen
-    minted options={ %Minted Optionen
-        linenos=true,
-        numbersep=3mm,
-        texcl=true,
-        #1 % weitere optionen für Minted zulassen
-      },
-    left=7.1mm, % Links Platz lassen
-    enhanced, % Erlaubt uns, den ramen zu zeichnen
-    fonttitle=\sffamily, % Titelschriftart auf 
-    overlay={ % Für Grauen Bereich links
-        \begin{tcbclipinterior}
-          \fill[black!70] (frame.south west) rectangle ([xshift=5mm]frame.north west); % Zeilennummernbereich färben
-        \end{tcbclipinterior}
-      },
-    #2 % Weitere Argumente zulassen
-  }
-}{
-  \lstnewenvironment{codeBlock}[2][]{}{}%
-}
-
-
-\lstloadlanguages{Java}
-\lstset{
-  basicstyle=\footnotesize\ttfamily,
-  keywordstyle=\IfDarkModeTF{\color{cyan!70!blue}}{\color{blue}},
-  stringstyle=\color{red},
-  commentstyle=\color{green!50!black},
-  showstringspaces=false,
-  breaklines,
-  breakatwhitespace,
-  keepspaces,
-  numbers=left,
-  numberstyle=\tiny,
-  numbersep=5pt,
-  backgroundcolor=\color{black!10},
-  frame=single
-}
-\lstdefinestyle{java}{
-  language=Java,
-  moredelim=[is][\textcolor{gray}]{\#|}{|\#},
-  moredelim=[is][\underline]{\#|!}{|\#}
-}
-
 % --Makros--
-\newenvironment*{cpenumerate}[1][]{\begin{enumerate}[nosep, #1]}{\end{enumerate}}
 % \newcommand{\code}[2][java]{\mintinline{#1}{#2}}
-\IfShellEscapeTF{
-  \usemintedstyle{borland}
-  \newmintinline[code]{java}{fontsize=\footnotesize}
-}{
-  \newcommand{\code}[1]{{\texttt{\footnotesize #1}}}
-}
+
 \ExplSyntaxOn
 \newcommand{\refexercise}[1]{
   \int_gzero_new:N \g_ptxcd_tmp_int
@@ -1608,13 +1323,6 @@
   \setcounter{task}{\getrefnumber{#1}}
   \hyperref[#1]{\taskformat}
   \setcounter{task}{\int_use:N \g_ptxcd_tmp_int}
-}
-
-\newcommand{\includeinvertablegraphics}[2][]{% Grafik wird beim Dark Mode automatisch Invertiert (rgb)
-  \IfDarkModeTF{\includegraphics[decodearray={1.0~0.0~1.0~0.0~1.0~0.0},#1]{#2}}{\includegraphics[#1]{#2}}
-}
-\newcommand{\includeinvertablegrayscalegraphics}[2][]{% Grafik wird beim Dark Mode automatisch Invertiert (grayscale)
-  \IfDarkModeTF{\includegraphics[decodearray={1.0~0.0},#1]{#2}}{\includegraphics[#1]{#2}}
 }
 
 \newcommand{\setextlblprefix}[1]{
@@ -1641,62 +1349,3 @@
   }
 }
 \ExplSyntaxOff
-\newcommand{\raisedcode}[1]{\raisebox{.1em}{\code{#1}}}
-\newcommand{\bluecode}[1]{\code{\textcolor{\IfDarkModeTF{cyan}{blue}}{#1}}}
-\newcommand{\red}[1]{\textcolor{red}{#1}}
-\newcommand{\fatsf}[1]{\textbf{\textsf{#1}}}
-\newcommand{\fatit}[1]{\textbf{\textit{#1}}}
-\newcommand{\gegeben}{\textbf{\textsf{Gegeben: }}}
-\newcommand{\gesucht}{\textbf{\textsf{Gesucht: }}}
-\newcommand{\zuzeigen}{\textbf{\textsf{Zu zeigen: }}}
-\newcommand{\zuberechnen}{\textbf{\textsf{Zu berechnen: }}}
-\newcommand{\zubestimmen}{\textbf{\textsf{Zu bestimmen: }}}
-\newcommand{\anzugeben}{\textbf{\textsf{Anzugeben: }}}
-\newcommand{\loesung}{\textbf{\textsf{Lösung: }}}
-\newcommand{\antwort}{\textbf{\textsf{Antwort: }}}
-\newcommand{\rechnung}{\textbf{\textsf{Rechnung: }}}
-\newcommand{\fakebullet}{~\raisebox{-.2\height}{\llap{\textbullet}}~}
-\newcommand{\fakebullett}{~\llap{-}~}
-\newcommand{\fakebullettt}{~\llap{*}~}
-\newcommand{\mlcell}[2][l]{\Gape[0pt][2pt]{\makecell[#1]{#2}}}
-\newcommand{\toprighttreemark}[1]{{\node[inner sep=0pt] at (.north east) [xshift=.2cm,yshift=.2cm] {#1};}}
-\newcommand{\toplefttreemark}[1]{{\node[inner sep=0pt] at (.north west) [xshift=-.2cm,yshift=.2cm] {#1};}}
-\newcommand{\toptreemark}[1]{{\node[inner sep=0pt] at (.north) [yshift=.2cm] {#1};}}
-\newcommand{\toppointer}[1]{{\node[inner sep=0pt] (lbl) at (.north) [yshift=1cm] {\textcolor{orange}{#1}}; \draw[->,orange] (lbl.south) -- (.north);}}
-\newcommand{\shorttoppointer}[1]{{\node[inner sep=0pt] (lbl) at (.north) [yshift=6mm] {\textcolor{orange}{#1}}; \draw[->,orange] (lbl.south) -- (.north);}}
-\newcommand{\toprightpointer}[1]{{\node[inner sep=0pt] (lbl) at (.north) [xshift=.3cm,yshift=.8cm] {\textcolor{orange}{#1}}; \draw[->,orange] ($(lbl.south)-(.05cm,0)$) -- ($(.north)+(.1cm,-.15mm)$);}}
-\newcommand{\topleftpointer}[1]{{\node[inner sep=0pt] (lbl) at (.north) [xshift=-.3cm,yshift=.8cm] {\textcolor{orange}{#1}}; \draw[->,orange] ($(lbl.south)+(.05cm,0)$) -- ($(.north)-(.1cm,.15mm)$);}}
-\newcommand{\inlinejava}[1]{\lstinline[style=java]{#1}} % Wie in FOP- und AuD
-\newcommand{\hyraisedlink}[1]{\Hy@raisedlink{\hypertarget{#1}{}}}
-% Boxes surrounded by borders for information and warnings.
-\newcommand{\info}[1]{%
-  \begin{defBox}%
-    #1
-  \end{defBox}
-}
-\newcommand{\warning}[1]{
-  \begin{defBox}
-    \fatsf{Warnung:} #1
-  \end{defBox}
-}
-% Workarounds and similar stuff.
-\DeclareOldFontCommand{\it}{\normalfont\itshape}{\mathit}
-
-% Colors
-
-%Color Definitions
-\definecolor{bashcodebg}{rgb}{0.85,0.85,0.85}
-\definecolor{tablegreen}{RGB}{207, 228, 174}
-\definecolor{tablered}{RGB}{255, 191, 191}
-\definecolor{tableyellow}{RGB}{255, 250, 193}
-\definecolor{tableblue}{RGB}{107, 207, 246}
-\definecolor{arrowgreen}{RGB}{0, 165, 79}
-\definecolor{clight2}{RGB}{212, 237, 244}
-\definecolor{codegreen}{rgb}{0,0.6,0}
-\definecolor{codegray}{rgb}{0.5,0.5,0.5}
-\definecolor{codepurple}{rgb}{0.58,0,0.82}
-\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
-\definecolor{codebg}{RGB}{22,43,58}
-\colorlet{fgcolor}{.}
-\newcommand{\resetrc}{\global\rownum=0\relax} % T#
-\newcommand{\continuerc}{\global\rownum=\numexpr\rownum - 1\relax} % T#

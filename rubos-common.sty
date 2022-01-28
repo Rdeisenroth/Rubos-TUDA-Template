@@ -1,0 +1,416 @@
+\NeedsTeXFormat{LaTeX2e}
+\RequirePackage{expl3}
+\ProvidesExplPackage{rubos-common}{2022/01/28}{1.0-pre}{Common Definitions for all Rubos templates}
+
+\RequirePackage{l3keys2e}
+\RequirePackage{amsthm}
+\RequirePackage[table, dvipsnames]{xcolor} % Option has to be set before loading TuDaExercise
+\RequirePackage{pagecolor} % Used for dark Mode
+\RequirePackage{tcolorbox}
+\tcbuselibrary{skins}
+\tcbuselibrary{minted}
+\RequirePackage{tikz}
+\ExplSyntaxOff
+\usetikzlibrary{calc}
+\ExplSyntaxOn
+
+
+% Package Options
+\prop_gclear_new:N \g_rubos_document_opts_prop
+\keys_define:nn {rubos/common} {
+    boxarc .code:n = \prop_gput:Nnn \g_rubos_document_opts_prop {boxarc} {#1},
+    boxarc .initial:n = {0pt},
+    boxarc .default:n = {3pt},
+    dark_mode .bool_gset:N = \g_rubos_dark_mode_bool,
+    dark_mode .initial:n = false,
+    dark_mode .default:n = true,
+    fancy_row_color .bool_gset:N = \g_ptxcd_ex_fancy_rowcolor_bool,
+    fancy_row_color .initial:n = false,
+    fancy_row_color .default:n = true,
+    minted_workaround .code:n = \cs_undefine:c {float@listhead},
+    shell_escape .bool_gset:N = \g_rubos_shell_escape_bool,
+    shell_escape .initial:n = true,
+    shell_escape .default:n = true,
+}
+
+\ProcessKeysOptions{rubos/common}
+
+%%--Color Definitions--%%
+\definecolor{arrowgreen}{RGB}{0, 165, 79}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\definecolor{bashcodebg}{rgb}{0.85,0.85,0.85}
+\definecolor{clight2}{RGB}{212, 237, 244}
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{codebg}{RGB}{22,43,58}
+\definecolor{rubos@anthrazitgrau}{HTML}{293133}
+\definecolor{tableblue}{RGB}{107, 207, 246}
+\definecolor{tablegreen}{RGB}{207, 228, 174}
+\definecolor{tablered}{RGB}{255, 191, 191}
+\definecolor{tableyellow}{RGB}{255, 250, 193}
+\colorlet{fgcolor}{.}
+
+%%-- Dark-Mode--%%
+\prg_new_conditional:Nnn \__rubos_of_dark_mode: {T,F,TF} {
+    \bool_if:NTF \g_rubos_dark_mode_bool
+    {\prg_return_true:}
+    {\prg_return_false:}
+}
+
+\cs_set_eq:NN\IfDarkModeT \__rubos_of_dark_mode:T
+\cs_set_eq:NN\IfDarkModeF \__rubos_of_dark_mode:F
+\cs_set_eq:NN\IfDarkModeTF \__rubos_of_dark_mode:TF
+
+\IfDarkModeT {
+    \pagecolor{rubos@anthrazitgrau}\color{white}\selectcolormodel{RGB}
+}
+
+\prg_new_conditional:Nnn \__rubos_if_shell_escape: {T,F,TF} {
+    \bool_if:NTF \g_rubos_shell_escape_bool
+    {\sys_if_shell_unrestricted:TF
+        {\prg_return_true:}
+        {\prg_return_false:}
+    }
+    {\prg_return_false:}
+}
+
+\cs_set_eq:NN\IfShellEscapeT \__rubos_if_shell_escape:T
+\cs_set_eq:NN\IfShellEscapeF \__rubos_if_shell_escape:F
+\cs_set_eq:NN\IfShellEscapeTF \__rubos_if_shell_escape:TF
+
+
+% Zero Padding (Pads Number with the wanted amount of zeros)
+\int_gzero_new:N \l_rubos_limit_var_int
+\int_gzero_new:N \l_rubos_amount_var_int
+\DeclareDocumentCommand{\padzeroes}{O{2}m}{
+    \int_set:Nn \l_rubos_limit_var_int {1}
+    \int_set:Nn \l_rubos_amount_var_int {#1}
+    \bool_set_true:N \l_tmpa_bool
+    \bool_while_do:Nn \l_tmpa_bool
+    {
+        \int_compare:nTF {\l_rubos_amount_var_int > 0} {
+            \int_compare:nT {#2 < \l_rubos_limit_var_int} {
+                0
+            }
+            \int_set:Nn \l_rubos_limit_var_int {\int_eval:n {\l_rubos_limit_var_int * 10}}
+            \int_set:Nn \l_rubos_amount_var_int {\int_eval:n {\l_rubos_amount_var_int -1}}
+        }
+        {\bool_set_false:N \l_tmpa_bool}
+    }
+    #2
+}
+
+% Just a basic recursion test
+\DeclareDocumentCommand{\rubosfib}{m}{
+    \int_compare:nTF{#1 < 2}
+    {
+        #1
+    }{
+        \int_eval:n {\rubosfib{\int_eval:n {#1 - 1}} + \rubosfib{\int_eval:n {#1 - 2}}}
+    }
+}
+
+% \DeclareDocument
+% #1: Property Name
+% #2: Default Value
+% #3: Print Text (use * for value)
+\DeclareDocumentCommand{\DeclareDocumentProperty}{mO{}O{}}{
+\tl_gclear_new:c {g_rubos_document_#1_tl}
+\tl_gclear_new:c {
+    print
+    \str_uppercase:f { \tl_head:n {#1} }
+    \tl_tail:n {#1}
+}
+% Get Property Command
+\expandafter\DeclareDocumentCommand\csname get\str_uppercase:f { \tl_head:n {#1} }\tl_tail:n {#1}\endcsname{m}{
+    \tl_use:c {g_rubos_document_#1_tl}
+}
+% Set Property Command
+\expandafter\DeclareDocumentCommand\csname#1\endcsname{m}{
+    \tl_gset:cn {g_rubos_document_#1_tl} {##1}
+    \tl_if_empty:cF {g_rubos_document_#1_tl} {
+        % Print Text
+        \tl_if_blank:nTF {#3} {
+            % Default Text
+            \tl_gset:cn {
+                print
+                \str_uppercase:f { \tl_head:n {#1} }
+                \tl_tail:n {#1}
+            } {
+                \sffamily\textbf{
+                    \str_uppercase:f { \tl_head:n {#1} }
+                    \tl_tail:n {#1}:~}\tl_use:c {g_rubos_document_#1_tl}
+            }
+        } {
+            % Custom Text
+            \tl_gclear_new:c {g_rubos_document_#1_print_tl}
+            \tl_gset:cn {g_rubos_document_#1_print_tl} {#3}
+            \exp_args:Nnnc \regex_replace_all:nnN {\*} {
+                \u{g_rubos_document_#1_tl}
+            } {g_rubos_document_#1_print_tl}
+            \tl_gset:cn {
+                print
+                \str_uppercase:f { \tl_head:n {#1} }
+                \tl_tail:n {#1}
+            } {
+                \tl_use:c {g_rubos_document_#1_print_tl}
+            }
+        }
+    }
+}
+\tl_if_blank:nF {#2} {
+    \csname#1\endcsname{#2}
+}
+}
+
+
+% Document Version
+\DeclareDocumentProperty{version}[1.0][\textsf{\textbf{Version:}}~v*]
+
+% Topic
+\DeclareDocumentProperty{topic}[][\textsf{\textbf{Themen:~}*}]
+
+%%--Blocks, Boxes and Environments--%%
+\def\rubos@boxarc{\prop_item:Nn \g_rubos_document_opts_prop {boxarc}} % Used for Code Blocks, Info boxes, etc.
+\@ifundefined{\string\color@accentcolor}{\definecolor{accentcolor}{RGB}{0, 157, 129}}{}
+
+% Fancy Table Row Color
+\bool_if:NT \g_ptxcd_ex_fancy_rowcolor_bool {
+    \rowcolors{2}{\thepagecolor}{fgcolor!10!\thepagecolor}
+}
+
+% A Gray Info Box (gray bar on the Left+ light gray background)
+\newtcolorbox{grayInfoBox}[1][]{
+    colback=\IfDarkModeTF{white!10!\thepagecolor}{gray!10}, %Hintergrundfarbe
+    % colback=fgcolor!10!\thepagecolor, %Hintergrundfarbe
+    coltext=.,
+    colframe=gray, % Randfarbe
+    frame~hidden,
+    title~style=black!80,
+    arc=\rubos@boxarc,
+    boxrule=0pt,
+    left=5pt, % Links Platz lassen
+    enhanced, % Erlaubt uns, den ramen zu zeichnen
+    fonttitle=\sffamily, % Titelschriftart auf 
+    overlay={ % Für Grauen Bereich links
+            \begin{tcbclipinterior}
+                \fill[gray] (frame.south~west) rectangle ([xshift=4pt]frame.north~west); % Zeilennummernbereich färben
+            \end{tcbclipinterior}
+        },
+    #1 % Weitere Argumente zulassen
+}
+
+% A Normal Information Box (Accentcolor bar on the left)
+\newtcolorbox{infoBox}[1][]{
+    colback=\thepagecolor, %Hintergrundfarbe
+    colframe=accentcolor, % Randfarbe
+    coltext=.,
+    frame~hidden,
+    title~style=gray,
+    arc=\rubos@boxarc,
+    boxrule=0pt,
+    left=5pt, % Links Platz lassen
+    enhanced, % Erlaubt uns, den ramen zu zeichnen
+    fonttitle=\sffamily, % Titelschriftart auf 
+    overlay={ % Für Grauen Bereich links
+            \begin{tcbclipinterior}
+                \fill[accentcolor] (frame.south~west) rectangle ([xshift=4pt]frame.north~west); % Zeilennummernbereich färben
+            \end{tcbclipinterior}
+        },
+    #1 % Weitere Argumente zulassen
+}
+
+% An Important Information Box (Accentcolor bar on the left+ light Accentcolor BG)
+\newtcolorbox{defBox}[1][]{
+    colback=\IfDarkModeTF{accentcolor!20!\thepagecolor}{accentcolor!10!\thepagecolor}, %Hintergrundfarbe
+    colframe=accentcolor, % Randfarbe
+    coltext=.,
+    frame~hidden,
+    title~style=accentcolor,
+    arc=\rubos@boxarc,
+    boxrule=0pt,
+    left=5pt, % Links Platz lassen
+    enhanced, % Erlaubt uns, den ramen zu zeichnen
+    fonttitle=\sffamily, % Titelschriftart auf 
+    overlay={ % Für Grauen Bereich links
+            \begin{tcbclipinterior}
+                \fill[accentcolor]~(frame.south~west) rectangle ([xshift=4pt]frame.north~west); % Zeilennummernbereich färben
+            \end{tcbclipinterior}
+        },
+    #1 % Weitere Argumente zulassen
+}
+
+% Box like The one Used for Code Blocks, just without Code Block
+\newtcolorbox{normalBox}[1][]{%
+    colback=fgcolor!10!\thepagecolor, %Hintergrundfarbe
+    colframe=black!70, % Randfarbe
+    coltext=.,
+    boxrule=0pt,
+    frame~hidden,
+    title~style=black!70,
+    arc=\rubos@boxarc,
+    left=5pt, % Links Platz lassen
+    enhanced, % Erlaubt uns, den ramen zu zeichnen
+    fonttitle=\sffamily, % Titelschriftart auf 
+    #1 % Weitere Argumente zulassen
+}
+
+% definition Environment Style
+\newtheoremstyle{mydefinition}% Theorem style name
+{0pt}% Space above
+{0pt}% Space below
+{\normalfont}% Body font
+{}% Indent amount
+{\small\bfseries\sffamily\color{accentcolor}}% Theorem head font
+{\;}% Punctuation after theorem head
+{0.25em}% Space after theorem head
+{
+    \small\sffamily\color{accentcolor}\thmname{#1}% Theorem text (e.g. Theorem 2.1)
+    \thmnote{\space\sffamily\bfseries\color{fgcolor}---\space#3}% Optional theorem note
+}
+
+% Definition Environment
+\theoremstyle{mydefinition}%
+\newtheorem{definitionT}{\textsf{Definition}}%
+\newtheorem{ideaT}{\textsf{Idee}}%
+\newenvironment{definition}{\begin{defBox}\begin{definitionT}}{\end{definitionT}\end{defBox}}%
+\newenvironment{idea}{\begin{defBox}\begin{ideaT}}{\end{ideaT}\end{defBox}}%
+
+\IfShellEscapeTF{
+
+\tcbuselibrary{minted}
+
+% Minted Line Number Styling
+\renewcommand{\theFancyVerbLine}{\tikz{\coordinate(a);\node[text~width=5mm,inner~sep=0pt,align=center]{\ttfamily\textcolor{white}{\scriptsize\arabic{FancyVerbLine}}};}}
+
+% Environment für meinen Code-Style (Arg 1 = minted Options, Arg 2 = tcolorbox Options)
+\definecolor{codebg}{RGB}{22,43,58}
+\IfDarkModeTF{
+\newtcblisting{codeBlock}[2][]{
+listing~engine=minted, % Minted verwenden
+colback=\IfDarkModeTF{codebg}{black!10!\thepagecolor}, %Hintergrundfarbe
+colframe=black!70, % Randfarbe
+coltext=.,
+listing~only,  % Sonst will er den Plain Text nach dem Minted Listing noch anfügen
+frame~hidden,
+boxrule=0pt,
+arc=\rubos@boxarc,
+%hbox, % This option could be used to limit the Length of Code Blocks automatically, but does not work with the minted Line Numbers
+title~style=\IfDarkModeTF{accentcolor!60!black}{black!90},
+minted~style=paraiso-dark, %Sieht actually worse aus imo
+minted~language=java, % Sprache setzen
+minted~options={ %Minted Optionen
+linenos=true,
+numbersep=3mm,
+texcl=true,
+#1 % weitere optionen für Minted zulassen
+},
+left=7.1mm, % Links Platz lassen
+enhanced, % Erlaubt uns, den ramen zu zeichnen
+fonttitle=\sffamily, % Titelschriftart auf 
+overlay={ % Für Grauen Bereich links
+        \begin{tcbclipinterior}
+            \fill[black!70] (frame.south~west) rectangle ([xshift=5mm]frame.north~west); % Zeilennummernbereich färben
+        \end{tcbclipinterior}
+    },
+#2 % Weitere Argumente zulassen
+}
+}{
+\newtcblisting{codeBlock}[2][]{
+listing~engine=minted, % Minted verwenden
+colback=\IfDarkModeTF{codebg}{black!10!\thepagecolor}, %Hintergrundfarbe
+colframe=black!70, % Randfarbe
+coltext=.,
+listing~only,  % Sonst will er den Plain Text nach dem Minted Listing noch anfügen
+frame~hidden,
+boxrule=0pt,
+arc=\rubos@boxarc,
+%hbox, % This option could be used to limit the Length of Code Blocks automatically, but does not work with the minted Line Numbers
+title~style=\IfDarkModeTF{accentcolor!60!black}{black!90},
+minted~style=tango, %Sieht actually worse aus imo
+minted~language=java, % Sprache setzen
+minted~options={ %Minted Optionen
+linenos=true,
+numbersep=3mm,
+texcl=true,
+#1 % weitere optionen für Minted zulassen
+},
+left=7.1mm, % Links Platz lassen
+enhanced, % Erlaubt uns, den ramen zu zeichnen
+fonttitle=\sffamily, % Titelschriftart auf 
+overlay={ % Für Grauen Bereich links
+        \begin{tcbclipinterior}
+            \fill[black!70] (frame.south~west) rectangle ([xshift=5mm]frame.north~west); % Zeilennummernbereich färben
+        \end{tcbclipinterior}
+    },
+#2 % Weitere Argumente zulassen
+}
+}
+
+}{
+\lstnewenvironment{codeBlock}[2][]{}{}%
+}
+
+
+%%--Makros--%%
+\DeclareDocumentEnvironment{cpenumerate}{O{}}{\begin{enumerate}[nosep, #1]}{\end{enumerate}}
+
+\DeclareDocumentCommand{\includeinvertablegraphics}{O{}m}{% Grafik wird beim Dark Mode automatisch Invertiert (rgb)
+    \IfDarkModeTF{\includegraphics[decodearray={1.0~0.0~1.0~0.0~1.0~0.0},#1]{#2}}{\includegraphics[#1]{#2}}
+}
+
+\DeclareDocumentCommand{\includeinvertablegrayscalegraphics}{O{}m}{% Grafik wird beim Dark Mode automatisch Invertiert (grayscale)
+    \IfDarkModeTF{\includegraphics[decodearray={1.0~0.0},#1]{#2}}{\includegraphics[#1]{#2}}
+}
+\IfShellEscapeTF{
+    \usemintedstyle{borland}
+    \newmintinline[code]{java}{fontsize=\footnotesize}
+}{
+    \DeclareDocumentCommand{\code}{m}{{\texttt{\footnotesize #1}}}
+}
+
+\DeclareDocumentCommand{\raisedcode}{m}{\raisebox{.1em}{\code{#1}}}
+\DeclareDocumentCommand{\bluecode}{m}{\code{\textcolor{\IfDarkModeTF{cyan}{blue}}{#1}}}
+\DeclareDocumentCommand{\red}{m}{\textcolor{red}{#1}}
+\DeclareDocumentCommand{\fatsf}{m}{\textbf{\textsf{#1}}}
+\DeclareDocumentCommand{\fatit}{m}{\textbf{\textit{#1}}}
+\DeclareDocumentCommand{\gegeben}{}{\textbf{\textsf{Gegeben:~}}}
+\DeclareDocumentCommand{\gesucht}{}{\textbf{\textsf{Gesucht:~}}}
+\DeclareDocumentCommand{\zuzeigen}{}{\textbf{\textsf{Zu~zeigen:~}}}
+\DeclareDocumentCommand{\zuberechnen}{}{\textbf{\textsf{Zu~berechnen:~}}}
+\DeclareDocumentCommand{\zubestimmen}{}{\textbf{\textsf{Zu~bestimmen:~}}}
+\DeclareDocumentCommand{\anzugeben}{}{\textbf{\textsf{Anzugeben:~}}}
+\DeclareDocumentCommand{\loesung}{}{\textbf{\textsf{Lösung:~}}}
+\DeclareDocumentCommand{\antwort}{}{\textbf{\textsf{Antwort:~}}}
+\DeclareDocumentCommand{\rechnung}{}{\textbf{\textsf{Rechnung:~}}}
+\DeclareDocumentCommand{\fakebullet}{}{~\raisebox{-.2\height}{\llap{\textbullet}}~}
+\DeclareDocumentCommand{\fakebullett}{}{~\llap{-}~}
+\DeclareDocumentCommand{\fakebullettt}{}{~\llap{*}~}
+\DeclareDocumentCommand{\mlcell}{O{l}m}{\Gape[0pt][2pt]{\makecell[#1]{#2}}}
+\DeclareDocumentCommand{\toprighttreemark}{m}{{\node[inner~sep=0pt] at (.north~east) [xshift=.2cm,yshift=.2cm] {#1};}}
+\DeclareDocumentCommand{\toplefttreemark}{m}{{\node[inner~sep=0pt] at (.north~west) [xshift=-.2cm,yshift=.2cm] {#1};}}
+\DeclareDocumentCommand{\toptreemark}{m}{{\node[inner~sep=0pt] at (.north) [yshift=.2cm] {#1};}}
+\DeclareDocumentCommand{\toppointer}{m}{{\node[inner sep=0pt] (lbl) at (.north) [yshift=1cm] {\textcolor{orange}{#1}}; \draw[->,orange] (lbl.south) -- (.north);}}
+\DeclareDocumentCommand{\shorttoppointer}{m}{{\node[inner~sep=0pt] (lbl) at (.north) [yshift=6mm] {\textcolor{orange}{#1}}; \draw[->,orange] (lbl.south) -- (.north);}}
+\DeclareDocumentCommand{\toprightpointer}{m}{{\node[inner~sep=0pt] (lbl) at (.north) [xshift=.3cm,yshift=.8cm] {\textcolor{orange}{#1}}; \draw[->,orange] ($(lbl.south)-(.05cm,0)$) -- ($(.north)+(.1cm,-.15mm)$);}}
+\DeclareDocumentCommand{\topleftpointer}{m}{{\node[inner~sep=0pt] (lbl) at (.north) [xshift=-.3cm,yshift=.8cm] {\textcolor{orange}{#1}}; \draw[->,orange] ($(lbl.south)+(.05cm,0)$) -- ($(.north)-(.1cm,.15mm)$);}}
+\DeclareDocumentCommand{\inlinejava}{m}{\lstinline[style=java]{#1}} % Wie in FOP- und AuD
+\DeclareDocumentCommand{\hyraisedlink}{m}{\Hy@raisedlink{\hypertarget{#1}{}}}
+% Boxes surrounded by borders for information and warnings.
+\DeclareDocumentCommand{\info}{m}{%
+    \begin{defBox}%
+        #1
+    \end{defBox}
+}
+\DeclareDocumentCommand{\warning}{m}{
+    \begin{defBox}
+        \fatsf{Warnung:}~#1
+    \end{defBox}
+}
+
+% Workarounds and similar stuff.
+\DeclareOldFontCommand{\it}{\normalfont\itshape}{\mathit}
+
+\DeclareDocumentCommand{\resetrc}{}{\global\rownum=0\relax} % T#
+\DeclareDocumentCommand{\continuerc}{}{\global\rownum=\numexpr\rownum - 1\relax} % T#

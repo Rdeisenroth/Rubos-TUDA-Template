@@ -3,7 +3,7 @@
     color=1b,
     load_common,
     submission,
-    % dark_mode,
+    dark_mode,
     % solution=true,
     boxarc,
     fleqn,
@@ -13,13 +13,15 @@
 ]{rubos-tuda-template}
 % Packages (nicht in Class File um CompileTime zu verbessern)
 % Definitionen für das Dokument (Bis auf studentEins alle Optional)
-\sheetnumber{12}
+
+\sheetnumber{1}
 \groupnumber{69}
 \addSubmittor{Ruben Deisenroth}{9876543}
 \addSubmittor{Max Mustermann}{1234567}
 \addSubmittor{Peter Peterson}{0000000}
-\groupleader{Senpai Yoda}
+\groupLeader{Senpai Yoda}
 \semester{WiSe 2020/21}
+% \version{2.1}
 \fachbereich{Informatik}
 \dozent{Prof. Dr. rer. nat. Foxy Schlaufux}
 \date{\today}
@@ -28,7 +30,7 @@
 \termStyle{left-right-manual}
 % \termOrder{printAuthor,printSheetNumber,printGroupNumber,printContributor,printVersion,,printSemester,printDate,printFachbereich}
 \termLeft{printAuthor,printSubmittors}
-\termRight{printSheetNumber,printGroupNumber,printGroupLeader,printSemester}
+\termRight{printSheetNumber,printVersion,printGroupNumber,printGroupLeader,printSemester}
 \term{\vspace{\baselineskip}\printDate{}\hfill\printFachbereich{}}
 \ConfigureHeadline{
 	headline={submittors-centered}
@@ -56,6 +58,31 @@
 % Übung 2
 \begin{task}[points=2,solution=true]{UwUOwO}
     LwL
+
+    \begin{minipage}[t]{.5\textwidth-.5cm}
+        \mbox{}
+        %\begin{noindent}
+        \begin{codeBlock}[autogobble,escapeinside=||,fontsize=\small]{minted language=java, title={\faCode{}\hfill ohne Generics\hfill\faCode}}
+            public class StringContainer {
+                public String value;
+            }
+            public class IntegerContainer {
+                public Integer value;
+            }
+        \end{codeBlock}
+        %\end{noindent}
+    \end{minipage}%
+    \hfill%
+    \begin{minipage}[t]{.5\textwidth-.5cm}
+        \mbox{}
+        %\begin{noindent}
+        \begin{codeBlock}[autogobble,escapeinside=||,fontsize=\small]{minted language=java, title={\faCode{}\hfill mit Generics\hfill\faCode}}
+            public class GenericContainer<T> {
+                public T value;
+            }
+        \end{codeBlock}
+        %\end{noindent}
+    \end{minipage}
 \end{task}
 \clearpage
 % Übung 3
@@ -106,9 +133,9 @@
     }
     \begin{definition}[Mitternachtsformel] Für eine Polynom zweiten Grades in der Form $a\cdot x^2+b\cdot x + c$ \\gilt für $a,b,c \in \mathbb{R}$ immer:%
 
-            \begin{align}
-                x_{1/2} & =\frac{-b\pm\sqrt{b^{2}-4\cdot a \cdot c}}{2\cdot a}
-            \end{align}
+        \begin{align}
+            x_{1/2} & =\frac{-b\pm\sqrt{b^{2}-4\cdot a \cdot c}}{2\cdot a}
+        \end{align}
 
     \end{definition}
     \begin{definition}
@@ -137,7 +164,7 @@
 
     \begin{itemize}
         \IfPointsLoadedF{\item ??}
-        \mapTasks{
+              \mapTasks{
         \item \taskformat{}: \IfSubtasksTF{%
                   Gesamt \getPoints{\thetask} Punkte
                   \begin{itemize}
