@@ -1,6 +1,8 @@
 # Rubos-Tuda-Template
 ## Was ist das?
-Eine Vorlage basierend auf tudaexercise.cls, die den Funktionsumfang für Abgaben und Zusammenfassungen erweitert (sowie einige Erleichterungen für Übungsblattersteller bereitstellt)
+Eine Vorlage basierend auf tudaexercise.cls, die den Funktionsumfang für Abgaben und Zusammenfassungen erweitert (sowie einige Erleichterungen für Übungsblattersteller bereitstellt).
+
+Die Vorlage ist auch auf [ShareLaTex](https://sharelatex01.ca.hrz.tu-darmstadt.de/templates/6218fc3d29efbb0097fc87b5) verfügbar.
 
 ## Voraussetzungen
 - Latex-Installation (z.B. MikTex oder TexLive)

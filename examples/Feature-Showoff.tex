@@ -1,0 +1,261 @@
+\documentclass[
+    ngerman,
+    color=1b,
+    load_common, % läd oft benutzte Pakete, erhöht aber die Compile-Time drastisch
+    submission,
+    submission,
+    dark_mode,
+    % solution=true,
+    boxarc,
+    fleqn,
+    % manual_term, % Restore original Functionality to term
+    % shell_escape = false, % Kompatibilität mit sharelatex
+    % T1,
+]{rubos-tuda-template}
+
+%%------------%%
+%%--Packages--%%
+%%------------%%
+% (nicht in Class File um CompileTime zu verbessern)
+
+% \usepackage{forest}
+
+%%-----------------------%%
+%%--Abgabeeinstellungen--%%
+%%-----------------------%%
+% (Bis auf studentEins alle Optional)
+
+\sheetnumber{1}
+\groupnumber{69}
+\addSubmittor{Ruben Deisenroth}{9876543}
+\addSubmittor{Max Mustermann}{1234567}
+\addSubmittor{Peter Peterson}{0000000}
+\groupLeader{Senpai Yoda}
+\semester{WiSe 2020/21}
+% \version{2.1}
+\fachbereich{Informatik}
+\dozent{Prof. Dr. rer. nat. Foxy Schlaufux}
+\date{\today}
+
+%%----------------------------%%
+%%--Stilistische Anpassungen--%%
+%%----------------------------%%
+
+% \renewcommand*{\taskformat}{H\thetask{}} % Taskprefix
+% \renewcommand*{\subtaskformat}{\thesubtask\enskip} % This looks way cleaner
+\termStyle{left-right-manual}
+% \termOrder{printAuthor,printSheetNumber,printGroupNumber,printContributor,printVersion,,printSemester,printDate,printFachbereich}
+\termLeft{printAuthor,printSubmittors}
+\termRight{printSheetNumber,printVersion,printGroupNumber,printGroupLeader,printSemester}
+\term{%
+    \vspace{\baselineskip}%
+    \printDate{}\hfill\printFachbereich{}%
+}
+\ConfigureHeadline{%
+	headline={submittors-centered}
+}
+
+%%-------------------------%%
+%%--Beginn des Dokumentes--%%
+%%-------------------------%%
+
+\begin{document}
+
+%%-----------%%
+%%--Titelei--%%
+%%-----------%%
+
+\title[Mathe 0]{Abgabe Hausübung\\im Fach\\ Mathematik 0}
+\maketitle{}
+%\printGradeTable{} % Erstellt eine Bewertungstabelle wie in Klausuren (Optionen für weglassen von Summe und Note Geplant)
+%\tableofcontents
+
+%%------------------------%%
+%%--Beginn der Hausübung--%%
+%%------------------------%%
+
+% Übung 1
+\begin{task}[points=8,solution=true]{\mdseries Systematisches Testen von Methoden}
+    \begin{cpenumerate}[label=\alph*)]
+        \item Was ist 1+1?
+        im Fach \getShortTitle{} gehen wir mit Zahlen wie Folgt um:
+        $1+1=-1-(-3)=\sqrt{4}=\underline{\underline{2}}$
+        \item Was ist 2-1?
+
+        $2-1=42-41=\sqrt{\left(\frac{2e^{42}}{\pi}\right)^{0}}=\underline{\underline{1}}$
+
+    \end{cpenumerate}
+\end{task}
+% Übung 2
+\begin{task}[points=2,solution=true]{UwUOwO}
+    LwL
+
+    \begin{minipage}[t]{.5\textwidth-.5cm}
+        \mbox{}
+        %\begin{noindent}
+        \begin{codeBlock}[autogobble,escapeinside=||,fontsize=\small]{minted language=java, title={\faCode{}\hfill ohne Generics\hfill\faCode}}
+            public class StringContainer {
+                public String value;
+            }
+            public class IntegerContainer {
+                public Integer value;
+            }
+        \end{codeBlock}
+        %\end{noindent}
+    \end{minipage}%
+    \hfill%
+    \begin{minipage}[t]{.5\textwidth-.5cm}
+        \mbox{}
+        %\begin{noindent}
+        \begin{codeBlock}[autogobble,escapeinside=||,fontsize=\small]{minted language=java, title={\faCode{}\hfill mit Generics\hfill\faCode}}
+            public class GenericContainer<T> {
+                public T value;
+            }
+        \end{codeBlock}
+        %\end{noindent}
+    \end{minipage}
+\end{task}
+\clearpage
+% Übung 3
+\begin{task}[points=auto,solution=true]{Alternativer style}
+    Such pretty much wow
+    \begin{subtask}[title={Ganzzahladdition auf \texorpdfstring{$\mathbb{N}$}{N}},points=3]
+        Was ist 69+420?
+        \begin{solution}
+            Die Antwort auf Alles ist $42$. Die Antwort auf diese Frage ist jedoch \the\numexpr420+69\relax.
+        \end{solution}
+    \end{subtask}
+    \begin{subtask}[title={Irgend son Graph},points=2]
+        \begin{defBox}
+            \gegeben $f(x)=0,5(x+1)^2-2$\\
+            \zuberechnen Nullstellen von $f(x)$
+        \end{defBox}
+        \begin{solution}
+            \begin{align*}
+                0,5(x+1)^2-2                                                    & =0                                                                                                 &  & \vert \text{Klammer auflösen}                        \\
+                0,5\cdot(x^2+2\cdot x \cdot 1 + 1^2)-2                          & =0                                                                                                 &  & \vert \text{Ausmultiplizieren}                       \\
+                0,5\cdot x^2+x +0,5-2                                           & =0                                                                                                                                                           \\
+                0,5\cdot x^2+x -1,5                                             & =0                                                                                                 &  & \vert \text{Mitternachtsformel mit a=0,5;b=1;c=-1,5} \\
+                \frac{-(1)\pm \sqrt{1^2-(4\cdot 0,5 \cdot (-1,5))}}{2\cdot 0,5} & =x_{1/2}                                                                                                                                                     \\
+                \frac{-1\pm \sqrt{1-(-3)}}{1}                                   & =x_{1/2}                                                                                                                                                     \\
+                \frac{-1\pm \sqrt{4}}{1}                                        & =x_{1/2}                                                                                                                                                     \\
+                -1 \pm 2                                                        & =x_{1/2} \Rightarrow \underline{\underline{x_1                                       = 1, x_2=-3}}
+            \end{align*}
+            \begin{grayInfoBox}
+                \antwort Die Funktion hat zwei Nullstellen, bei $x_1=1$ und bei $x_2=-1$.
+            \end{grayInfoBox}
+        \end{solution}
+    \end{subtask}
+\end{task}
+\clearpage
+\begin{task}[points=2,solution=true]{Weitere Macros}
+    Boxed/framed environments
+    \newtheoremstyle{ocrenumbox}% Theorem style name
+    {0pt}% Space above
+    {0pt}% Space below
+    {\normalfont}% Body font
+    {}% Indent amount
+    {\small\bfseries\sffamily\color{accentcolor}}% Theorem head font
+    {\;}% Punctuation after theorem head
+    {0.25em}% Space after theorem head
+    {
+        \small\sffamily\color{accentcolor}\thmname{#1}\space\thmnumber{#2}% Theorem text (e.g. Theorem 2.1)
+        \thmnote{\space\sffamily\bfseries\color{black}---\space#3}% Optional theorem note
+    }
+    \begin{definition}[Mitternachtsformel] Für eine Polynom zweiten Grades in der Form $a\cdot x^2+b\cdot x + c$ \\gilt für $a,b,c \in \mathbb{R}$ immer:%
+
+        \begin{align}
+            x_{1/2} & =\frac{-b\pm\sqrt{b^{2}-4\cdot a \cdot c}}{2\cdot a}
+        \end{align}
+
+    \end{definition}
+    \begin{definition}
+        test
+    \end{definition}
+    % Math Fonts
+    \verb+\mathscr+:$\mathscr{ABCDEFGHIJKLMNOPQRSTUVWXYZ}$
+
+    \verb+\mathcal+:$\mathcal{ABCDEFGHIJKLMNOPQRSTUVWXYZ}$
+
+    $\varphi, \psi$
+
+    % Demonstration der gefixten Überschriftenhöhe
+    \begin{minipage}[t]{.5\textwidth-1pt}
+        \subsection{--------} % Nur Schmale Zeichen
+        asdf
+    \end{minipage}\hspace{2pt}%
+    \begin{minipage}[t]{.5\textwidth-1pt}
+        \subsection{\texorpdfstring{()MBbdI$\vert$}{()MBbdI|}} % Zeichen mit Maximaler Höhe
+        asdf $\vcenter{\hbox{\tikz{\node[draw]{hi};}}}$
+    \end{minipage}
+\end{task}
+\todo{TODO}
+\clearpage
+\begin{task}[points=0]{Punktetabellen (WIP)}
+
+    \begin{itemize}
+        \IfPointsLoadedF{\item ??}
+              \mapTasks{
+        \item \taskformat{}: \IfSubtasksTF{%
+                  Gesamt \getPoints{\thetask} Punkte
+                  \begin{itemize}
+                      \mapSubtasks{\item \subtaskformat{}
+                            = \getSubPoints{\the\value{task}}{\the\value{subtask}}}
+                  \end{itemize}
+              }{%
+                  \getPoints{\thetask} Punkte
+              }
+              }
+    \end{itemize}\par
+    \begin{figure}[ht]
+        \centering
+        \begin{tikzpicture}
+            \tikzstyle{gradetablenode}=[minimum size=1cm, draw]
+            \tikzstyle{lightgraygradetablenode}=[gradetablenode, fill=fgcolor!10!\thepagecolor]
+            \node[lightgraygradetablenode, text width=3cm, font=\sffamily, anchor=west] (n0-0) at (0, 1){Aufgabe};
+            \node[gradetablenode, text width=3cm, font=\sffamily, below right = -\pgflinewidth and 0cm of n0-0.south west] (n1-0){Punkte (max)};
+            \node[gradetablenode, text width=3cm, font=\sffamily, below right = -\pgflinewidth and 0cm of n1-0.south west] (n2-0){Punkte (erreicht)};
+            \xdef\lasttask{0}
+            \mapTasks{
+                \node[lightgraygradetablenode, font=\bfseries, right=-\pgflinewidth of n0-\the\numexpr\value{task}-1\relax.east] (n0-\the\value{task}) {\thetask{}};
+                \node[gradetablenode, right=-\pgflinewidth of n1-\the\numexpr\value{task}-1\relax.east] (n1-\the\value{task}) {\getPoints{\thetask}};
+                \node[gradetablenode, right=-\pgflinewidth of n2-\the\numexpr\value{task}-1\relax.east] (n2-\the\value{task}) {\IfSolutionT{\fatsf{\getPoints{\thetask}}}};
+                \xdef\lasttask{\numexpr\lasttask+1\relax}
+            }
+            % Probably + 1 in node names is too much, will check later
+            \node[lightgraygradetablenode, minimum width=1.1cm, right=-\pgflinewidth of n0-\the\numexpr\lasttask\relax.east] (n0-\the\numexpr\lasttask + 1\relax){$\boldsymbol{\Sigma}$};
+            \node[gradetablenode, minimum width=1.1cm, right=-\pgflinewidth of n1-\the\numexpr\lasttask\relax.east] (n1-\the\numexpr\lasttask + 1\relax){$\getPointsTotal{}$};
+            \node[gradetablenode, minimum width=1.1cm, right=-\pgflinewidth of n2-\the\numexpr\lasttask\relax.east] (n2-\the\numexpr\lasttask + 1\relax){\IfSolutionT{\fatsf{\getPointsTotal{}}}};
+            % % Extra lines
+            \draw[transform canvas={xshift = -1mm}] (n0-0.north east) -- (n2-0.south east);
+            \draw[transform canvas={xshift = 1mm}] (n0-\the\numexpr\lasttask+1.north west) -- (n2-\the\numexpr\lasttask+1.south west);
+            \draw[thick] (n0-0.north west) rectangle (n2-\the\numexpr\lasttask+1.south east);
+        \end{tikzpicture}
+        \caption*{Punktetabelle, Design 2}
+    \end{figure}
+    \makeatletter
+    \newcommand*{\currentname}{\@currentlabelname}
+    \makeatother
+    \begin{table}[ht]
+        \centering
+        \def\arraystretch{2}
+        \rowcolors{2}{fgcolor!10!\thepagecolor}{fgcolor!10!\thepagecolor}
+        \begin{tabularx}{\textwidth}{|X|c|c|}
+            \toprule
+            \fatsf{Aufgabe}                                                                      & \fatsf{möglich}             & \fatsf{erreicht}                                                      \\
+            \midrule\midrule
+            \mapTasks*{%
+            \textbf{\getTaskProperty{taskformat}:~\getTaskProperty{title}}                       & \getTaskProperty{points}    & \IfSolutionT{\fatsf{\getPoints{\thetask}}}\IfSubtasksTF{\mapSubtasks{ \\
+            \rowcolor{\thepagecolor}\getSubTaskProperty{subtaskformat}\getSubTaskProperty{title} & \getSubTaskProperty{points} & \IfSolutionT{\fatsf{\getSubTaskProperty{points}}}
+                    }
+            }{}                                                                                                                                                                                        \\
+                \midrule\midrule
+            }
+            \textbf{Gesamt}                                                                      & \textbf{\getPointsTotal{}}  & \IfSolutionT{\fatsf{\getPointsTotal{}}}                               \\
+            \bottomrule
+        \end{tabularx}
+        \caption*{Punktetabelle, Design 3}
+        \label{tab:newtab}
+    \end{table}
+\end{task}
+\end{document}
