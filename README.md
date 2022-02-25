@@ -33,38 +33,46 @@ Dadurch kann die Vorlage Reibungslos mit VS-Code kompillieren.
 
 Die Vorlage wurde für LuaLaTeX geschrieben, ist aber dank des Latex3-Kernels auch mit PDFLaTeX und XELaTeX kompatibel.
 ## Installation
-Das Repo muss in den TeX-Path geklont werden. (alternativ: nur die `.cls` und `.sty`-Dateien kopieren)
+Der [`tex`](tex/)-Ordner der Vorlage muss im TeX-Path existieren.
 Diesen findet man mit dem Befehl:
 ```sh
 kpsewhich -var-value=TEXMFHOME
 ```
 > Unter Linux liegt der meist bei `~/texmf/tex/latex`
 
-Beispiel:
+<!-- Beispiel:
 
 ```sh
 cd path/to/texmf/tex/latex/
 git clone https://github.com/Rdeisenroth/Rubos-TUDA-Template.git
-```
+``` -->
 
-oder alternativ kann man den Ordner auch verlinken:
+Dazu kann man den [`tex`](tex/)-Ordner verlinken:
 
 ```sh
 # Linux/Mac
 git clone https://github.com/Rdeisenroth/Rubos-TUDA-Template.git
-ln -s Rubos-TUDA-Template path/to/texmf/tex/latex/Rubos-TUDA-Template 
-```
-```sh
-# Windows
-git clone https://github.com/Rdeisenroth/Rubos-TUDA-Template.git
 cd Rubos-TUDA-Template
+mkdir -p "$(kpsewhich -var-value=TEXMFHOME)/tex/latex/Rubos-TUDA-Template"
+# Hier kann auch -r statt -rs benutzt werden, um keinen Symlink zu erstellen...
+# texhash unterstützt keine Symlinks auf Verzeichnisse, sondern nur auf einzelne Dateien :(
+cp -rs "$(pwd)/tex" "$(kpsewhich -var-value=TEXMFHOME)/tex/latex/Rubos-TUDA-Template"
+sudo texhash "$(kpsewhich -var-value=TEXMFHOME)"
+```
+```bat
+REM Windows
+git clone https://github.com/Rdeisenroth/Rubos-TUDA-Template.git
+cd Rubos-TUDA-Template/tex
+REM (hierbei `path/to/texmf/` mit dem entsprechenden Tex-Path ersetzen)
 mklink path/to/texmf/tex/latex/Rubos-TUDA-Template 
+texhash
 ```
 
-> Wichtig: bei Dateiänderungen in TeX-Path muss nochmal der Command `texhash` (unter linux mit sudo) ausgeführt werden, bevor die Dateien erkannt werden.
+> Wichtig: bei jeder Dateiänderungen in TeX-Path muss nochmal der Command `texhash` (unter linux mit sudo) ausgeführt werden, bevor die Dateien erkannt werden.
 
 ## Bekannte Fehler/Warnungen
-- aktuell keine
+<!-- - aktuell keine -->
+- Einige Font-Shape Warnungen seit dem 2022-Kernel
 
 ## Was ist geplant?
 - Style-Vorlagen für Fächer
