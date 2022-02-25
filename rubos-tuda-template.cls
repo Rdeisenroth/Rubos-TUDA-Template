@@ -8,7 +8,7 @@
 
 % Made by Ruben Deisenroth, 2022
 % Available at https://github.com/Rdeisenroth/TUDA-Hausuebungstemplate/blob/main/rubos-tuda-template.cls
-\RequirePackage[minted_workaround]{rubos-common}
+\RequirePackage[minted_workaround,caption_workaround]{rubos-common}
 % Packages that need to be loaded before TUDA-Exercise Class
 \RequirePackage[table, dvipsnames]{xcolor} % Option has to be set before loading TuDaExercise
 \RequirePackage{pagecolor} % Used for dark Mode
