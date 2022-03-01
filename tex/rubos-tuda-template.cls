@@ -1,5 +1,5 @@
-\def\fileversion{1.4}
-\def\filedate{2022/01/28}
+\def\fileversion{1.4.1}
+\def\filedate{2022/03/01}
 
 % Sets the LaTeX version for the package to work.
 \NeedsTeXFormat{LaTeX2e}
@@ -69,6 +69,7 @@
   leqno,
   fleqn,
   footsepline=.5pt,
+  T1,
 ]{tudaexercise}
 
 % Packages
@@ -81,6 +82,7 @@
 \RequirePackage{enumitem}
 \RequirePackage{mathtools}
 \RequirePackage{silence}
+% \RequirePackage{amssymb}
 % \RequirePackage[T1]{fontenc}
 \WarningFilter[sillyfonterror]{latex}{Font shape declaration has}
 \ActivateWarningFilters[sillyfonterror]
@@ -90,6 +92,7 @@
   \DeclareFontShape{TU}{mdbch}{m}{n}{
     <-> \UnicodeFontFile{lmroman10-regular}{\UnicodeFontTeXLigatures}
   }{}
+  \RequirePackage[utf8]{luainputenc} % if problems with ß exist
 \fi
 \RequirePackage[charter, cal=cmcal]{mathdesign}
 \RequirePackage{XCharter}
@@ -770,9 +773,9 @@
 %   \tl_if_empty:NF \@date {\textbf{\textsf{Datum:~}}\@date}
 % }
 
-\clist_new:N \g_ptxcd_ex_term_order_clist
-\clist_gset:Nn \g_ptxcd_ex_term_order_clist {printAuthor,printSemester,printContributor,printVersion,quad,quad,printDate,printFachbereich}
-\newcommand*{\termOrder}[1]{\tl_gset:Nn \g_ptxcd_ex_term_order_clist {#1}}
+\clist_new:N \g_rubos_ex_term_order_clist
+\clist_gset:Nn \g_rubos_ex_term_order_clist {printAuthor,printSemester,printContributor,printVersion,quad,quad,printDate,printFachbereich}
+\newcommand*{\termOrder}[1]{\tl_gset:Nn \g_rubos_ex_term_order_clist {#1}}
 
 \tl_gclear_new:N \g_ptxcd_ex_term_style_tl
 \newcommand*{\termStyle}[1]{\tl_gset:Nn \g_ptxcd_ex_term_style_tl {#1}}
@@ -978,7 +981,7 @@
                 {
                   \def\ptxcd_nextsep{}
                   \bool_gset_true:N \g_tmpa_left_bool
-                  \clist_map_inline:Nn \g_ptxcd_ex_term_order_clist {
+                  \clist_map_inline:Nn \g_rubos_ex_term_order_clist {
                     % Process different term Styles
                     \str_case_e:nnF {\g_ptxcd_ex_term_style_tl} {
                       {left} {
