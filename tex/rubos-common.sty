@@ -1,12 +1,14 @@
 \NeedsTeXFormat{LaTeX2e}
 \RequirePackage{expl3}
-\ProvidesExplPackage{rubos-common}{2022/01/31}{1.0.1-snapshot}{Common Definitions for all Rubos templates}
+\ProvidesExplPackage{rubos-common}{2022/03/28}{1.0.1-snapshot}{Common Definitions for all Rubos templates}
 % Made by Ruben Deisenroth, 2022
-% Available at https://github.com/Rdeisenroth/TUDA-Hausuebungstemplate/blob/main/rubos-common.sty
+% Available at https://github.com/Rdeisenroth/Rubos-TUDA-Template/blob/main/tex/rubos-common.sty
 
 \RequirePackage{l3keys2e}
+\RequirePackage{amsmath}
 \RequirePackage{amsthm}
-\RequirePackage[table, dvipsnames]{xcolor} % Option has to be set before loading TuDaExercise
+\PassOptionsToPackage{table, dvipsnames}{xcolor} % Option has to be set before loading TuDaExercise
+\RequirePackage{xcolor}
 \RequirePackage{pagecolor} % Used for dark Mode
 \RequirePackage{tcolorbox}
 \tcbuselibrary{skins}
@@ -14,9 +16,9 @@
 \ExplSyntaxOff
 \usetikzlibrary{calc}
 \RequirePackage{listings}
+% \RequirePackage{fontawesome} % TODO: Klassenoption
 
 \ExplSyntaxOn
-
 
 % Package Options
 \prop_gclear_new:N \g_rubos_document_opts_prop
@@ -86,24 +88,12 @@
 \cs_set_eq:NN\IfShellEscapeF \__rubos_if_shell_escape:F
 \cs_set_eq:NN\IfShellEscapeTF \__rubos_if_shell_escape:TF
 
-
 % Zero Padding (Pads Number with the wanted amount of zeros)
-\int_gzero_new:N \l_rubos_limit_var_int
-\int_gzero_new:N \l_rubos_amount_var_int
 \DeclareDocumentCommand{\padzeroes}{O{2}m}{
-    \int_set:Nn \l_rubos_limit_var_int {1}
-    \int_set:Nn \l_rubos_amount_var_int {#1}
-    \bool_set_true:N \l_tmpa_bool
-    \bool_while_do:Nn \l_tmpa_bool
-    {
-        \int_compare:nTF {\l_rubos_amount_var_int > 0} {
-            \int_compare:nT {#2 < \l_rubos_limit_var_int} {
-                0
-            }
-            \int_set:Nn \l_rubos_limit_var_int {\int_eval:n {\l_rubos_limit_var_int * 10}}
-            \int_set:Nn \l_rubos_amount_var_int {\int_eval:n {\l_rubos_amount_var_int -1}}
+    \int_step_inline:nnnn {1} {1} {\int_eval:n {#1 - 1}} {
+        \int_compare:nT { #2 < \int_eval:n {##1 * 10}} {
+            0
         }
-        {\bool_set_false:N \l_tmpa_bool}
     }
     #2
 }
@@ -171,7 +161,6 @@
 }
 }
 
-
 % Document Version
 \DeclareDocumentProperty{version}[1.0][\textsf{\textbf{Version:}}~v*]
 
@@ -201,10 +190,10 @@
     enhanced, % Erlaubt uns, den ramen zu zeichnen
     fonttitle=\sffamily, % Titelschriftart auf 
     overlay={ % Für Grauen Bereich links
-            \begin{tcbclipinterior}
-                \fill[gray] (frame.south~west) rectangle ([xshift=4pt]frame.north~west); % Zeilennummernbereich färben
-            \end{tcbclipinterior}
-        },
+        \begin{tcbclipinterior}
+            \fill[gray] (frame.south~west) rectangle ([xshift=4pt]frame.north~west); % Zeilennummernbereich färben
+        \end{tcbclipinterior}
+    },
     #1 % Weitere Argumente zulassen
 }
 
@@ -221,10 +210,10 @@
     enhanced, % Erlaubt uns, den ramen zu zeichnen
     fonttitle=\sffamily, % Titelschriftart auf 
     overlay={ % Für Grauen Bereich links
-            \begin{tcbclipinterior}
-                \fill[accentcolor] (frame.south~west) rectangle ([xshift=4pt]frame.north~west); % Zeilennummernbereich färben
-            \end{tcbclipinterior}
-        },
+        \begin{tcbclipinterior}
+            \fill[accentcolor] (frame.south~west) rectangle ([xshift=4pt]frame.north~west); % Zeilennummernbereich färben
+        \end{tcbclipinterior}
+    },
     #1 % Weitere Argumente zulassen
 }
 
@@ -241,10 +230,10 @@
     enhanced, % Erlaubt uns, den ramen zu zeichnen
     fonttitle=\sffamily, % Titelschriftart auf 
     overlay={ % Für Grauen Bereich links
-            \begin{tcbclipinterior}
-                \fill[accentcolor]~(frame.south~west) rectangle ([xshift=4pt]frame.north~west); % Zeilennummernbereich färben
-            \end{tcbclipinterior}
-        },
+        \begin{tcbclipinterior}
+            \fill[accentcolor]~(frame.south~west) rectangle ([xshift=4pt]frame.north~west); % Zeilennummernbereich färben
+        \end{tcbclipinterior}
+    },
     #1 % Weitere Argumente zulassen
 }
 
@@ -283,100 +272,198 @@
     \theoremstyle{mydefinition}%
     \newtheorem{definitionT}{\textsf{Definition}}%
     \newtheorem{ideaT}{\textsf{Idee}}%
-    \DeclareDocumentEnvironment{definition}{}{\begin{defBox}\begin{definitionT}}{\end{definitionT}\end{defBox}}%
-    \DeclareDocumentEnvironment{idea}{}{\begin{defBox}\begin{ideaT}}{\end{ideaT}\end{defBox}}%
-}
+    \DeclareDocumentEnvironment{definition}{}{
+        \begin{defBox}
+            \begin{definitionT}
+                }{
+            \end{definitionT}
+        \end{defBox}
+    }%
+    \DeclareDocumentEnvironment{idea}{}{
+        \begin{defBox}
+            \begin{ideaT}
+                }{
+            \end{ideaT}
+        \end{defBox}
+    }%
 
-\DeclareDocumentEnvironment{hinweis}{O{}m}{
-    \begin{infoBox}
-        \normalsize\textsf{\textbf{Hinweis\tl_if_blank:nF {#1} {~(\textmd{#1})}:}}\par
-        #2
-        }{
-    \end{infoBox}
-}
-\DeclareDocumentEnvironment{hinweise}{O{}m}{
-    \begin{infoBox}
-        \normalsize\textsf{\textbf{Hinweise\tl_if_blank:nF {#1} {~(\textmd{#1})}:}}\par
-        #2
-        }{
-    \end{infoBox}
-}
-\DeclareDocumentEnvironment{uvhinweis}{O{}m}{
-    \begin{infoBox}
-        \normalsize\textsf{\textbf{Unverbindlicher~Hinweis\tl_if_blank:nF {#1} {~(\textmd{#1})}:}}\par
-        #2
-        }{
-    \end{infoBox}
-}
-\DeclareDocumentEnvironment{uvhinweise}{O{}m}{
-    \begin{infoBox}
-        \normalsize\textsf{\textbf{Unverbindlicher~Hinweise\tl_if_blank:nF {#1} {~(\textmd{#1})}:}}\par
-        #2
-        }{
-    \end{infoBox}
-}
-\DeclareDocumentEnvironment{erinnerung}{O{}m}{
-    \begin{infoBox}
-        \normalsize\textsf{\textbf{Erinnerung\tl_if_blank:nF {#1} {~(\textmd{#1})}:}}\par
-        #2
-        }{
-    \end{infoBox}
-}
-\DeclareDocumentEnvironment{vfrage}{O{0~Punkte}m}{
-    \begin{grayInfoBox}
-        \normalsize\textsf{\textbf{Verständnisfrage\tl_if_blank:nF {#1} {~(\textmd{#1})}:}}\par
-        #2
-        }{
-    \end{grayInfoBox}
-}
-\DeclareDocumentEnvironment{vfragen}{O{0~Punkte}m}{
-    \begin{grayInfoBox}
-        \normalsize\textsf{\textbf{Verständnisfragen\tl_if_blank:nF {#1} {~(\textmd{#1})}:}}\par
-        #2
-        }{
-    \end{grayInfoBox}
-}
-\DeclareDocumentEnvironment{vfrager}{O{0~Punkte}m}{
-    \begin{grayInfoBox}
-        \normalsize\textsf{\textbf{Verständnisfrage~am~Rande\tl_if_blank:nF {#1} {~(\textmd{#1})}:}}\par
-        #2
-        }{
-    \end{grayInfoBox}
-}
-\DeclareDocumentEnvironment{vfragenr}{O{0~Punkte}m}{
-    \begin{grayInfoBox}
-        \normalsize\textsf{\textbf{Verständnisfragen~am~Rande\tl_if_blank:nF {#1} {~(\textmd{#1})}:}}\par
-        #2
-        }{
-    \end{grayInfoBox}
-}
-\DeclareDocumentEnvironment{vanforderung}{O{}m}{
-    \begin{defBox}
-        \normalsize\textsf{\textbf{Verbindliche~Anforderung\tl_if_blank:nF {#1} {~(\textmd{#1})}:}}\par
-        #2
-        }{
-    \end{defBox}
-}
-\DeclareDocumentEnvironment{vanforderungen}{O{}m}{
-    \begin{defBox}
-        \normalsize\textsf{\textbf{Verbindliche~Anforderungen\tl_if_blank:nF {#1} {~(\textmd{#1})}:}}\par
-        #2
-        }{
-    \end{defBox}
-}
-\DeclareDocumentEnvironment{vanforderunghu}{O{}m}{
-    \begin{defBox}
-        \normalsize\textsf{\textbf{Verbindliche~Anforderung~für~die~gesamte~Hausübung \tl_if_blank:nF {#1} {~(\textmd{#1})}:}}\par
-        #2
-        }{
-    \end{defBox}
-}
-\DeclareDocumentEnvironment{vanforderungenhu}{O{}m}{
-    \begin{defBox}
-        \normalsize\textsf{\textbf{Verbindliche~Anforderungen~für~die~gesamte~Hausübung \tl_if_blank:nF {#1} {~(\textmd{#1})}:}}\par
-        #2
-        }{
-    \end{defBox}
+    \DeclareDocumentEnvironment{tipp}{O{}m}{
+        \begin{infoBox}
+            \normalsize\textsf{\textbf{Tipp\tl_if_blank:nF {#1} {~(\textmd{#1})}:}}\par
+            #2
+            }{
+        \end{infoBox}
+    }
+
+    \DeclareDocumentEnvironment{hinweis}{O{}m}{
+        \begin{infoBox}
+            \normalsize\textsf{\textbf{Hinweis\tl_if_blank:nF {#1} {~(\textmd{#1})}:}}\par
+            #2
+            }{
+        \end{infoBox}
+    }
+
+    \DeclareDocumentEnvironment{hinweise}{O{}m}{
+        \begin{infoBox}
+            \normalsize\textsf{\textbf{Hinweise\tl_if_blank:nF {#1} {~(\textmd{#1})}:}}\par
+            #2
+            }{
+        \end{infoBox}
+    }
+    \DeclareDocumentEnvironment{uvhinweis}{O{}m}{
+        \begin{infoBox}
+            \normalsize\textsf{\textbf{Unverbindlicher~Hinweis\tl_if_blank:nF {#1} {~(\textmd{#1})}:}}\par
+            #2
+            }{
+        \end{infoBox}
+    }
+    \DeclareDocumentEnvironment{uvhinweise}{O{}m}{
+        \begin{infoBox}
+            \normalsize\textsf{\textbf{Unverbindlicher~Hinweise\tl_if_blank:nF {#1} {~(\textmd{#1})}:}}\par
+            #2
+            }{
+        \end{infoBox}
+    }
+    \DeclareDocumentEnvironment{erinnerung}{O{}m}{
+        \begin{infoBox}
+            \normalsize\textsf{\textbf{Erinnerung\tl_if_blank:nF {#1} {~(\textmd{#1})}:}}\par
+            #2
+            }{
+        \end{infoBox}
+    }
+    \DeclareDocumentEnvironment{anmerkung}{O{}m}{
+        \begin{infoBox}
+            \normalsize\textsf{\textbf{Anmerkung\tl_if_blank:nF {#1} {~(\textmd{#1})}:}}\par
+            #2
+            }{
+        \end{infoBox}
+    }
+    \DeclareDocumentEnvironment{anmerkungr}{O{}m}{
+        \begin{infoBox}
+            \normalsize\textsf{\textbf{Anmerkung~am~Rande\tl_if_blank:nF {#1} {~(\textmd{#1})}:}}\par
+            #2
+            }{
+        \end{infoBox}
+    }
+    \DeclareDocumentEnvironment{bemerkung}{O{}m}{
+        \begin{infoBox}
+            \normalsize\textsf{\textbf{Bemerkung\tl_if_blank:nF {#1} {~(\textmd{#1})}:}}\par
+            #2
+            }{
+        \end{infoBox}
+    }
+    \DeclareDocumentEnvironment{bemerkungr}{O{}m}{
+        \begin{infoBox}
+            \normalsize\textsf{\textbf{Bemerkung~am~Rande\tl_if_blank:nF {#1} {~(\textmd{#1})}:}}\par
+            #2
+            }{
+        \end{infoBox}
+    }
+    \DeclareDocumentEnvironment{beispiel}{O{}m}{
+        \begin{infoBox}
+            \normalsize\textsf{\textbf{Beispiel\tl_if_blank:nF {#1} {~(\textmd{#1})}:}}\par
+            #2
+            }{
+        \end{infoBox}
+    }
+    \DeclareDocumentEnvironment{beispiele}{O{}m}{
+        \begin{infoBox}
+            \normalsize\textsf{\textbf{Beispiele\tl_if_blank:nF {#1} {~(\textmd{#1})}:}}\par
+            #2
+            }{
+        \end{infoBox}
+    }
+    \DeclareDocumentEnvironment{example}{O{}m}{
+        \begin{infoBox}
+            \normalsize\textsf{\textbf{Beispiel\tl_if_blank:nF {#1} {~(\textmd{#1})}:}}\par
+            #2
+            }{
+        \end{infoBox}
+    }
+    \DeclareDocumentEnvironment{vfrage}{O{0~Punkte}m}{
+        \begin{grayInfoBox}
+            \normalsize\textsf{\textbf{Verständnisfrage\tl_if_blank:nF {#1} {~(\textmd{#1})}:}}\par
+            #2
+            }{
+        \end{grayInfoBox}
+    }
+    \DeclareDocumentEnvironment{wvfrage}{O{0~Punkte}m}{
+        \begin{grayInfoBox}
+            \normalsize\textsf{\textbf{Wichtige~Verständnisfrage\tl_if_blank:nF {#1} {~(\textmd{#1})}:}}\par
+            #2
+            }{
+        \end{grayInfoBox}
+    }
+    \DeclareDocumentEnvironment{vfragen}{O{0~Punkte}m}{
+        \begin{grayInfoBox}
+            \normalsize\textsf{\textbf{Verständnisfragen\tl_if_blank:nF {#1} {~(\textmd{#1})}:}}\par
+            #2
+            }{
+        \end{grayInfoBox}
+    }
+    \DeclareDocumentEnvironment{wvfragen}{O{0~Punkte}m}{
+        \begin{grayInfoBox}
+            \normalsize\textsf{\textbf{Wichtige~Verständnisfragen\tl_if_blank:nF {#1} {~(\textmd{#1})}:}}\par
+            #2
+            }{
+        \end{grayInfoBox}
+    }
+    \DeclareDocumentEnvironment{vfrager}{O{0~Punkte}m}{
+        \begin{grayInfoBox}
+            \normalsize\textsf{\textbf{Verständnisfrage~am~Rande\tl_if_blank:nF {#1} {~(\textmd{#1})}:}}\par
+            #2
+            }{
+        \end{grayInfoBox}
+    }
+    \DeclareDocumentEnvironment{vfragenr}{O{0~Punkte}m}{
+        \begin{grayInfoBox}
+            \normalsize\textsf{\textbf{Verständnisfragen~am~Rande\tl_if_blank:nF {#1} {~(\textmd{#1})}:}}\par
+            #2
+            }{
+        \end{grayInfoBox}
+    }
+    \DeclareDocumentEnvironment{vanforderung}{O{}m}{
+        \begin{defBox}
+            \normalsize\textsf{\textbf{Verbindliche~Anforderung\tl_if_blank:nF {#1} {~(\textmd{#1})}:}}\par
+            #2
+            }{
+        \end{defBox}
+    }
+    \DeclareDocumentEnvironment{vanforderungen}{O{}m}{
+        \begin{defBox}
+            \normalsize\textsf{\textbf{Verbindliche~Anforderungen\tl_if_blank:nF {#1} {~(\textmd{#1})}:}}\par
+            #2
+            }{
+        \end{defBox}
+    }
+    \DeclareDocumentEnvironment{vanforderunghu}{O{}m}{
+        \begin{defBox}
+            \normalsize\textsf{\textbf{Verbindliche~Anforderung~für~die~gesamte~Hausübung \tl_if_blank:nF {#1} {~(\textmd{#1})}:}}\par
+            #2
+            }{
+        \end{defBox}
+    }
+    \DeclareDocumentEnvironment{vanforderungenhu}{O{}m}{
+        \begin{defBox}
+            \normalsize\textsf{\textbf{Verbindliche~Anforderungen~für~die~gesamte~Hausübung \tl_if_blank:nF {#1} {~(\textmd{#1})}:}}\par
+            #2
+            }{
+        \end{defBox}
+    }
+    \DeclareDocumentEnvironment{kaufgabe}{O{}m}{
+        \begin{defBox}
+            \normalsize\textsf{\textbf{Konkrete~Aufgabe\tl_if_blank:nF {#1} {~(\textmd{#1})}:}}\par
+            #2
+            }{
+        \end{defBox}
+    }
+    \DeclareDocumentEnvironment{kaufgaben}{O{}m}{
+        \begin{defBox}
+            \normalsize\textsf{\textbf{Konkrete~Aufgaben\tl_if_blank:nF {#1} {~(\textmd{#1})}:}}\par
+            #2
+            }{
+        \end{defBox}
+    }
 }
 % \theoremstyle{fopTheorem}%
 % \newtheorem{hinweisT}{\textsf{Hinweis:}}%
@@ -387,99 +474,99 @@
 \lstdefinelanguage{Racket}{%
     alsoletter=+-*/?\=<>!~\#,%
     morekeywords={%                                                                                                                                                          
-            empty, true, \#true, \#t, false, \#false, \#f%
-        },%
+        empty, true, \#true, \#t, false, \#false, \#f%
+    },%
     morekeywords={%                                                                                                                                                          
-            lambda, define-datatype, begin, begin0, set!, delay, shared, recur,%
-            case, match, when, unless%
-        },%
+        lambda, define-datatype, begin, begin0, set!, delay, shared, recur,%
+        case, match, when, unless%
+    },%
     morekeywords={%                                                                                                                                                          
-            local, letrec, let*, let, time, define, define-struct, cond, else, if,%
-            and, or, check-expect, check-random, check-satisfied, check-within,%
-            check-error, check-member-of, check-range, require%
-        },%
+        local, letrec, let*, let, time, define, define-struct, cond, else, if,%
+        and, or, check-expect, check-random, check-satisfied, check-within,%
+        check-error, check-member-of, check-range, require%
+    },%
     morekeywords={%                                                                                                                                                          
-            -, <, <=, =, >, >=, abs, acos, add1, angle, asin, atan, ceiling,%
-            complex?, conjugate, cos, cosh, current-seconds, denominator, e, even?,%
-            exact->inexact, exact?, exp, expt, floor, gcd, imag-part,%
-            inexact->exact, inexact?, integer->char, integer-sqrt, integer?, lcm,%
-            log, magnitude, make-polar, make-rectangular, max, min, modulo,%
-            negative?, number->string, number?, numerator, odd?, pi, positive?,%
-            quotient, random, rational?, real-part, real?, remainder, round, sgn,%
-            sin, sinh, sqr, sqrt, sub1, tan, zero?%
-        },%
+        -, <, <=, =, >, >=, abs, acos, add1, angle, asin, atan, ceiling,%
+        complex?, conjugate, cos, cosh, current-seconds, denominator, e, even?,%
+        exact->inexact, exact?, exp, expt, floor, gcd, imag-part,%
+        inexact->exact, inexact?, integer->char, integer-sqrt, integer?, lcm,%
+        log, magnitude, make-polar, make-rectangular, max, min, modulo,%
+        negative?, number->string, number?, numerator, odd?, pi, positive?,%
+        quotient, random, rational?, real-part, real?, remainder, round, sgn,%
+        sin, sinh, sqr, sqrt, sub1, tan, zero?%
+    },%
     morekeywords={%                                                                                                                                                          
-            boolean->string, boolean=?, boolean?, false?, not%
-        },%
+        boolean->string, boolean=?, boolean?, false?, not%
+    },%
     morekeywords={%                                                                                                                                                          
-            symbol->string, symbol=?, symbol%
-        },%
+        symbol->string, symbol=?, symbol%
+    },%
     morekeywords={%                                                                                                                                                          
-            append, assoc, assq, caaar, caadr, caar, cadar, cadddr, caddr, cadr,%
-            car, cdaar, cdadr, cdar, cddar, cdddr, cddr, cdr, cons, cons?, eighth,%
-            empty?, fifth, first, for-each, fourth, length, list, list*, list-ref,%
-            list?, make-list, member, member?, memq, memq?, memv, null, null?,%
-            range, remove, remove-all, rest, reverse, second, seventh, sixth, third%
-        },%
+        append, assoc, assq, caaar, caadr, caar, cadar, cadddr, caddr, cadr,%
+        car, cdaar, cdadr, cdar, cddar, cdddr, cddr, cdr, cons, cons?, eighth,%
+        empty?, fifth, first, for-each, fourth, length, list, list*, list-ref,%
+        list?, make-list, member, member?, memq, memq?, memv, null, null?,%
+        range, remove, remove-all, rest, reverse, second, seventh, sixth, third%
+    },%
     morekeywords={%
-            make-posn, posn-x, posn-y, posn?, set-posn-x!, set-posn-y!%
-        },%
+        make-posn, posn-x, posn-y, posn?, set-posn-x!, set-posn-y!%
+    },%
     morekeywords={%
-            char->integer, char-alphabetic?, char-ci<=?, char-ci<?, char-ci=?,%
-            char-ci>=?, char-ci>?, char-downcase, char-lower-case?, char-numeric?,%
-            char-upcase, char-upper-case?, char-whitespace?, char<=?, char<?,%
-            char=?, char>=?, char>?, char?%
-        },%
+        char->integer, char-alphabetic?, char-ci<=?, char-ci<?, char-ci=?,%
+        char-ci>=?, char-ci>?, char-downcase, char-lower-case?, char-numeric?,%
+        char-upcase, char-upper-case?, char-whitespace?, char<=?, char<?,%
+        char=?, char>=?, char>?, char?%
+    },%
     morekeywords={%
-            explode, format, implode, int->string, list->string, make-string,%
-            replicate, string, string->int, string->list, string->number,%
-            string->symbol, string-alphabetic?, string-contains-ci?,%
-            string-contains?, string-copy, string-downcase, string-ith,%
-            string-length, string-lower-case?, string-numeric?, string-ref,%
-            string-upcase, string-upper-case?, string-whitespace?, string?,%
-            substring%
-        },%
+        explode, format, implode, int->string, list->string, make-string,%
+        replicate, string, string->int, string->list, string->number,%
+        string->symbol, string-alphabetic?, string-contains-ci?,%
+        string-contains?, string-copy, string-downcase, string-ith,%
+        string-length, string-lower-case?, string-numeric?, string-ref,%
+        string-upcase, string-upper-case?, string-whitespace?, string?,%
+        substring%
+    },%
     morekeywords={%
-            image=?, image?%
-        },%
+        image=?, image?%
+    },%
     morekeywords={%
-            =~, current-milliseconds, eof, eof-object?, eq?, equal?, equal~?, eqv?,%
-            error, exit, force, gensym, identity, promise?, sleep, struct?, void,%
-            void?%
-        },%
+        =~, current-milliseconds, eof, eof-object?, eq?, equal?, equal~?, eqv?,%
+        error, exit, force, gensym, identity, promise?, sleep, struct?, void,%
+        void?%
+    },%
     morekeywords={%
-            +, *, /
-        },%
+        +, *, /
+    },%
     morekeywords={%
-            string-append, string-ci<=?, string-ci<?, string-ci=?, string-ci>=?,%
-            string-ci>?, string<=?, string<?, string=?, string>=?, string>?%
-        },%
+        string-append, string-ci<=?, string-ci<?, string-ci=?, string-ci>=?,%
+        string-ci>?, string<=?, string<?, string=?, string>=?, string>?%
+    },%
     morekeywords={%
-            posn%
-        },%
+        posn%
+    },%
     morekeywords={%
-            andmap, apply, argmax, argmin, build-list, build-string, compose,%
-            filter, foldl, foldr, map, memf, ormap, procedure?, quicksort, sort%
-        },%
+        andmap, apply, argmax, argmin, build-list, build-string, compose,%
+        filter, foldl, foldr, map, memf, ormap, procedure?, quicksort, sort%
+    },%
     morekeywords={%
-            display, newline, pretty-print, print, printf, read,%
-            with-input-from-file, with-input-from-string, with-output-to-file,%
-            with-output-to-string, write%
-        },%
+        display, newline, pretty-print, print, printf, read,%
+        with-input-from-file, with-input-from-string, with-output-to-file,%
+        with-output-to-string, write%
+    },%
     morekeywords={%
-            build-vector, list->vector, make-vector, vector, vector->list,%
-            vector-length, vector-ref, vector-set!, vector?%
-        },%
+        build-vector, list->vector, make-vector, vector, vector->list,%
+        vector-length, vector-ref, vector-set!, vector?%
+    },%
     morekeywords={%
-            box, box?, set-box!, unbox
-        },%
+        box, box?, set-box!, unbox
+    },%
     morekeywords={%
-            hash-copy, hash-count, hash-eq?, hash-equal?, hash-eqv?, hash-for-each,%
-            hash-has-key?, hash-map, hash-ref, hash-ref!, hash-remove,%
-            hash-remove!, hash-set, hash-set!, hash-update, hash-update!, hash?,%
-            make-hash, make-hasheq, make-hasheqv, make-immutable-hash,%
-            make-immutable-hasheq, make-immutable-hasheqv
-        },%
+        hash-copy, hash-count, hash-eq?, hash-equal?, hash-eqv?, hash-for-each,%
+        hash-has-key?, hash-map, hash-ref, hash-ref!, hash-remove,%
+        hash-remove!, hash-set, hash-set!, hash-update, hash-update!, hash?,%
+        make-hash, make-hasheq, make-hasheqv, make-immutable-hash,%
+        make-immutable-hasheq, make-immutable-hasheqv
+    },%
     morecomment=[l]{;},%
     morecomment=[s]{\#|}{|\#},%
     morestring=[b]{"}%
@@ -497,9 +584,9 @@
 
 \lstset{
     basicstyle=\ttfamily,
-    keywordstyle=\color{\IfDarkModeTF{blue!50!cyan}{rubos@codekeyword}},
-    stringstyle=\color{rubos@codestring},
-    commentstyle=\color{rubos@codecomment},
+    keywordstyle=\color{\IfDarkModeTF{cyan!70!blue}{rubos@codekeyword}},
+    stringstyle=\color{\IfDarkModeTF{orange!70!yellow}{rubos@codestring}},
+    commentstyle=\color{\IfDarkModeTF{green}{rubos@codecomment}},
     showstringspaces=false,
     breaklines,
     breakatwhitespace,
@@ -530,7 +617,6 @@
 \lstnewenvironment{racket}[1][]{language=java,\lstset{style=racket, #1}}{}
 \lstnewenvironment{java}[1][]{language=racket,\lstset{style=java, #1}}{}
 
-
 \IfShellEscapeTF{
 \tcbuselibrary{minted}
 \bool_if:NT \g_rubos_minted_workaround_bool {
@@ -551,7 +637,7 @@ frame~hidden,
 boxrule=0pt,
 arc=\rubos@boxarc,
 %hbox, % This option could be used to limit the Length of Code Blocks automatically, but does not work with the minted Line Numbers
-title~style=\IfDarkModeTF{accentcolor!60!black}{black!90},
+title~style=\IfDarkModeTF{accentcolor!60!black}{accentcolor},
 minted~style/.expanded=\IfDarkModeTF{dracula}{tango}, % Highlighting Style anpassen
 minted~language=java, % Sprache setzen
 minted~options={ %Minted Optionen
@@ -567,10 +653,10 @@ left=7.1mm, % Links Platz lassen
 enhanced, % Erlaubt uns, den ramen zu zeichnen
 fonttitle=\sffamily, % Titelschriftart auf 
 overlay={ % Für Grauen Bereich links
-        \begin{tcbclipinterior}
-            \fill[black!70] (frame.south~west) rectangle ([xshift=5mm]frame.north~west); % Zeilennummernbereich färben
-        \end{tcbclipinterior}
-    },
+    \begin{tcbclipinterior}
+        \fill[black!70] (frame.south~west) rectangle ([xshift=5mm]frame.north~west); % Zeilennummernbereich färben
+    \end{tcbclipinterior}
+},
 #2 % Weitere Argumente zulassen
 }
 \newtcbinputlisting{\inputCode}[3][]{
@@ -600,10 +686,10 @@ left=7.1mm, % Links Platz lassen
 enhanced, % Erlaubt uns, den ramen zu zeichnen
 fonttitle=\sffamily, % Titelschriftart auf 
 overlay={ % Für Grauen Bereich links
-        \begin{tcbclipinterior}
-            \fill[black!70] (frame.south~west) rectangle ([xshift=5mm]frame.north~west); % Zeilennummernbereich färben
-        \end{tcbclipinterior}
-    },
+    \begin{tcbclipinterior}
+        \fill[black!70] (frame.south~west) rectangle ([xshift=5mm]frame.north~west); % Zeilennummernbereich färben
+    \end{tcbclipinterior}
+},
 #2 % Weitere Argumente zulassen
 }
 }{
@@ -627,10 +713,10 @@ left=7.1mm, % Links Platz lassen
 enhanced, % Erlaubt uns, den ramen zu zeichnen
 fonttitle=\sffamily, % Titelschriftart auf 
 overlay={ % Für Grauen Bereich links
-        \begin{tcbclipinterior}
-            \fill[black!70] (frame.south~west) rectangle ([xshift=5mm]frame.north~west); % Zeilennummernbereich färben
-        \end{tcbclipinterior}
-    },
+    \begin{tcbclipinterior}
+        \fill[black!70] (frame.south~west) rectangle ([xshift=5mm]frame.north~west); % Zeilennummernbereich färben
+    \end{tcbclipinterior}
+},
 #2 % Weitere Argumente zulassen
 }
 \newtcbinputlisting{\inputCode}[3][]{
@@ -652,17 +738,19 @@ left=7.1mm, % Links Platz lassen
 enhanced, % Erlaubt uns, den ramen zu zeichnen
 fonttitle=\sffamily, % Titelschriftart auf 
 overlay={ % Für Grauen Bereich links
-        \begin{tcbclipinterior}
-            \fill[black!70] (frame.south~west) rectangle ([xshift=5mm]frame.north~west); % Zeilennummernbereich färben
-        \end{tcbclipinterior}
-    },
+    \begin{tcbclipinterior}
+        \fill[black!70] (frame.south~west) rectangle ([xshift=5mm]frame.north~west); % Zeilennummernbereich färben
+    \end{tcbclipinterior}
+},
 #2 % Weitere Argumente zulassen
 }
 }
 
-
 %%--Makros--%%
-\DeclareDocumentEnvironment{cpenumerate}{O{}}{\begin{enumerate}[nosep, #1]}{\end{enumerate}}
+\DeclareDocumentEnvironment{cpenumerate}{O{}}{
+    \begin{enumerate}[nosep, #1]}{
+    \end{enumerate}
+}
 
 \DeclareDocumentCommand{\includeinvertablegraphics}{O{}m}{% Grafik wird beim Dark Mode automatisch Invertiert (rgb)
     \IfDarkModeTF{\includegraphics[decodearray={1.0~0.0~1.0~0.0~1.0~0.0},#1]{#2}}{\includegraphics[#1]{#2}}
@@ -677,6 +765,8 @@ overlay={ % Für Grauen Bereich links
 }{
     \DeclareDocumentCommand{\code}{m}{{\texttt{\footnotesize #1}}}
 }
+
+\DeclareDocumentCommand{\codeBlockTitle}{m}{\faCode\hfill\mbox{}#1\hfill\faCode}
 
 \DeclareDocumentCommand{\raisedcode}{m}{\raisebox{.1em}{\code{#1}}}
 \DeclareDocumentCommand{\bluecode}{m}{\code{\textcolor{\IfDarkModeTF{cyan}{blue}}{#1}}}
@@ -706,7 +796,8 @@ overlay={ % Für Grauen Bereich links
 \DeclareDocumentCommand{\hyraisedlink}{m}{\Hy@raisedlink{\hypertarget{#1}{}}}
 % Boxes surrounded by borders for information and warnings.
 \DeclareDocumentCommand{\info}{m}{%
-    \begin{defBox}%
+    \begin{defBox}
+        %
         #1
     \end{defBox}
 }

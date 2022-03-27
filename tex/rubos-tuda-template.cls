@@ -13,6 +13,7 @@
 \RequirePackage[table, dvipsnames]{xcolor} % Option has to be set before loading TuDaExercise
 \RequirePackage{pagecolor} % Used for dark Mode
 \PassOptionsToPackage{bookmarksnumbered}{hyperref} % Nummerierte Bookmarks
+\PassOptionsToPackage{no-math}{fontspec}
 \definecolor{rubos@anthrazitgrau}{HTML}{293133}
 \RequirePackage{scrlfile}
 % Wir müssen imakeidx vor Hyperref laden, damit das Stichwortverzeichnis hyperlinks hat
