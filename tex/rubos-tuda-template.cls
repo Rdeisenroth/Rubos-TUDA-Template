@@ -31,8 +31,6 @@
 \bool_gset_true:N \g_ptxcd_ex_fancy_rowcolor_bool
 \tl_gclear_new:N \datename
 \tl_gset:Nn \datename {Datum}
-\tl_gclear_new:N \g_rubos_external_label_prefix_tl
-\tl_gset:Nn \g_rubos_external_label_prefix_tl {ext:}
 
 \tl_gclear_new:N \g_rubos_keys_tl
 \tl_gset:Nn \g_rubos_keys_tl {
@@ -48,9 +46,7 @@
   load_common . default:n = true,
   fancy_row_color .code:n = \PassOptionsToPackage{\CurrentOption}{rubos-common},
   shell_escape .code:n = \PassOptionsToPackage{\CurrentOption}{rubos-common},
-  main .bool_gset:N = \g_is_main_file_bool,
-  main .initial:n = false,
-  main .default:n = true,
+  main .code:n = \PassOptionsToPackage{\CurrentOption}{rubos-common},
 }
 % Additional Class Options
 \exp_args:Nno \keys_define:nn {ptxcd/exercise} { \g_rubos_keys_tl }
@@ -1327,29 +1323,5 @@
   \setcounter{task}{\getrefnumber{#1}}
   \hyperref[#1]{\taskformat}
   \setcounter{task}{\int_use:N \g_ptxcd_tmp_int}
-}
-
-\newcommand{\setextlblprefix}[1]{
-  \tl_if_empty:cTF {#1} {
-    \tl_gset:Nn \g_rubos_external_label_prefix_tl {ext:}
-  } {
-    \tl_gset:Nn \g_rubos_external_label_prefix_tl {#1}
-  }
-}
-
-% References from external Files
-\newcommand{\extref}[2][\g_rubos_external_label_prefix_tl]{
-  \bool_if:NTF \g_is_main_file_bool {
-    \ref{#2}
-  } {
-    \ref{#1#2}
-  }
-}
-\NewDocumentCommand\exthyperref{oO{\g_rubos_external_label_prefix_tl}m}{
-  \bool_if:NTF \g_is_main_file_bool {
-    \hyperref[#1]{#3}
-  } {
-    \hyperref[#2#1]{#3}
-  }
 }
 \ExplSyntaxOff
