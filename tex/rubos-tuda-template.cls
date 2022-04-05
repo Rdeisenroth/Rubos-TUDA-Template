@@ -1,5 +1,5 @@
 \def\fileversion{1.4.1}
-\def\filedate{2022/03/01}
+\def\filedate{2022/04/05}
 
 % Sets the LaTeX version for the package to work.
 \NeedsTeXFormat{LaTeX2e}
@@ -1252,17 +1252,17 @@
   \keys_define:nn {ptxcd/exercise/headline} {
     #1 .choice:,
     #1 / aud .code:n = \tl_gset:cn {g_ptxcd_ex_headline_#1_tl} {
-      \textbf{\g_ptxcd_shorttitle_tl}\tl_if_empty:NF \g_ptxcd_ex_semester_tl {\space{}im\space\textbf{\g_ptxcd_ex_semester_tl}}\tl_if_empty:NF \g_ptxcd_ex_dozent_tl {\space{}bei\space\textbf{\g_ptxcd_ex_dozent_tl}}\tl_if_empty:NF \g_ptxcd_ex_sheetnum_tl {\hfill Übungsblatt\space{}\padzeroes[2]{\g_ptxcd_ex_sheetnum_tl}}\par
+      \textbf{\g_ptxcd_shorttitle_tl}\tl_if_empty:NF \g_rubos_document_semester_tl {\space{}im\space\textbf{\g_rubos_document_semester_tl}}\tl_if_empty:NF \g_rubos_document_dozent_tl {\space{}bei\space\textbf{\g_rubos_document_dozent_tl}}\tl_if_empty:NF \g_ptxcd_ex_sheetnum_tl {\hfill Übungsblatt\space{}\padzeroes[2]{\g_ptxcd_ex_sheetnum_tl}}\par
       \StudentNamename\StudentNamesep\IfSolutionT{\rlap{\textbf{\textsf{~Musterlösung}}}}\hrulefill\qquad\StudentIDname\StudentIDsep\prg_replicate:nn {7} {\numberFormBox{\IfSolutionT{\textbf{\textsf{0}}}}}},
     #1 / submittors-detailed .code:n = \tl_gset:cn {g_ptxcd_ex_headline_#1_tl} { % Diese Option ist eher für Einzelabgaben gedacht, da sie sonst sehr viel Platz weg nimmt
-      \textbf{\g_ptxcd_shorttitle_tl}\tl_if_empty:NF \g_ptxcd_ex_semester_tl {\space{}im\space\textbf{\g_ptxcd_ex_semester_tl}}\tl_if_empty:NF \g_ptxcd_ex_dozent_tl {\space{}bei\space\textbf{\g_ptxcd_ex_dozent_tl}}\tl_if_empty:NF \g_ptxcd_ex_sheetnum_tl {\hfill Übungsblatt\space{}\padzeroes[2]{\g_ptxcd_ex_sheetnum_tl}}\par
+      \textbf{\g_ptxcd_shorttitle_tl}\tl_if_empty:NF \g_rubos_document_semester_tl {\space{}im\space\textbf{\g_rubos_document_semester_tl}}\tl_if_empty:NF \g_rubos_document_dozent_tl {\space{}bei\space\textbf{\g_rubos_document_dozent_tl}}\tl_if_empty:NF \g_ptxcd_ex_sheetnum_tl {\hfill Übungsblatt\space{}\padzeroes[2]{\g_ptxcd_ex_sheetnum_tl}}\par
       \gdef\ptxcd_nextsep_submittors{}
       \seq_map_inline:Nn \g_ptxcd_submittors_seq {
         \ptxcd_nextsep_submittors\StudentNamename\StudentNamesep\rlap{\textbf{\textsf{~####1}}}\hrulefill\qquad\StudentIDname\StudentIDsep \exp_args:Nx\str_map_inline:Nn {\getMatrikelnummer{####1}} {\textbf{\textsf{\numberFormBox{########1}}}}\gdef\ptxcd_nextsep_submittors{\par}
       }
     },
     #1 / submittors-semi-detailed .code:n = \tl_gset:cn {g_ptxcd_ex_headline_#1_tl} { % Diese Option ist eher für Einzelabgaben gedacht, da sie sonst sehr viel Platz weg nimmt
-      \textbf{\g_ptxcd_shorttitle_tl}\tl_if_empty:NF \g_ptxcd_ex_semester_tl {\space{}im\space\textbf{\g_ptxcd_ex_semester_tl}}\tl_if_empty:NF \g_ptxcd_ex_dozent_tl {\space{}bei\space\textbf{\g_ptxcd_ex_dozent_tl}}\tl_if_empty:NF \g_ptxcd_ex_sheetnum_tl {\hfill Übungsblatt\space{}\padzeroes[2]{\g_ptxcd_ex_sheetnum_tl}}\par
+      \textbf{\g_ptxcd_shorttitle_tl}\tl_if_empty:NF \g_rubos_document_semester_tl {\space{}im\space\textbf{\g_rubos_document_semester_tl}}\tl_if_empty:NF \g_rubos_document_dozent_tl {\space{}bei\space\textbf{\g_rubos_document_dozent_tl}}\tl_if_empty:NF \g_ptxcd_ex_sheetnum_tl {\hfill Übungsblatt\space{}\padzeroes[2]{\g_ptxcd_ex_sheetnum_tl}}\par
       \seq_if_empty:NF\g_ptxcd_submittors_seq {\textbf{Abgabe\space{}von:}\space
         \seq_use:Nnnn \g_ptxcd_submittors_seq {~\authorandname{}~} {,~} {~\authorandname{}~}}
     },
@@ -1283,17 +1283,17 @@
 \keys_define:nn {TUDa/exercise/headline} {
 #1 .choice:,
 #1 / aud .code:n = \tl_gset:cn {g_TUDa_ex_headline_#1_tl} {
-\textbf{\g_TUDa_shorttitle_tl}\tl_if_empty:NF \g_ptxcd_ex_semester_tl {\space{}im\space\textbf{\g_ptxcd_ex_semester_tl}}\tl_if_empty:NF \g_ptxcd_ex_dozent_tl {\space{}bei\space\textbf{\g_ptxcd_ex_dozent_tl}} \tl_if_empty:NF g_TUDa_ex_sheetnum_tl {\hfill Übungsblatt\space{}\padzeroes[2]{\g_TUDa_ex_sheetnum_tl}}\par
+\textbf{\g_TUDa_shorttitle_tl}\tl_if_empty:NF \g_rubos_document_semester_tl {\space{}im\space\textbf{\g_rubos_document_semester_tl}}\tl_if_empty:NF \g_rubos_document_dozent_tl {\space{}bei\space\textbf{\g_rubos_document_dozent_tl}} \tl_if_empty:NF g_TUDa_ex_sheetnum_tl {\hfill Übungsblatt\space{}\padzeroes[2]{\g_TUDa_ex_sheetnum_tl}}\par
 \StudentName\StudentID},
 #1 / submittors-detailed .code:n = \tl_gset:cn {g_TUDa_ex_headline_#1_tl} { % Diese Option ist eher für Einzelabgaben gedacht, da sie sonst sehr viel Platz weg nimmt
-  \textbf{\g_TUDa_shorttitle_tl}\tl_if_empty:NF \g_ptxcd_ex_semester_tl {\space{}im\space\textbf{\g_ptxcd_ex_semester_tl}}\tl_if_empty:NF \g_ptxcd_ex_dozent_tl {\space{}bei\space\textbf{\g_ptxcd_ex_dozent_tl}}\hfill Übungsblatt\space{}\padzeroes[2]{\g_TUDa_ex_sheetnum_tl}\par
+  \textbf{\g_TUDa_shorttitle_tl}\tl_if_empty:NF \g_rubos_document_semester_tl {\space{}im\space\textbf{\g_rubos_document_semester_tl}}\tl_if_empty:NF \g_rubos_document_dozent_tl {\space{}bei\space\textbf{\g_rubos_document_dozent_tl}}\hfill Übungsblatt\space{}\padzeroes[2]{\g_TUDa_ex_sheetnum_tl}\par
   \gdef\ptxcd_nextsep_submittors{}
   \seq_map_inline:Nn \g_ptxcd_submittors_seq {
     \ptxcd_nextsep_submittors Name\StudentNamesep\hrulefill ####1\hrulefill\qquad\StudentIDname\StudentIDsep \exp_args:Nx\str_map_inline:Nn {\getMatrikelnummer{####1}} {\numberFormBox{########1}}\gdef\ptxcd_nextsep_submittors{\par}
   }
 },
 #1 / submittors-semi-detailed .code:n = \tl_gset:cn {g_TUDa_ex_headline_#1_tl} { % Diese Option ist eher für Einzelabgaben gedacht, da sie sonst sehr viel Platz weg nimmt
-  \textbf{\g_TUDa_shorttitle_tl}\tl_if_empty:NF \g_ptxcd_ex_semester_tl {\space{}im\space\textbf{\g_ptxcd_ex_semester_tl}}\tl_if_empty:NF \g_ptxcd_ex_dozent_tl {\space{}bei\space\textbf{\g_ptxcd_ex_dozent_tl}}\hfill Übungsblatt\space{}\padzeroes[2]{\g_TUDa_ex_sheetnum_tl}\par
+  \textbf{\g_TUDa_shorttitle_tl}\tl_if_empty:NF \g_rubos_document_semester_tl {\space{}im\space\textbf{\g_rubos_document_semester_tl}}\tl_if_empty:NF \g_rubos_document_dozent_tl {\space{}bei\space\textbf{\g_rubos_document_dozent_tl}}\hfill Übungsblatt\space{}\padzeroes[2]{\g_TUDa_ex_sheetnum_tl}\par
   \seq_if_empty:NF\g_ptxcd_submittors_seq {\textbf{Abgabe\space{}von:}\space
     \seq_use:Nnnn \g_ptxcd_submittors_seq {~\authorandname{}~} {,~} {~\authorandname{}~}}
 },
