@@ -47,6 +47,9 @@
     fancy_row_color .code:n = \PassOptionsToPackage{\CurrentOption}{rubos-common},
     shell_escape .code:n = \PassOptionsToPackage{\CurrentOption}{rubos-common},
     main .code:n = \PassOptionsToPackage{\CurrentOption}{rubos-common},
+    requireid .bool_gset:N = \g_rubos_require_id_bool,
+    requireid .initial:n = false,
+    requireid .default:n = true,
 }
 % Additional Class Options
 \exp_args:Nno \keys_define:nn {ptxcd/exercise} { \g_rubos_keys_tl }
@@ -723,8 +726,10 @@
     \str_if_eq:nnT {#1} {} {
         \ClassError{rubos_tuda_template}{Name~darf~nicht~leer~sein!}{Gib~einen~gültigen~Namen~ein}
     }
-    \str_if_eq:nnT {#2} {} {
-        \ClassError{rubos_tuda_template}{Matrikelnummer~darf~nicht~leer~sein!}{Gib~eine~gültige~Matrikelnummer~ein}
+    \bool_if:NT \g_rubos_require_id_bool{
+        \str_if_eq:nnT {#2} {} {
+            \ClassError{rubos_tuda_template}{Matrikelnummer~darf~nicht~leer~sein!}{Gib~eine~gültige~Matrikelnummer~ein}
+        }
     }
 
     \seq_gput_right:Nn \g_ptxcd_submittors_seq {#1}
@@ -738,7 +743,9 @@
 }
 
 \newcommand*{\printSubmittor}[1]{
-    #1\space{}(Mat.:\space{}\getMatrikelnummer{#1})
+    #1 \str_if_eq:eeF {\getMatrikelnummer{#1}} {} {
+        \space{}(Mat.:\space{}\getMatrikelnummer{#1})
+    }
 }
 
 \newcommand*{\printSubmittors}[1]{
@@ -991,7 +998,7 @@
                                             }
                                         }
                                         {
-                                            \ClassError{rubos_tuda_template}{Unknown Term style Option: \use:c {\g_ptxcd_ex_term_style_tl}}{Available options are: left, center, left-right (default)}
+                                            \ClassError{rubos_tuda_template}{Unknown~Term~style~Option: \use:c {\g_ptxcd_ex_term_style_tl}}{Available~options~are:~left,~center,~left-right~(default)}
                                         }
                                     }
                                     % Left Side
