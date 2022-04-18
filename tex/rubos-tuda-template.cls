@@ -78,6 +78,7 @@
 \RequirePackage{booktabs}
 \RequirePackage[font=small, labelfont=sc, position=bottom]{caption}
 \RequirePackage[labelfont=normalfont, position=bottom]{subcaption}
+\RequirePackage{csquotes}
 \PassOptionsToPackage{inline}{enumitem}
 \RequirePackage{enumitem}
 \RequirePackage{mathtools}
@@ -124,7 +125,6 @@
     \RequirePackage{colortbl}
     % \RequirePackage{cryptocode}
     % \RequirePackage[utf8]{inputenc} % Has to be loaded before csquotes
-    \RequirePackage{csquotes}
     \RequirePackage{ebproof}
     \RequirePackage{etoolbox}
     % \RequirePackage[T1]{fontenc}
@@ -742,19 +742,26 @@
     \use:c {ptxcd_submittors_#1_matrikelnummer_tl}
 }
 
-\newcommand*{\printSubmittor}[1]{
-    #1 \str_if_eq:eeF {\getMatrikelnummer{#1}} {} {
-        \space{}(Mat.:\space{}\getMatrikelnummer{#1})
+\DeclareExpandableDocumentCommand{\printSubmittor}{s m}{
+    #2
+    \bool_if:nT { !#1 && !\str_if_eq_p:ee {\getMatrikelnummer{#2}} {}} {
+        \space{}(Mat.:~\getMatrikelnummer{#2})
     }
 }
 
-\newcommand*{\printSubmittors}[1]{
-    \textsf{\textbf{Abgabe}}\seq_if_empty:NF \g_ptxcd_submittors_seq {
+\DeclareExpandableDocumentCommand{\printSubmittors}{s m}{
+    \textsf{\textbf{Abgabe}}
+    \seq_if_empty:NF \g_ptxcd_submittors_seq {
         \textsf{\textbf{\space{}von:}}
-        \\\gdef\ptxcd_nextsep_submittors{}
+        \\
+        \gdef\ptxcd_nextsep_submittors{}
         \seq_map_inline:Nn \g_ptxcd_submittors_seq {
             \ptxcd_nextsep_submittors{}
-            \printSubmittor{##1}
+            \bool_if:nTF {#1} {
+                \printSubmittor*{##1}
+            } {
+                \printSubmittor{##1}
+            }
             \gdef\ptxcd_nextsep_submittors{,\\}
         }
     }
