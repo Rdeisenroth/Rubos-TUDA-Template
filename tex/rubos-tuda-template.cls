@@ -71,6 +71,7 @@
 
 % Packages
 \RequirePackage{amsmath}
+\RequirePackage[ngerman]{babel}
 \RequirePackage{amsthm}
 \RequirePackage{booktabs}
 \RequirePackage[font=small, labelfont=sc, position=bottom]{caption}
@@ -120,7 +121,6 @@
   % \pagecolor{black}\color{white}
   \RequirePackage[export]{adjustbox}
   % \RequirePackage{amssymb} % We use charter instead
-  \RequirePackage[ngerman]{babel}
   \RequirePackage{blindtext}
   \RequirePackage{bm}
   \RequirePackage{colortbl}
