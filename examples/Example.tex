@@ -1,5 +1,6 @@
 \documentclass[
     ngerman,
+    language=german,
     color=3b,
     %load_common, Läd oft benutzte Pakete, erhöht aber die Compile-Time drastisch
     submission,
@@ -11,7 +12,6 @@
     % shell_escape = false, % Kompatibilität mit sharelatex
     % T1,
 ]{rubos-tuda-template}
-
 %%------------%%
 %%--Packages--%%
 %%------------%%
@@ -36,23 +36,29 @@
 \dozent{<Prof>}
 \date{\today}
 \termStyle{left-right-manual}
-\termLeft{printAuthor,printSubmittors}
+\termLeft{%
+    printAuthor,%
+    printSubmittors,%
+}
 \termRight{%
-printSheetNumber,%
-%printVersion,%
-printGroupNumber,%
-printGroupLeader,%
-printSemester}
+    printSheetNumber,%
+    %printVersion,%
+    printGroupNumber,%
+    printGroupLeader,%
+    printSemester,%
+}
 
 %%----------------------------%%
 %%--Stilistische Anpassungen--%%
 %%----------------------------%%
 \term{%
     \vspace{\baselineskip}%
-    \printDate{}\hfill\printFachbereich{}%
+    \printDate{}%
+    \hfill%
+    \printFachbereich{}%
 }
 \ConfigureHeadline{
-	headline={submittors-centered}
+    headline={submittors-centered}
 }
 
 %%-------------------------%%
@@ -61,23 +67,23 @@ printSemester}
 
 \begin{document}
 
-%%-----------%%
-%%--Titelei--%%
-%%-----------%%
+    %%-----------%%
+    %%--Titelei--%%
+    %%-----------%%
 
-\title[Mathe 0]{Abgabe Hausübung\\im Fach\\ <Fach>}
-\maketitle{}
-%\printGradeTable{} % Erstellt eine Bewertungstabelle wie in Klausuren (Optionen für weglassen von Summe und Note Geplant)
-%\tableofcontents
+    \title[<Fach>]{Abgabe Hausübung\\im Fach\\ <Fach>}
+    \maketitle{}
+    %\printGradeTable{} % Erstellt eine Bewertungstabelle wie in Klausuren (Optionen für weglassen von Summe und Note Geplant)
+    %\tableofcontents
 
-%%------------------------%%
-%%--Beginn der Hausübung--%%
-%%------------------------%%
-% Übung 1
-\begin{task}[points=1]{Aufgabe 1}
-    \begin{grayInfoBox}
-        \fatsf{Aufgabenstellung:} <Aufgabenstellung>
-    \end{grayInfoBox}
+    %%------------------------%%
+    %%--Beginn der Hausübung--%%
+    %%------------------------%%
+    % Übung 1
+    \begin{task}[points=1]{Aufgabe 1}
+        \begin{grayInfoBox}
+            \fatsf{Aufgabenstellung:} <Aufgabenstellung>
+        \end{grayInfoBox}
         \loesung{} <Lösung>
-\end{task}
+    \end{task}
 \end{document}

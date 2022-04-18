@@ -1,6 +1,6 @@
 \NeedsTeXFormat{LaTeX2e}
 \RequirePackage{expl3}
-\ProvidesExplPackage{rubos-common}{2022/04/05}{1.0.1-snapshot}{Common Definitions for all Rubos templates}
+\ProvidesExplPackage{rubos-common}{2022/04/18}{1.0.1-snapshot}{Common Definitions for all Rubos templates}
 % Made by Ruben Deisenroth, 2022
 % Available at https://github.com/Rdeisenroth/Rubos-TUDA-Template/blob/main/tex/rubos-common.sty
 
@@ -26,6 +26,12 @@
     boxarc .code:n = \prop_gput:Nnn \g_rubos_document_opts_prop {boxarc} {#1},
     boxarc .initial:n = {0pt},
     boxarc .default:n = {3pt},
+    fopslides .code:n = \prop_gput:Nnn \g_rubos_document_opts_prop {fopslides} {#1},
+    fopslides .initial:n = {https://moodle.informatik.tu-darmstadt.de/pluginfile.php/203969/mod_folder/content/0/},
+    fopslides .default:n = {https://moodle.informatik.tu-darmstadt.de/pluginfile.php/203969/mod_folder/content/0/},
+    audslides .code:n = \prop_gput:Nnn \g_rubos_document_opts_prop {audslides} {#1},
+    audslides .initial:n = {https://moodle.informatik.tu-darmstadt.de/pluginfile.php/203990/mod_folder/content/0/},
+    audslides .default:n = {https://moodle.informatik.tu-darmstadt.de/pluginfile.php/203990/mod_folder/content/0/},
     dark_mode .bool_gset:N = \g_rubos_dark_mode_bool,
     dark_mode .initial:n = false,
     dark_mode .default:n = true,
@@ -194,7 +200,7 @@
     boxrule=0pt,
     left=5pt, % Links Platz lassen
     enhanced, % Erlaubt uns, den ramen zu zeichnen
-    fonttitle=\sffamily, % Titelschriftart auf 
+    fonttitle=\sffamily, % Titelschriftart auf
     overlay={ % Für Grauen Bereich links
         \begin{tcbclipinterior}
             \fill[gray] (frame.south~west) rectangle ([xshift=4pt]frame.north~west); % Zeilennummernbereich färben
@@ -214,7 +220,7 @@
     boxrule=0pt,
     left=5pt, % Links Platz lassen
     enhanced, % Erlaubt uns, den ramen zu zeichnen
-    fonttitle=\sffamily, % Titelschriftart auf 
+    fonttitle=\sffamily, % Titelschriftart auf
     overlay={ % Für Grauen Bereich links
         \begin{tcbclipinterior}
             \fill[accentcolor] (frame.south~west) rectangle ([xshift=4pt]frame.north~west); % Zeilennummernbereich färben
@@ -234,7 +240,7 @@
     boxrule=0pt,
     left=5pt, % Links Platz lassen
     enhanced, % Erlaubt uns, den ramen zu zeichnen
-    fonttitle=\sffamily, % Titelschriftart auf 
+    fonttitle=\sffamily, % Titelschriftart auf
     overlay={ % Für Grauen Bereich links
         \begin{tcbclipinterior}
             \fill[accentcolor]~(frame.south~west) rectangle ([xshift=4pt]frame.north~west); % Zeilennummernbereich färben
@@ -254,7 +260,7 @@
     arc=\rubos@boxarc,
     left=5pt, % Links Platz lassen
     enhanced, % Erlaubt uns, den ramen zu zeichnen
-    fonttitle=\sffamily, % Titelschriftart auf 
+    fonttitle=\sffamily, % Titelschriftart auf
     #1 % Weitere Argumente zulassen
 }
 
@@ -292,7 +298,7 @@
             \end{ideaT}
         \end{defBox}
     }%
-    
+
     \seq_gclear_new:N \rubos_color_box_environment_seq
     % #1 (optional) star - marks a deprecated environment
     % #2: (optional) Default bracket text
@@ -306,8 +312,8 @@
                 \PackageWarning{rubos-common}{The~Environment~#3~is~deprecated.}
             }
             \begin{#4}
-                \normalsize\textsf{\textbf{#5\tl_if_blank:nF {##1} {~(\textmd{##1})}:}}\par
-                ##2
+            \normalsize\textsf{\textbf{#5\tl_if_blank:nF {##1} {~(\textmd{##1})}:}}\par
+            ##2
         }{
             \end{#4}
         }
@@ -350,6 +356,7 @@
     \rubosDeclareColorBoxEnvironment*[0~Punkte]{wvfragen}{grayInfoBox}{Wichtige~Verständnisfragen}
     \rubosDeclareColorBoxEnvironment*[0~Punkte]{vfrager}{grayInfoBox}{Verständnisfrage~am~Rande}
     \rubosDeclareColorBoxEnvironment*[0~Punkte]{vfragenr}{grayInfoBox}{Verständnisfragen~am~Rande}
+    \rubosDeclareColorBoxEnvironment*[0~Punkte]{mvfrage}{grayInfoBox}{Missverständnisfrage}
     \rubosDeclareColorBoxEnvironment{vanforderung}{defBox}{Verbindliche~Anforderung}
     \rubosDeclareColorBoxEnvironment{vanforderungen}{defBox}{Verbindliche~Anforderungen}
     \rubosDeclareColorBoxEnvironment{vanforderunghu}{defBox}{Verbindliche~Anforderung~für~die~gesamte~Hausübung}
@@ -365,19 +372,19 @@
 
 \lstdefinelanguage{Racket}{%
     alsoletter=+-*/?\=<>!~\#,%
-    morekeywords={%                                                                                                                                                          
+    morekeywords={%
         empty, true, \#true, \#t, false, \#false, \#f%
     },%
-    morekeywords={%                                                                                                                                                          
+    morekeywords={%
         lambda, define-datatype, begin, begin0, set!, delay, shared, recur,%
         case, match, when, unless%
     },%
-    morekeywords={%                                                                                                                                                          
+    morekeywords={%
         local, letrec, let*, let, time, define, define-struct, cond, else, if,%
         and, or, check-expect, check-random, check-satisfied, check-within,%
         check-error, check-member-of, check-range, require%
     },%
-    morekeywords={%                                                                                                                                                          
+    morekeywords={%
         -, <, <=, =, >, >=, abs, acos, add1, angle, asin, atan, ceiling,%
         complex?, conjugate, cos, cosh, current-seconds, denominator, e, even?,%
         exact->inexact, exact?, exp, expt, floor, gcd, imag-part,%
@@ -387,13 +394,13 @@
         quotient, random, rational?, real-part, real?, remainder, round, sgn,%
         sin, sinh, sqr, sqrt, sub1, tan, zero?%
     },%
-    morekeywords={%                                                                                                                                                          
+    morekeywords={%
         boolean->string, boolean=?, boolean?, false?, not%
     },%
-    morekeywords={%                                                                                                                                                          
+    morekeywords={%
         symbol->string, symbol=?, symbol%
     },%
-    morekeywords={%                                                                                                                                                          
+    morekeywords={%
         append, assoc, assq, caaar, caadr, caar, cadar, cadddr, caddr, cadr,%
         car, cdaar, cdadr, cdar, cddar, cdddr, cddr, cdr, cons, cons?, eighth,%
         empty?, fifth, first, for-each, fourth, length, list, list*, list-ref,%
@@ -543,7 +550,7 @@ breaklines,
 },
 left=7.1mm, % Links Platz lassen
 enhanced, % Erlaubt uns, den ramen zu zeichnen
-fonttitle=\sffamily, % Titelschriftart auf 
+fonttitle=\sffamily, % Titelschriftart auf
 overlay={ % Für Grauen Bereich links
     \begin{tcbclipinterior}
         \fill[black!70] (frame.south~west) rectangle ([xshift=5mm]frame.north~west); % Zeilennummernbereich färben
@@ -576,7 +583,7 @@ breaklines,
 },
 left=7.1mm, % Links Platz lassen
 enhanced, % Erlaubt uns, den ramen zu zeichnen
-fonttitle=\sffamily, % Titelschriftart auf 
+fonttitle=\sffamily, % Titelschriftart auf
 overlay={ % Für Grauen Bereich links
     \begin{tcbclipinterior}
         \fill[black!70] (frame.south~west) rectangle ([xshift=5mm]frame.north~west); % Zeilennummernbereich färben
@@ -603,7 +610,7 @@ style=java,
 },
 left=7.1mm, % Links Platz lassen
 enhanced, % Erlaubt uns, den ramen zu zeichnen
-fonttitle=\sffamily, % Titelschriftart auf 
+fonttitle=\sffamily, % Titelschriftart auf
 overlay={ % Für Grauen Bereich links
     \begin{tcbclipinterior}
         \fill[black!70] (frame.south~west) rectangle ([xshift=5mm]frame.north~west); % Zeilennummernbereich färben
@@ -628,7 +635,7 @@ style=java,
 },
 left=7.1mm, % Links Platz lassen
 enhanced, % Erlaubt uns, den ramen zu zeichnen
-fonttitle=\sffamily, % Titelschriftart auf 
+fonttitle=\sffamily, % Titelschriftart auf
 overlay={ % Für Grauen Bereich links
     \begin{tcbclipinterior}
         \fill[black!70] (frame.south~west) rectangle ([xshift=5mm]frame.north~west); % Zeilennummernbereich färben
@@ -728,3 +735,118 @@ overlay={ % Für Grauen Bereich links
         \hyperref[#2#1]{#3}
     }
 }
+
+%%-----------%%
+%%--JavaDoc--%%
+%%-----------%%
+% Command by: nyanyan <nhanhuynh_online@protonmail.com>
+
+% Variables
+\tl_gset:Nn \g_rubos_javadoc_prefix_one_tl {https://docs.oracle.com/en/java/javase/}
+\tl_gset:Nn \g_rubos_javadoc_prefix_two_tl {/docs/api/java.base/}
+\tl_gset:Nn \g_rubos_javadoc_suffix_tl {.html}
+\tl_new:N \l_tmpc_tl
+\tl_new:N \l_tmpd_tl
+
+% Key-Value Option
+\keys_define:nn {algoexercise/javadoc}
+{
+    jdk .int_set:N=\l_rubos_javadoc_jdk_int,
+    jdk .initial:n=17,
+    title .tl_set:N=\l_rubos_javadoc_title_tl,
+    title .initial:n=,
+    ref .tl_set:N=\l_rubos_javadoc_ref_tl,
+    ref .initial:n=,
+}
+
+% Reference JavaDoc
+% Syntax: \refJavadoc[jdk=17,title=Comparator<T>,ref=compare(T,T)]{java.util.Comparator}
+% Output: Comparator<T>#compare(T,T)
+\DeclareDocumentCommand{\refJavaDoc}{s +o m}
+{
+    % #1: (optional) if a star is used, only the class name will be shown (java.util.Comparator -> Comparator)
+    % #2: Options
+    % #3: Class name
+    % \l_tmpa_tl: Class name url
+    % \l_tmpb_tl: Formatted title
+    % \l_tmpc_tl: Reference name
+    % \l_tmpd_tl: Full url
+
+    % Process options
+    \IfNoValueF{#2}{
+        \keys_set:nn {algoexercise/javadoc}{#2}
+    }
+
+    % \l_tmpa_tl: Replace . with / in order to create a valid url
+    \tl_set:Nf \l_tmpa_tl {#3}
+    \regex_replace_all:nnN {\.}{/} \l_tmpa_tl
+
+    % Format title
+    \tl_if_empty:NTF {\l_rubos_javadoc_title_tl}
+    {
+        % No custom title, copy class namme
+        \bool_if:NTF #1 {
+            \regex_extract_once:nnN {([\w\.]*\.)*(\w+)} {#3} \l_tmpx_tl
+            \tl_set:Nn \l_tmpb_tl {\seq_item:Nn \l_tmpx_tl {3}}
+        } {
+            \tl_set:Nn \l_tmpb_tl {#3}
+        }
+    }
+    {
+        % Custom title, copy title
+        \tl_set:Nf \l_tmpb_tl {\l_rubos_javadoc_title_tl}
+    }
+
+    % Reference name
+    \tl_if_empty:NTF {\l_rubos_javadoc_ref_tl}
+    {
+        % No reference name provided
+    }
+    {
+        % #reference
+        \tl_set:Nf \l_tmpc_tl {\#\l_rubos_javadoc_ref_tl}
+        \tl_if_empty:NTF {\l_rubos_javadoc_title_tl}
+        {
+            % No custom title, add reference name
+            \tl_set:Nf \l_tmpb_tl {\l_tmpb_tl\l_tmpc_tl}
+        }
+        {
+            % Custom title, nothing to do
+        }
+    }
+
+    % Full url: prefix + java class + suffix + method
+    \tl_set:Nf \l_tmpd_tl {
+        \g_rubos_javadoc_prefix_one_tl\int_use:c{l_rubos_javadoc_jdk_int}\g_rubos_javadoc_prefix_two_tl\l_tmpa_tl\g_rubos_javadoc_suffix_tl\l_tmpc_tl
+    }
+
+    % Hyperlink
+    \href{\l_tmpd_tl}{
+        \tl_if_empty:NTF {\l_rubos_javadoc_title_tl}
+        {
+            \exp_args:Nx \inlinejava{\l_tmpb_tl}
+        }
+        {
+            \l_tmpb_tl
+        }
+    }
+
+    % Reset variables
+    \int_set:Nn \l_rubos_javadoc_jdk_int {17}
+    \tl_clear:N \l_rubos_javadoc_title_tl
+    \tl_clear:N \l_rubos_javadoc_ref_tl
+}
+
+% #1
+\DeclareDocumentCommand{\fopSlideRef}{O{1}ov}{
+    \regex_extract_once:nnN { Folien\ (\d{1,2}[a-z]{0,1})\ (.*)(\.pdf){0,1} } { #3 } \l_foo_seq
+    \href{\prop_item:Nn \g_rubos_document_opts_prop {fopslides} #3.pdf\#page=#1}{
+        Kapitel~\seq_item:Nn \l_foo_seq {2}
+        \IfNoValueTF{#2}{\tl_if_eq:nnTF{#1}{1}{~}{,~ab~Folie~#1~}}{,~Folien~#1-#2~}
+        der~FOP
+    }
+}
+
+% \DeclareDocumentCommand{\audSlideRef}{O{1}v}{
+%     \href{\prop_item:Nn \g_rubos_document_opts_prop {audslides} #2.pdf\#page=#1}{#2}
+% }
