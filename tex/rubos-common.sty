@@ -1,6 +1,6 @@
 \NeedsTeXFormat{LaTeX2e}
 \RequirePackage{expl3}
-\ProvidesExplPackage{rubos-common}{2022/04/18}{1.0.1-snapshot}{Common Definitions for all Rubos templates}
+\ProvidesExplPackage{rubos-common}{2022/06/15}{1.0.1-snapshot}{Common Definitions for all Rubos templates}
 % Made by Ruben Deisenroth, 2022
 % Available at https://github.com/Rdeisenroth/Rubos-TUDA-Template/blob/main/tex/rubos-common.sty
 
@@ -121,56 +121,64 @@
 }
 
 % \DeclareDocument
-% #1: Property Name
-% #2: Default Value
-% #3: Print Text (use * for value)
-\DeclareDocumentCommand{\DeclareDocumentProperty}{mO{}O{}}{
-\tl_gclear_new:c {g_rubos_document_#1_tl}
-\tl_gclear_new:c {
-    print
-    \str_uppercase:f { \tl_head:n {#1} }
-    \tl_tail:n {#1}
-}
-% Get Property Command
-\expandafter\DeclareDocumentCommand\csname get\str_uppercase:f { \tl_head:n {#1} }\tl_tail:n {#1}\endcsname{m}{
-    \tl_use:c {g_rubos_document_#1_tl}
-}
-% Set Property Command
-\expandafter\DeclareDocumentCommand\csname#1\endcsname{m}{
-    \tl_gset:cn {g_rubos_document_#1_tl} {##1}
-    \tl_if_empty:cF {g_rubos_document_#1_tl} {
-        % Print Text
-        \tl_if_blank:nTF {#3} {
-            % Default Text
-            \tl_gset:cn {
-                print
-                \str_uppercase:f { \tl_head:n {#1} }
-                \tl_tail:n {#1}
-            } {
-                \sffamily\textbf{
-                    \str_uppercase:f { \tl_head:n {#1} }
-                    \tl_tail:n {#1}:~}\tl_use:c {g_rubos_document_#1_tl}
-            }
+% #1: starred variant - if true, a description can be defined
+% #2: Property Name
+% #3: Default Value
+% #4: Print Text (use * for value)
+\DeclareDocumentCommand{\DeclareDocumentProperty}{s m o o }{
+    \tl_gclear_new:c {g_rubos_document_#2_tl}
+    \tl_gclear_new:c {
+        print
+        \str_uppercase:f { \tl_head:n {#2} }
+        \tl_tail:n {#2}
+    }
+    % Get Property Command
+    \exp_args:Nc \DeclareDocumentCommand{get\str_uppercase:f { \tl_head:n {#2} }\tl_tail:n {#2}}{sm}{
+        \bool_if:NTF ##1 {
+            \tl_use:c {g_rubos_document_#2_description_tl}
         } {
-            % Custom Text
-            \tl_gclear_new:c {g_rubos_document_#1_print_tl}
-            \tl_gset:cn {g_rubos_document_#1_print_tl} {#3}
-            \exp_args:Nnnc \regex_replace_all:nnN {\*} {
-                \u{g_rubos_document_#1_tl}
-            } {g_rubos_document_#1_print_tl}
-            \tl_gset:cn {
-                print
-                \str_uppercase:f { \tl_head:n {#1} }
-                \tl_tail:n {#1}
+            \tl_use:c {g_rubos_document_#2_tl}
+        }
+    }
+    % Set Property Command
+    \exp_args:Ncf \DeclareDocumentCommand{#2}{om}{
+        % \bool_if:NT #1 {
+        \tl_gset:cn {g_rubos_document_#2_description_tl} {##1}
+        % }
+        \tl_gset:cn {g_rubos_document_#2_tl} {##2}
+        \tl_if_empty:cF {g_rubos_document_#2_tl} {
+            % Print Text
+            \tl_if_blank:nTF {#4} {
+                % Default Text
+                \tl_gset:cn {
+                    print
+                    \str_uppercase:f { \tl_head:n {#2} }
+                    \tl_tail:n {#2}
+                } {
+                    \sffamily\textbf{
+                        \str_uppercase:f { \tl_head:n {#2} }
+                        \tl_tail:n {#2}:~}\tl_use:c {g_rubos_document_#2_tl}
+                }
             } {
-                \tl_use:c {g_rubos_document_#1_print_tl}
+                % Custom Text
+                \tl_gclear_new:c {g_rubos_document_#2_print_tl}
+                \tl_gset:cn {g_rubos_document_#2_print_tl} {#4}
+                \exp_args:Nnnc \regex_replace_all:nnN {\*} {
+                    \u{g_rubos_document_#2_tl}
+                } {g_rubos_document_#2_print_tl}
+                \tl_gset:cn {
+                    print
+                    \str_uppercase:f { \tl_head:n {#2} }
+                    \tl_tail:n {#2}
+                } {
+                    \tl_use:c {g_rubos_document_#2_print_tl}
+                }
             }
         }
     }
-}
-\tl_if_blank:nF {#2} {
-    \csname#1\endcsname{#2}
-}
+    \tl_if_blank:nF {#3} {
+        \csname#2\endcsname{#3}
+    }
 }
 
 % Document Version
@@ -272,11 +280,11 @@
     {0pt}% Space below
     {\normalfont}% Body font
     {}% Indent amount
-    {\small\bfseries\sffamily\color{accentcolor}}% Theorem head font
+    {\normalsize\bfseries\sffamily\color{accentcolor}}% Theorem head font
     {\;}% Punctuation after theorem head
     {0.25em}% Space after theorem head
     {
-        \small\sffamily\color{accentcolor}\thmname{#1}% Theorem text (e.g. Theorem 2.1)
+        \normalsize\sffamily\color{accentcolor}\thmname{#1}% Theorem text (e.g. Theorem 2.1)
         \thmnote{\space\sffamily\bfseries\color{fgcolor}---\space#3}% Optional theorem note
     }
 
@@ -648,6 +656,11 @@ overlay={ % Für Grauen Bereich links
 %%--Makros--%%
 \DeclareDocumentEnvironment{cpenumerate}{O{}}{
     \begin{enumerate}[nosep, #1]}{
+    \end{enumerate}
+}
+
+\DeclareDocumentEnvironment{steps}{o}{
+    \begin{enumerate}[label={\textsf{\arabic*. Schritt:~}}, leftmargin=2cm]}{
     \end{enumerate}
 }
 
