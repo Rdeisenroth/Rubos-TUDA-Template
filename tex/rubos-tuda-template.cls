@@ -1,5 +1,5 @@
-\def\fileversion{1.4.2}
-\def\filedate{2022/04/18}
+\def\fileversion{1.4.3}
+\def\filedate{2022/07/02}
 
 % Sets the LaTeX version for the package to work.
 \NeedsTeXFormat{LaTeX2e}
@@ -107,6 +107,7 @@
 \regtotcounter{task}
 \RequirePackage{wrapfig}
 \RequirePackage{refcount}
+\RequirePackage{fontawesome5}
 
 % Strings/Names
 \defcaptionname*{ngerman, german}{\solutionname}{Lösung}
@@ -1326,6 +1327,10 @@
             \space{}von\space{}
             \seq_use:Nnnn \g_ptxcd_author_seq {~\authorandname{}~} {,~} {~\authorandname{}~}
         },
+        #1 / fulltitle-centered .code:n = \tl_gset:cn {g_ptxcd_ex_headline_#1_tl} {
+            \centering
+            \textbf{\textsf{\@title}}
+        },
         #1 / unknown .code:n = \tl_gset:cn {g_ptxcd_ex_headline_#1_tl} {##1}
     }
 }
@@ -1392,6 +1397,10 @@
             \centering\textbf{\sffamily\g_TUDa_shorttitle_tl\space{}Zusammenfassung}
             \space{}von\space{}
             \seq_use:Nnnn \g_TUDa_author_seq {~\authorandname{}~} {,~} {~\authorandname{}~}
+        },
+        #1 / fulltitle-centered .code:n = \tl_gset:cn {g_TUDa_ex_headline_#1_tl} {
+            \centering
+            \textbf{\textsf{\@title}}
         },
         #1 / unknown .code:n = \tl_gset:cn {g_TUDa_ex_headline_#1_tl} {##1}
     }

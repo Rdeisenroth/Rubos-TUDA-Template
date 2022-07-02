@@ -1,6 +1,6 @@
 \NeedsTeXFormat{LaTeX2e}
 \RequirePackage{expl3}
-\ProvidesExplPackage{rubos-common}{2022/06/15}{1.0.1-snapshot}{Common Definitions for all Rubos templates}
+\ProvidesExplPackage{rubos-common}{2022/07/02}{1.0.1-snapshot}{Common Definitions for all Rubos templates}
 % Made by Ruben Deisenroth, 2022
 % Available at https://github.com/Rdeisenroth/Rubos-TUDA-Template/blob/main/tex/rubos-common.sty
 
@@ -27,11 +27,11 @@
     boxarc .initial:n = {0pt},
     boxarc .default:n = {3pt},
     fopslides .code:n = \prop_gput:Nnn \g_rubos_document_opts_prop {fopslides} {#1},
-    fopslides .initial:n = {https://moodle.informatik.tu-darmstadt.de/pluginfile.php/203969/mod_folder/content/0/},
-    fopslides .default:n = {https://moodle.informatik.tu-darmstadt.de/pluginfile.php/203969/mod_folder/content/0/},
+    fopslides .initial:n = {},
+    fopslides .default:n = {},
     audslides .code:n = \prop_gput:Nnn \g_rubos_document_opts_prop {audslides} {#1},
-    audslides .initial:n = {https://moodle.informatik.tu-darmstadt.de/pluginfile.php/203990/mod_folder/content/0/},
-    audslides .default:n = {https://moodle.informatik.tu-darmstadt.de/pluginfile.php/203990/mod_folder/content/0/},
+    audslides .initial:n = {},
+    audslides .default:n = {},
     dark_mode .bool_gset:N = \g_rubos_dark_mode_bool,
     dark_mode .initial:n = false,
     dark_mode .default:n = true,
@@ -186,6 +186,17 @@
 
 % Topic
 \DeclareDocumentProperty{topic}[][\textsf{\textbf{Themen:~}*}]
+
+% Author
+\DeclareDocumentCommand{\getAuthor}{}{
+    \@author
+}
+\DeclareDocumentCommand{\getTitle}{}{
+    \@title
+}
+\DeclareDocumentCommand{\getSubtitle}{}{
+    \@subtitle
+}
 
 %%--Blocks, Boxes and Environments--%%
 \def\rubos@boxarc{\prop_item:Nn \g_rubos_document_opts_prop {boxarc}} % Used for Code Blocks, Info boxes, etc.
