@@ -1,4 +1,5 @@
 # Rubos-Tuda-Template
+[![Build](https://github.com/Rdeisenroth/Rubos-TUDA-Template/actions/workflows/build.yml/badge.svg)](https://github.com/Rdeisenroth/Rubos-TUDA-Template/actions/workflows/build.yml)
 ## Was ist das?
 Eine Vorlage basierend auf tudaexercise.cls, die den Funktionsumfang für Abgaben und Zusammenfassungen erweitert (sowie einige Erleichterungen für Übungsblattersteller bereitstellt).
 
