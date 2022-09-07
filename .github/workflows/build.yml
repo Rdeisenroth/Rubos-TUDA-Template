@@ -38,7 +38,7 @@ jobs:
           curl -o tuda_logo.svg -L https://upload.wikimedia.org/wikipedia/de/2/24/TU_Darmstadt_Logo.svg\?download
           rsvg-convert -f pdf -o tuda_logo.pdf tuda_logo.svg
           mv tuda_logo.pdf "$(kpsewhich -var-value=TEXMFHOME)/tex/latex/local"
-          texhash ---verbose
+          texhash --verbose
 
       # 5. Run l3build
       - name: Run l3build
