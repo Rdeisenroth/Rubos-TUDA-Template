@@ -1,13 +1,13 @@
 \NeedsTeXFormat{LaTeX2e}
 \RequirePackage{expl3}
-\ProvidesExplPackage{rubos-common}{2022/07/02}{1.0.1-snapshot}{Common Definitions for all Rubos templates}
-% Made by Ruben Deisenroth, 2022
+\ProvidesExplPackage{rubos-common}{2022/09/07}{1.0.1-snapshot}{Common Definitions for all Rubos templates}
+% Package Made by Ruben Deisenroth, 2022
 % Available at https://github.com/Rdeisenroth/Rubos-TUDA-Template/blob/main/tex/rubos-common.sty
 
 \RequirePackage{l3keys2e}
 \RequirePackage{amsmath}
 \RequirePackage{amsthm}
-\PassOptionsToPackage{table, dvipsnames}{xcolor} % Option has to be set before loading TuDaExercise
+\PassOptionsToPackage{table, dvipsnames, svgnames}{xcolor} % Option has to be set before loading TuDaExercise
 \RequirePackage{xcolor}
 \RequirePackage{pagecolor} % Used for dark Mode
 \RequirePackage{tcolorbox}
@@ -347,6 +347,7 @@
         }
     }
 
+    \rubosDeclareColorBoxEnvironment{ausblick}{infoBox}{Ausblick}
     \rubosDeclareColorBoxEnvironment*{tipp}{infoBox}{Tipp}
     \rubosDeclareColorBoxEnvironment*{tipps}{infoBox}{Tipps}
     \rubosDeclareColorBoxEnvironment{hinweis}{infoBox}{Hinweis}
@@ -364,6 +365,7 @@
     \rubosDeclareColorBoxEnvironment*{bemerkungenr}{infoBox}{Bemerkungen~am~Rande}
     \rubosDeclareColorBoxEnvironment{beispiel}{infoBox}{Beispiel}
     \rubosDeclareColorBoxEnvironment{beispiele}{infoBox}{Beispiele}
+    \rubosDeclareColorBoxEnvironment{exkurs}{grayInfoBox}{Exkurs}
     \rubosDeclareColorBoxEnvironment*{example}{infoBox}{Beispiel}
     \rubosDeclareColorBoxEnvironment*{kaufgabe}{infoBox}{Konkrete~Aufgabe}
     \rubosDeclareColorBoxEnvironment*{kaufgaben}{infoBox}{Konkrete~Aufgaben}
@@ -588,7 +590,7 @@ frame~hidden,
 boxrule=0pt,
 arc=\rubos@boxarc,
 %hbox, % This option could be used to limit the Length of Code Blocks automatically, but does not work with the minted Line Numbers
-title~style=\IfDarkModeTF{accentcolor!60!black}{black!90},
+title~style=\IfDarkModeTF{accentcolor!60!black}{accentcolor},
 minted~language=java, % Sprache setzen
 minted~style/.expanded=\IfDarkModeTF{dracula}{tango}, % Highlighting Style anpassen
 minted~options={ %Minted Optionen
