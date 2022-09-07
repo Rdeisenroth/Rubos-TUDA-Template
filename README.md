@@ -35,42 +35,16 @@ Dadurch kann die Vorlage Reibungslos mit VS-Code kompillieren.
 
 Die Vorlage wurde für LuaLaTeX geschrieben, ist aber dank des Latex3-Kernels auch mit PDFLaTeX und XELaTeX kompatibel.
 ## Installation
-Der [`tex`](tex/)-Ordner der Vorlage muss im TeX-Path existieren.
-Diesen findet man mit dem Befehl:
+Da es aktuell noch keine Vollständige Dokumentation gibt, ist das Paket nicht auf CTAN erhältlich. Das Paket kann durch den folgenden Befehl installiert werden:
 ```sh
-kpsewhich -var-value=TEXMFHOME
+l3build install --full
 ```
-> Unter Linux liegt der meist bei `~/texmf/tex/latex`
-
-<!-- Beispiel:
-
+Alternativ ohne Dokumentation auch durch:
 ```sh
-cd path/to/texmf/tex/latex/
-git clone https://github.com/Rdeisenroth/Rubos-TUDA-Template.git
-``` -->
-
-Dazu kann man den [`tex`](tex/)-Ordner verlinken:
-
-```sh
-# Linux/Mac
-git clone https://github.com/Rdeisenroth/Rubos-TUDA-Template.git
-cd Rubos-TUDA-Template
-mkdir -p "$(kpsewhich -var-value=TEXMFHOME)/tex/latex/Rubos-TUDA-Template"
-# Hier kann auch -r statt -rs benutzt werden, um keinen Symlink zu erstellen...
-# texhash unterstützt keine Symlinks auf Verzeichnisse, sondern nur auf einzelne Dateien :(
-cp -rs "$(pwd)/tex" "$(kpsewhich -var-value=TEXMFHOME)/tex/latex/Rubos-TUDA-Template"
-sudo texhash "$(kpsewhich -var-value=TEXMFHOME)"
-```
-```bat
-REM Windows
-git clone https://github.com/Rdeisenroth/Rubos-TUDA-Template.git
-cd Rubos-TUDA-Template/tex
-REM (hierbei `path/to/texmf/` mit dem entsprechenden Tex-Path ersetzen)
-mklink path/to/texmf/tex/latex/Rubos-TUDA-Template 
-texhash
+l3build install
 ```
 
-> Wichtig: bei jeder Dateiänderungen in TeX-Path muss nochmal der Command `texhash` (unter linux mit sudo) ausgeführt werden, bevor die Dateien erkannt werden.
+Falls `l3build` nicht verfügbar ist (z.B. bei Overleaf oder Sharelatex) kann der Inhalt des [`tex`](tex/)-Ordners der Vorlage in das Arbeitsverzeichnis kopiert werden, oder per .latexmkrc eingebunden werden.
 
 ## Bekannte Fehler/Warnungen
 <!-- - aktuell keine -->

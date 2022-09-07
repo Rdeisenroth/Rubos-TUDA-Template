@@ -1,11 +1,8 @@
-\def\fileversion{1.4.3}
-\def\filedate{2022/07/02}
-
 % Sets the LaTeX version for the package to work.
 \NeedsTeXFormat{LaTeX2e}
+\RequirePackage{expl3}
 % Identification of the class and its date and version.
-\ProvidesExplClass{rubos-tuda-template}{\filedate}
-{\fileversion}{LaTeX Vorlage für Hausübungen, Zusammenfassungen und Abgaben basierend auf TuDaExercise}
+\ProvidesExplClass{rubos-tuda-template}{2022-09-07}{1.0.1-Snapshot}{LaTeX Vorlage für Hausübungen, Zusammenfassungen und Abgaben basierend auf TuDaExercise}
 
 % Made by Ruben Deisenroth, 2022
 % Available at https://github.com/Rdeisenroth/TUDA-Hausuebungstemplate/blob/main/rubos-tuda-template.cls
