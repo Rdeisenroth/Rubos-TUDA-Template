@@ -29,16 +29,16 @@ jobs:
         uses: actions/checkout@v3
 
       # 4. Install additional dependencies
-      - run: sudo apt-get install -y librsvg2-bin
+      - run: apt-get install -y librsvg2-bin
 
       # 4. Setup TU-Logo by converting it to pdf and copying it to the template directory
       - name: "Setup TU-Logo"
         run: |
           mkdir -p "$(kpsewhich -var-value=TEXMFHOME)/tex/latex/local"
           curl -o tuda_logo.svg -L https://upload.wikimedia.org/wikipedia/de/2/24/TU_Darmstadt_Logo.svg\?download
-          sudo rsvg-convert -f pdf -o tuda_logo.pdf tuda_logo.svg
-          sudo mv tuda_logo.pdf "$(kpsewhich -var-value=TEXMFHOME)/tex/latex/local"
-          sudo texhash ---verbose
+          rsvg-convert -f pdf -o tuda_logo.pdf tuda_logo.svg
+          mv tuda_logo.pdf "$(kpsewhich -var-value=TEXMFHOME)/tex/latex/local"
+          texhash ---verbose
 
       # 5. Run l3build
       - name: Run l3build
