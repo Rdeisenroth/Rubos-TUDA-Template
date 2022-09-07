@@ -1,5 +1,7 @@
 ### VS-Code ###
-.vscode/
+.vscode/*
+!.vscode/settings.default.json
+!.vscode/extensions.json
 .VSCodeCounter/
 
 ### Intellij ###
