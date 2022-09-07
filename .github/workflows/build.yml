@@ -1,0 +1,80 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Build Docuumentation
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push events for all branches
+  push:
+  pull_request:
+    branches:
+      - main
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build_latex"
+  l3build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # 1. Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - name: Set up Git repository
+        uses: actions/checkout@v3
+
+      # 2. GitHub Actions don't regenerate the test if the key doesn't change, so
+      # we integrate a random UUID into the key to keep them different.
+      # DO NOT CHANGE THIS
+      - name: Generate unique ID
+        id: get-id
+        run: |
+          echo -n ::set-output name=id::
+          cat /proc/sys/kernel/random/uuid
+
+      # 3. Actually load the cache. Since we never reuse the key, we need restore-keys
+      # to indicate the prefix of our caches. This loads the newest cache with this
+      # prefix in the key.
+      #
+      # If we want to force regeneration of the cache, increase the number after
+      # *both* instances of "texlive-v"
+      - name: Load cache
+        uses: actions/cache@v3
+        with:
+          path: ~/texlive
+          key: texlive-v1-${{ steps.get-id.outputs.id }}
+          restore-keys: texlive-v1-
+
+      # 4. Install additional dependencies
+      - run: sudo apt-get install -y ghostscript librsvg2-bin
+      
+      # 5. Install TeX-Live
+      - name: Install TeX Live
+        uses: zauguin/install-texlive@v1
+        with:
+          # List the required TeX Live packages in a separate file to allow reuse in
+          # different workflows.
+          package_file: .github/tl_packages
+
+      # 4. Setup TU-Logo by converting it to pdf and copying it to the template directory
+      - name: "Setup TU-Logo"
+        run: |
+          mkdir -p "$(kpsewhich -var-value=TEXMFHOME)/tex/latex/local"
+          curl -o tuda_logo.svg -L https://upload.wikimedia.org/wikipedia/de/2/24/TU_Darmstadt_Logo.svg\?download
+          rsvg-convert -f pdf -o (kpsewhich -var-value=TEXMFHOME)/tex/latexlocal/tuda_logo.pdf tuda_logo.svg
+          sudo texhash
+
+      # 5. Run l3build
+      - name: Run l3build
+        run: l3build ctan -H
+
+      # 6. Upload artifacts to GitHub
+      - name: Upload artifacts to GitHub
+        uses: actions/upload-artifact@v3
+        with:
+          name: CTAN Archives
+          path: "*.zip"
+          if-no-files-found: error
