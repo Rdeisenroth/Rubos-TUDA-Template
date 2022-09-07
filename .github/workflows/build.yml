@@ -64,7 +64,7 @@ jobs:
         run: |
           mkdir -p "$(kpsewhich -var-value=TEXMFHOME)/tex/latex/local"
           curl -o tuda_logo.svg -L https://upload.wikimedia.org/wikipedia/de/2/24/TU_Darmstadt_Logo.svg\?download
-          rsvg-convert -f pdf -o "$(kpsewhich -var-value=TEXMFHOME)/tex/latexlocal/tuda_logo.pdf" tuda_logo.svg
+          sudo rsvg-convert -f pdf -o "$(kpsewhich -var-value=TEXMFHOME)/tex/latexlocal/tuda_logo.pdf" tuda_logo.svg
           sudo texhash
 
       # 5. Run l3build
