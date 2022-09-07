@@ -127,7 +127,6 @@
     \RequirePackage{etoolbox}
     % \RequirePackage[T1]{fontenc}
     \RequirePackage{forest}
-    \RequirePackage{fontawesome}
     \RequirePackage{framed}
     \RequirePackage{import}
     % \RequirePackage[utf8]{inputenc} % Already loaded before cs quotes
