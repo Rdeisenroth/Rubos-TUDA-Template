@@ -2,7 +2,7 @@
 \NeedsTeXFormat{LaTeX2e}
 \RequirePackage{expl3}
 % Identification of the class and its date and version.
-\ProvidesExplClass{rubos-tuda-template}{2022-09-07}{1.0.1-Snapshot}{LaTeX Vorlage für Hausübungen, Zusammenfassungen und Abgaben basierend auf TuDaExercise}
+\ProvidesExplClass{rubos-tuda-template}{2023-07-04}{1.0.1-Snapshot}{LaTeX Vorlage für Hausübungen, Zusammenfassungen und Abgaben basierend auf TuDaExercise}
 
 % Made by Ruben Deisenroth, 2022
 % Available at https://github.com/Rdeisenroth/TUDA-Hausuebungstemplate/blob/main/rubos-tuda-template.cls
@@ -827,17 +827,19 @@
 \setlist[description]{style = multiline, leftmargin = 4cm, align = parright,font=\mdseries}
 
 \renewcommand*{\thetask}{%
-    \texorpdfstring{}{H}%
-    \arabic{task}%
+    {H}\arabic{task}%
+}
+\renewcommand*{\thesubtask}{%
+    H\arabic{task}\space{}\alph{subtask})
 }
 
 \def\rubos@boxarc{\prop_item:Nn \g_rubos_document_opts_prop {boxarc}} % Used for Code Blocks, Info boxes, etc.
 
-\renewcommand*{\taskformat}{H\thetask{}} % Taskprefix
+\renewcommand*{\taskformat}{\thetask{}} % Taskprefix
 
 % Point Formating
 \renewcommand*{\creditformat}[1]{\hfill#1}
-\renewcommand*{\subtaskformat}{\thetask{}\space\thesubtask\enskip}
+\renewcommand*{\subtaskformat}{\thesubtask{}\enskip}
 
 % Define Glossary style
 \ifthenelse{\isundefined{\printindex}}{}{
