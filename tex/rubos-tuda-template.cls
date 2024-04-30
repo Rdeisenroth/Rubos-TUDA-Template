@@ -2,14 +2,13 @@
 \NeedsTeXFormat{LaTeX2e}
 \RequirePackage{expl3}
 % Identification of the class and its date and version.
-\ProvidesExplClass{rubos-tuda-template}{2023-07-04}{1.0.1-Snapshot}{LaTeX Vorlage für Hausübungen, Zusammenfassungen und Abgaben basierend auf TuDaExercise}
+\ProvidesExplClass{rubos-tuda-template}{2024-04-30}{1.0.1-Snapshot}{LaTeX Vorlage für Hausübungen, Zusammenfassungen und Abgaben basierend auf TuDaExercise}
 
 % Made by Ruben Deisenroth, 2022
 % Available at https://github.com/Rdeisenroth/TUDA-Hausuebungstemplate/blob/main/rubos-tuda-template.cls
 \RequirePackage[minted_workaround,caption_workaround]{rubos-common}
 % Packages that need to be loaded before TUDA-Exercise Class
 \RequirePackage[table, dvipsnames]{xcolor} % Option has to be set before loading TuDaExercise
-\RequirePackage{pagecolor} % Used for dark Mode
 \PassOptionsToPackage{bookmarksnumbered}{hyperref} % Nummerierte Bookmarks
 \PassOptionsToPackage{no-math}{fontspec}
 \definecolor{rubos@anthrazitgrau}{HTML}{293133}

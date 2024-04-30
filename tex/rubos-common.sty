@@ -1,6 +1,6 @@
 \NeedsTeXFormat{LaTeX2e}
 \RequirePackage{expl3}
-\ProvidesExplPackage{rubos-common}{2023-07-04}{1.0.1-Snapshot}{Common Definitions for all Rubos templates}
+\ProvidesExplPackage{rubos-common}{2024-04-30}{1.0.1-Snapshot}{Common Definitions for all Rubos templates}
 % Package Made by Ruben Deisenroth, 2022
 % Available at https://github.com/Rdeisenroth/Rubos-TUDA-Template/blob/main/tex/rubos-common.sty
 
@@ -13,7 +13,7 @@
 \tcbuselibrary{skins}
 \RequirePackage{tikz}
 \ExplSyntaxOff
-\usetikzlibrary{calc}
+\usetikzlibrary{shapes.geometric,calc,arrows.meta}
 \RequirePackage{listings}
 % \RequirePackage{fontawesome} % TODO: Klassenoption
 
@@ -31,7 +31,7 @@
     audslides .code:n = \prop_gput:Nnn \g_rubos_document_opts_prop {audslides} {#1},
     audslides .initial:n = {},
     audslides .default:n = {},
-    dark_mode .bool_gset:N = \g_rubos_dark_mode_bool,
+    dark_mode .code:n = {\PassOptionsToPackage{enable=#1}{darkmode}},
     dark_mode .initial:n = false,
     dark_mode .default:n = true,
     fancy_row_color .bool_gset:N = \g_ptxcd_ex_fancy_rowcolor_bool,
@@ -200,7 +200,7 @@
 }
 
 % A Gray Info Box (gray bar on the Left+ light gray background)
-\newtcolorbox{grayInfoBox}[1][]{
+\NewTColorBox{grayInfoBox}{O{}}{
     colback=\IfDarkModeTF{white!10!\thepagecolor}{gray!10}, %Hintergrundfarbe
     % colback=fgcolor!10!\thepagecolor, %Hintergrundfarbe
     coltext=.,
@@ -225,7 +225,7 @@
 }
 
 % A Normal Information Box (Accentcolor bar on the left)
-\newtcolorbox{infoBox}[1][]{
+\NewTColorBox{infoBox}{O{}}{
     colback=\thepagecolor, %Hintergrundfarbe
     colframe=accentcolor, % Randfarbe
     coltext=.,
@@ -249,7 +249,7 @@
 }
 
 % An Important Information Box (Accentcolor bar on the left+ light Accentcolor BG)
-\newtcolorbox{defBox}[1][]{
+\NewTColorBox{defBox}{O{}}{
     colback=\IfDarkModeTF{accentcolor!20!\thepagecolor}{accentcolor!10!\thepagecolor}, %Hintergrundfarbe
     colframe=accentcolor, % Randfarbe
     coltext=.,
@@ -273,7 +273,7 @@
 }
 
 % Box like The one Used for Code Blocks, just without Code Block
-\newtcolorbox{normalBox}[1][]{%
+\NewTColorBox{normalBox}{O{}}{%
     colback=fgcolor!10!\thepagecolor, %Hintergrundfarbe
     colframe=black!70, % Randfarbe
     coltext=.,
@@ -557,7 +557,7 @@
 \renewcommand{\theFancyVerbLine}{\tikz{\coordinate(a);\node[text~width=5mm,inner~sep=0pt,align=center]{\ttfamily\textcolor{white}{\scriptsize\arabic{FancyVerbLine}}};}}
 
 % Environment für meinen Code-Style (Arg 1 = minted Options, Arg 2 = tcolorbox Options)
-\newtcblisting{codeBlock}[2][]{
+\NewTCBListing{codeBlock}{ O{} m }{
 listing~engine=minted, % Minted verwenden
 colback=\IfDarkModeTF{codebg}{black!10!\thepagecolor}, %Hintergrundfarbe
 colframe=black!70, % Randfarbe
@@ -590,7 +590,7 @@ overlay={ % Für Grauen Bereich links
 },
 #2 % Weitere Argumente zulassen
 }
-\newtcbinputlisting{\inputCode}[3][]{
+\NewTCBInputListing{\inputCode}{ O{} m m }{
 listing~engine=minted, % Minted verwenden
 listing~file={#3},
 colback=\IfDarkModeTF{codebg}{black!10!\thepagecolor}, %Hintergrundfarbe
@@ -627,7 +627,7 @@ overlay={ % Für Grauen Bereich links
 }{
 \tcbuselibrary{listingsutf8}
 % Environment für meinen Code-Style (Arg 1 = minted Options, Arg 2 = tcolorbox Options)
-\newtcblisting{codeBlock}[2][]{
+\NewTCBListing{codeBlock}{ O{} m }{
 listing~engine=listings, % Minted verwenden
 colback=\IfDarkModeTF{codebg}{black!10!\thepagecolor}, %Hintergrundfarbe
 colframe=black!70, % Randfarbe
@@ -651,7 +651,7 @@ overlay={ % Für Grauen Bereich links
 },
 #2 % Weitere Argumente zulassen
 }
-\newtcbinputlisting{\inputCode}[3][]{
+\NewTCBInputListing{\inputCode}{ O{} m m }{
 listing~engine=listings, % Minted verwenden
 listing~file={#3},
 colback=\IfDarkModeTF{codebg}{black!10!\thepagecolor}, %Hintergrundfarbe
@@ -892,3 +892,49 @@ overlay={ % Für Grauen Bereich links
 % \DeclareDocumentCommand{\audSlideRef}{O{1}v}{
 %     \href{\prop_item:Nn \g_rubos_document_opts_prop {audslides} #2.pdf\#page=#1}{#2}
 % }
+
+\tikzset{
+    scorestar/.style={
+        draw,
+        star,
+        star~points=5,
+        star~point~ratio=2.25,
+        inner~sep=1.3pt,
+        anchor=outer~point~3,
+    },
+    scorestarempty/.style={
+        scorestar,
+        fill=none,
+    },
+    scorestarfill/.style={
+        scorestar,
+        fill=accentcolor,
+    },
+}
+% #1: Amount of stars to be filled
+% #2: Max amount of stars
+\DeclareDocumentCommand{\starrating}{ m m }
+{
+    \begin{tikzpicture}[baseline]
+        \fp_step_inline:nnnn {1} {1} {#2}{
+            % first, draw the empty stars as a background to potentially be filled
+            \node[scorestarempty] (star##1) at (##1*1.75ex, 0) {};
+            % Check if the current step is smaller than the amount of stars to be filled. To account for partially filled stars, we check instead if the current step is smaler than the amount of stars to be filled plus 1, so partially filled stars are also counted.
+            \fp_compare:nT {##1<(#1+1)} {
+                % Check if The remainder of stars to be filled is smaller than 0. If So, ##1 will be greater than #1 since we "overshoot".
+                \fp_compare:nTF {##1 > #1} {
+                    %
+                    \begin{scope}
+                        \clip
+                        ($(star##1.outer~point~3)!(star##1.outer~point~2)!(star##1.outer~point~4)$)
+                        rectangle
+                        ($(star##1.outer~point~2 |- star##1.outer~point~1)!\fp_eval:n {#1 - (##1-1)}!(star##1.outer~point~1 -| star##1.outer~point~5)$);
+                        \node[scorestarfill] (starcol##1) at (##1*1.75ex, 0) {};
+                    \end{scope}
+                } {
+                    \node[scorestarfill] (starcol##1) at (##1*1.75ex, 0) {};
+                }
+            }
+        }
+    \end{tikzpicture}%
+}
