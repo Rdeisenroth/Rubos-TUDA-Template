@@ -1,6 +1,6 @@
 \NeedsTeXFormat{LaTeX2e}
 \RequirePackage{expl3}
-\ProvidesExplPackage{rubos-common}{2024-04-30}{1.0.1-Snapshot}{Common Definitions for all Rubos templates}
+\ProvidesExplPackage{rubos-common}{2024-06-07}{1.0.1-Snapshot}{Common Definitions for all Rubos templates}
 % Package Made by Ruben Deisenroth, 2022
 % Available at https://github.com/Rdeisenroth/Rubos-TUDA-Template/blob/main/tex/rubos-common.sty
 
@@ -70,7 +70,6 @@
 \definecolor{tablegreen}{RGB}{207, 228, 174}
 \definecolor{tablered}{RGB}{255, 191, 191}
 \definecolor{tableyellow}{RGB}{255, 250, 193}
-\colorlet{fgcolor}{black}
 
 \prg_new_conditional:Nnn \__rubos_if_shell_escape: {T,F,TF} {
     \bool_if:NTF \g_rubos_shell_escape_bool
