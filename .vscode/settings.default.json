@@ -1,10 +1,10 @@
 {
-    "latex-workshop.latexindent.args": [
+    "latex-workshop.formatting.latex": "latexindent",
+    "latex-workshop.formatting.latexindent.args": [
         "-c",
         "%DIR%/",
         "%TMPFILE%",
         "-l=%WORKSPACE_FOLDER%/latexindent.yaml",
-        // "-m",
         "-y=defaultIndent: '%INDENT%'"
     ],
     "latex-workshop.latex.verbatimEnvs": [
@@ -22,4 +22,13 @@
         "*.pygstyle": "latex",
         "*.pygtex": "latex"
     },
+    "grammarly.selectors": [
+        {
+            "language": "latex",
+            "scheme": "file"
+        }
+    ],
+    "latex-workshop.bibtex-format.tab": "4 spaces",
+    "ltex.language": "de-DE",
+    "files.insertFinalNewline": true
 }

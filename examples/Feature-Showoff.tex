@@ -233,10 +233,10 @@
                 \fatsf{Aufgabe}                                                                      & \fatsf{möglich}             & \fatsf{erreicht}                                                      \\
                 \midrule\midrule
                 \mapTasks*{%
-                \textbf{\getTaskProperty{taskformat}:~\getTaskProperty{title}}                       & \getTaskProperty{points}    & \IfSolutionT{\fatsf{\getPoints{\thetask}}}\IfSubtasksTF{\mapSubtasks{ \\
-                \rowcolor{\thepagecolor}\getSubTaskProperty{subtaskformat}\getSubTaskProperty{title} & \getSubTaskProperty{points} & \IfSolutionT{\fatsf{\getSubTaskProperty{points}}}
+                    \textbf{\getTaskProperty{taskformat}:~\getTaskProperty{title}}                       & \getTaskProperty{points}    & \IfSolutionT{\fatsf{\getPoints{\thetask}}}\IfSubtasksTF{\mapSubtasks{ \\
+                            \rowcolor{\thepagecolor}\getSubTaskProperty{subtaskformat}\getSubTaskProperty{title} & \getSubTaskProperty{points} & \IfSolutionT{\fatsf{\getSubTaskProperty{points}}}
                         }
-                }{}                                                                                                                                                                                        \\
+                    }{}                                                                                                                                                                                        \\
                     \midrule\midrule
                 }
                 \textbf{Gesamt}                                                                      & \textbf{\getPointsTotal{}}  & \IfSolutionT{\fatsf{\getPointsTotal{}}}                               \\

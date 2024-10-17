@@ -12,7 +12,7 @@ trim_trailing_whitespace = true
 insert_final_newline = true
 
 [*.{tex,cls,lua,sty}]
-max_line_length = 130
+# max_line_length = 130
 
 [*.md]
 trim_trailing_whitespace = false
