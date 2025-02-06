@@ -2,7 +2,7 @@
 \NeedsTeXFormat{LaTeX2e}
 \RequirePackage{expl3}
 % Identification of the class and its date and version.
-\ProvidesExplClass{rubos-tuda-template}{2025-02-06}{1.0.1-Snapshot}{LaTeX Vorlage für Hausübungen, Zusammenfassungen und Abgaben basierend auf TuDaExercise}
+\ProvidesExplClass{rubos-tuda-template}{2025-02-06}{1.0.2-Snapshot}{LaTeX Vorlage für Hausübungen, Zusammenfassungen und Abgaben basierend auf TuDaExercise}
 
 % Made by Ruben Deisenroth, 2022
 % Available at https://github.com/Rdeisenroth/TUDA-Hausuebungstemplate/blob/main/rubos-tuda-template.cls
@@ -35,7 +35,7 @@
     manual_term .bool_gset:N = \g_manual_term_bool,
     manual_term .initial:n = false,
     manual_term .default:n = true,
-    summary .code:n = \bool_if:nTF \g_is_submission_bool {\ClassError{rubos-tuda-template}{summary~can't~be~used~with~submission~mode~enabled}{disable~submission~mode}}{\bool_gset_true:N \g_is_summary_bool\tl_gset:Nn \datename {Stand}},
+    summary .code:n = \bool_if:nTF \g_is_submission_bool {\ClassError{rubos-tuda-template}{summary~can't~be~used~with~submission~mode~enabled}{disable~submission~mode}}{\bool_gset_true:N \g_is_summary_bool},
     submission .code:n = \bool_if:nTF \g_is_summary_bool{\ClassError{rubos-tuda-template}{submission~can't~be~used~with~summary~mode~enabled}{disable~summary~mode}}{\bool_gset_true:N \g_is_submission_bool},
     load_common .bool_gset:N = \g_ptxcd_ex_load_common_bool,
     load_common .initial:n = false,
@@ -69,7 +69,7 @@
 
 % Packages
 \RequirePackage{amsmath}
-\RequirePackage[ngerman]{babel}
+\RequirePackage{babel}
 \RequirePackage{amsthm}
 \RequirePackage{booktabs}
 \RequirePackage[font=small, labelfont=sc, position=bottom]{caption}
@@ -182,8 +182,8 @@
 \newcommand*{\maketerm}{%
     \term{%
         \begin{minipage}[t]{.5\textwidth}%
-            \printFachbereich{}\\
-            \printDozent{}%
+            \printDepartment{}\\
+            \printLecturer{}%
         \end{minipage}%
         \begin{minipage}[t]{.49\textwidth}%
             \raggedleft%
@@ -643,6 +643,21 @@
 
 \cs_set_eq:NN \printNested \rubos_print_nested_tl:n
 
+\IfTudaciVersionBetweenTF{3.0}{3.19}{
+    \cs_new:Nn \ptxcd_declare_caption:Nnnn {
+        \ptxcd_define_captionFallback:Nn #1 {#2}
+        \defcaptionname{ngerman, german}{#1}{#2}
+        \defcaptionname{english, USenglish, american}{#1}{#3}
+        \defcaptionname{UKenglish, british}{#1}{#4}
+    }
+
+    \cs_new:Nn \ptxcd_declare_caption:Nnn {
+        \ptxcd_declare_caption:Nnnn #1 {#2} {#3} {#3}
+    }
+
+    \ptxcd_declare_caption:Nnn \authorandname {und} {and}
+}{}
+
 % --Document Settings-- %
 
 % Sheet number
@@ -651,38 +666,60 @@
         \g_ptxcd_ex_sheetnum_tl
     }{
         \g_TUDa_ex_sheetnum_tl
-    }}
-\newcommand*{\printSheetNumber}{\tl_if_empty:NF \g_ptxcd_ex_sheetnum_tl {\sffamily\textbf{Übungsblatt\space{}Nummer:}\space\padzeroes{\getSheetnumber}}}
+    }
+}
+
+% Language-Dependent Strings
+\ptxcd_declare_caption:Nnn \datename {Datum} {Date}
+\bool_if:nT \g_is_summary_bool {
+    \ptxcd_declare_caption:Nnn \datename {Stand} {Updated}
+}
+\ptxcd_declare_caption:Nnn \sheetnumbername {Übungsblatt~Nummer} {Sheet~Number}
+\ptxcd_declare_caption:Nnn \groupnumbername {Übungsgruppe~Nummer} {Group~Number}
+\ptxcd_declare_caption:Nnn \groupleadername {Übungsgruppenleiter} {Group~Leader}
+\ptxcd_declare_caption:Nnn \lecturername {Dozent} {Lecturer}
+\ptxcd_declare_caption:Nnn \topicsname {Themen} {Topics}
+\ptxcd_declare_caption:Nnn \relevantslidesname {Relevante~Foliensätze} {Relevant~Slides}
+\ptxcd_declare_caption:Nnn \duedatename {Abgabe~der~Hausübung} {Due~Date}
+\ptxcd_declare_caption:Nnn \totalpointsname {Maximal~erreichbare~Punkte} {Total~Points}
+\ptxcd_declare_caption:Nnn \semestername {Semester} {Semester}
+\ptxcd_declare_caption:Nnn \departmentname {Fachbereich} {Department}
+\ptxcd_declare_caption:Nnn \submissionname {Abgabe} {Submission}
+\ptxcd_declare_caption:Nnn \byname {von} {by}
+\ptxcd_declare_caption:Nnn \summaryname {Zusammenfassung} {Summary}
+\ptxcd_declare_caption:Nnn \referencesolutionname {Musterlösung} {Reference~Solution}
+
+\newcommand*{\printSheetNumber}{\tl_if_empty:NF \g_ptxcd_ex_sheetnum_tl {\sffamily\textbf{\sheetnumbername :}\space\padzeroes{\getSheetnumber}}}
 
 % Group Number
-\DeclareDocumentProperty{groupNumber}[][\textsf{\textbf{Übungsgruppe~Nummer:~}*}]
+\DeclareDocumentProperty{groupNumber}[][\textsf{\textbf{\groupnumbername :~}*}]
 \cs_set_eq:NN \groupnumber \groupNumber % Legacy Support
 
 % Group Leader
-\DeclareDocumentProperty{groupLeader}[][\textsf{\textbf{Übungsgruppenleiter:~}*}]
+\DeclareDocumentProperty{groupLeader}[][\textsf{\textbf{\groupleadername :~}*}]
 \cs_set_eq:NN \groupleader \groupLeader % Legacy Support
 
-% Dozent
-\DeclareDocumentProperty{dozent}[][\textsf{\textbf{Dozent:~}*}]
+% Lecturer
+\DeclareDocumentProperty{lecturer}[][\textsf{\textbf{\lecturername :~}*}]
 
 
 % Topic
-\DeclareDocumentProperty{topic}[][\textsf{\textbf{Themen:~}*}]
+\DeclareDocumentProperty{topic}[][\textsf{\textbf{\topicsname :~}*}]
 
 % slides
-\DeclareDocumentProperty{slides}[][\sffamily\textbf{\sffamily\textbf{Relevante\space{}Foliensätze:}\hfill *}]
+\DeclareDocumentProperty{slides}[][\sffamily\textbf{\sffamily\textbf{\relevantslidesname :}\hfill *}]
 
 % Due Date
-\DeclareDocumentProperty{dueDate}[][\sffamily\textbf{Abgabe~der~Hausübung:}\hfill *]
+\DeclareDocumentProperty{dueDate}[][\sffamily\textbf{\duedatename :}\hfill *]
 
 % Total Points
-\newcommand*{\printTotalPoints}{\textbf{\textsf{Maximal\space{}erreichbare\space{}Punkte:}}\hfill\getPointsTotal{}\space{}\fp_compare:nTF {\getPointsTotal{}=1}\PointName\PointsName}
+\newcommand*{\printTotalPoints}{\textbf{\textsf{\totalpointsname :}}\hfill\getPointsTotal{}\space{}\fp_compare:nTF {\getPointsTotal{}=1}\PointName\PointsName}
 
 % Semester
-\DeclareDocumentProperty{semester}[][\textsf{\textbf{Semester:~}*}]
+\DeclareDocumentProperty{semester}[][\textsf{\textbf{\semestername :~}*}]
 
-% Fachbereich
-\DeclareDocumentProperty{fachbereich}[][\textsf{\textbf{Fachbereich:~}*}]
+% Department
+\DeclareDocumentProperty{department}[][\textsf{\textbf{\departmentname :~}*}]
 
 % Short Title
 \newcommand*{\getShortTitle}{
@@ -746,9 +783,9 @@
 }
 
 \DeclareExpandableDocumentCommand{\printSubmittors}{s m}{
-    \textsf{\textbf{Abgabe}}
+    \textsf{\textbf{\submissionname}}
     \seq_if_empty:NF \g_ptxcd_submittors_seq {
-        \textsf{\textbf{\space{}von:}}
+        \textsf{\textbf{\space{}\byname :}}
         \\
         \gdef\ptxcd_nextsep_submittors{}
         \seq_map_inline:Nn \g_ptxcd_submittors_seq {
@@ -778,7 +815,7 @@
 % }
 
 \clist_new:N \g_rubos_ex_term_order_clist
-\clist_gset:Nn \g_rubos_ex_term_order_clist {printAuthor,printSemester,printContributor,printVersion,quad,quad,printDate,printFachbereich}
+\clist_gset:Nn \g_rubos_ex_term_order_clist {printAuthor,printSemester,printContributor,printVersion,quad,quad,printDate,printDepartment}
 \newcommand*{\termOrder}[1]{\tl_gset:Nn \g_rubos_ex_term_order_clist {#1}}
 
 \tl_gclear_new:N \g_ptxcd_ex_term_style_tl
@@ -867,21 +904,6 @@
             \def#1{#2}
         }
     }
-}{}
-
-\IfTudaciVersionBetweenTF{3.0}{3.19}{
-    \cs_new:Nn \ptxcd_declare_caption:Nnnn {
-        \ptxcd_define_captionFallback:Nn #1 {#2}
-        \defcaptionname{ngerman, german}{#1}{#2}
-        \defcaptionname{english, USenglish, american}{#1}{#3}
-        \defcaptionname{UKenglish, british}{#1}{#4}
-    }
-
-    \cs_new:Nn \ptxcd_declare_caption:Nnn {
-        \ptxcd_declare_caption:Nnnn #1 {#2} {#3} {#3}
-    }
-
-    \ptxcd_declare_caption:Nnn \authorandname {und} {and}
 }{}
 
 \newcommand*{\@contributor}{
@@ -1255,13 +1277,13 @@
         #1 / aud .code:n = \tl_gset:cn {g_ptxcd_ex_headline_#1_tl} {
             \textbf{\g_ptxcd_shorttitle_tl}
             \tl_if_empty:NF \g_rubos_document_semester_tl {\space{}im\space\textbf{\g_rubos_document_semester_tl}}
-            \tl_if_empty:NF \g_rubos_document_dozent_tl {\space{}bei\space\textbf{\g_rubos_document_dozent_tl}}
+            \tl_if_empty:NF \g_rubos_document_lecturer_tl {\space{}bei\space\textbf{\g_rubos_document_lecturer_tl}}
             \tl_if_empty:NF \g_ptxcd_ex_sheetnum_tl {\hfill Übungsblatt\space{}\padzeroes[2]{\g_ptxcd_ex_sheetnum_tl}}
             \par
             \StudentNamename
             \StudentNamesep
             \IfSolutionT{
-                \rlap{\textbf{\textsf{~Musterlösung}}}
+                \rlap{\textbf{\textsf{~\referencesolutionname}}}
             }
             \hrulefill\qquad
             \StudentIDname
@@ -1273,7 +1295,7 @@
         #1 / submittors-detailed .code:n = \tl_gset:cn {g_ptxcd_ex_headline_#1_tl} { % Diese Option ist eher für Einzelabgaben gedacht, da sie sonst sehr viel Platz weg nimmt
             \textbf{\g_ptxcd_shorttitle_tl}
             \tl_if_empty:NF \g_rubos_document_semester_tl {\space{}im\space\textbf{\g_rubos_document_semester_tl}}
-            \tl_if_empty:NF \g_rubos_document_dozent_tl {\space{}bei\space\textbf{\g_rubos_document_dozent_tl}}
+            \tl_if_empty:NF \g_rubos_document_lecturer_tl {\space{}bei\space\textbf{\g_rubos_document_lecturer_tl}}
             \tl_if_empty:NF \g_ptxcd_ex_sheetnum_tl {\hfill Übungsblatt\space{}\padzeroes[2]{\g_ptxcd_ex_sheetnum_tl}}
             \par
             \gdef\ptxcd_nextsep_submittors{}
@@ -1292,36 +1314,36 @@
         #1 / submittors-semi-detailed .code:n = \tl_gset:cn {g_ptxcd_ex_headline_#1_tl} { % Diese Option ist eher für Einzelabgaben gedacht, da sie sonst sehr viel Platz weg nimmt
             \textbf{\g_ptxcd_shorttitle_tl}
             \tl_if_empty:NF \g_rubos_document_semester_tl {\space{}im\space\textbf{\g_rubos_document_semester_tl}}
-            \tl_if_empty:NF \g_rubos_document_dozent_tl {\space{}bei\space\textbf{\g_rubos_document_dozent_tl}}
+            \tl_if_empty:NF \g_rubos_document_lecturer_tl {\space{}bei\space\textbf{\g_rubos_document_lecturer_tl}}
             \tl_if_empty:NF \g_ptxcd_ex_sheetnum_tl {\hfill Übungsblatt\space{}\padzeroes[2]{\g_ptxcd_ex_sheetnum_tl}}
             \par
             \seq_if_empty:NF\g_ptxcd_submittors_seq {
-                \textbf{Abgabe\space{}von:}\space
+                \textbf{\submissionname\space{}\byname :}\space
                 \seq_use:Nnnn \g_ptxcd_submittors_seq {~\authorandname{}~} {,~} {~\authorandname{}~}
             }
         },
         #1 / submittors .code:n = {
             \tl_gset:cn {g_ptxcd_ex_headline_#1_tl} {
-                \textbf{\textsf{\g_ptxcd_shorttitle_tl\space{}Abgabe}}
+                \textbf{\textsf{\g_ptxcd_shorttitle_tl\space{}\submissionname}}
                 \seq_if_empty:NF \g_ptxcd_submittors_seq {
-                    \textbf{\textsf{\space{}von:}}\space
+                    \textbf{\textsf{\space{}\byname :}}\space
                     \seq_use:Nnnn \g_ptxcd_submittors_seq {~\authorandname{}~} {,~} {~\authorandname{}~}
                 }
             }
         },
         #1 / submittors-centered .code:n = {
             \tl_gset:cn {g_ptxcd_ex_headline_#1_tl} {
-                \centering\textbf{\textsf{\g_ptxcd_shorttitle_tl\space{}Abgabe}}
+                \centering\textbf{\textsf{\g_ptxcd_shorttitle_tl\space{}\submissionname}}
                 \seq_if_empty:NF\g_ptxcd_submittors_seq {
-                    \textbf{\textsf{\space{}von:}}\space
+                    \textbf{\textsf{\space{}\byname :}}\space
                     \seq_use:Nnnn \g_ptxcd_submittors_seq {~\authorandname{}~} {,~} {~\authorandname{}~}
                 }
             }
         },
         #1 / summary-centered .code:n = \tl_gset:cn {g_ptxcd_ex_headline_#1_tl} {%
             \centering
-            \textbf{\sffamily\g_ptxcd_shorttitle_tl\space{}Zusammenfassung}
-            \space{}von\space{}
+            \textbf{\sffamily\g_ptxcd_shorttitle_tl\space{}\summaryname}
+            \space{}\byname \space{}
             \seq_use:Nnnn \g_ptxcd_author_seq {~\authorandname{}~} {,~} {~\authorandname{}~}
         },
         #1 / fulltitle-centered .code:n = \tl_gset:cn {g_ptxcd_ex_headline_#1_tl} {
@@ -1337,7 +1359,7 @@
         #1 / aud .code:n = \tl_gset:cn {g_TUDa_ex_headline_#1_tl} {
             \textbf{\g_TUDa_shorttitle_tl}
             \tl_if_empty:NF \g_rubos_document_semester_tl {\space{}im\space\textbf{\g_rubos_document_semester_tl}}
-            \tl_if_empty:NF \g_rubos_document_dozent_tl {\space{}bei\space\textbf{\g_rubos_document_dozent_tl}}
+            \tl_if_empty:NF \g_rubos_document_lecturer_tl {\space{}bei\space\textbf{\g_rubos_document_lecturer_tl}}
             \tl_if_empty:NF \g_TUDa_ex_sheetnum_tl {\hfill Übungsblatt\space{}\padzeroes[2]{\g_TUDa_ex_sheetnum_tl}}
             \par
             \StudentName
@@ -1346,7 +1368,7 @@
         #1 / submittors-detailed .code:n = \tl_gset:cn {g_TUDa_ex_headline_#1_tl} { % Diese Option ist eher für Einzelabgaben gedacht, da sie sonst sehr viel Platz weg nimmt
             \textbf{\g_TUDa_shorttitle_tl}
             \tl_if_empty:NF \g_rubos_document_semester_tl {\space{}im\space\textbf{\g_rubos_document_semester_tl}}
-            \tl_if_empty:NF \g_rubos_document_dozent_tl {\space{}bei\space\textbf{\g_rubos_document_dozent_tl}}
+            \tl_if_empty:NF \g_rubos_document_lecturer_tl {\space{}bei\space\textbf{\g_rubos_document_lecturer_tl}}
             \hfill Übungsblatt\space{}\padzeroes[2]{\g_TUDa_ex_sheetnum_tl}
             \par
             \gdef\ptxcd_nextsep_submittors{}
@@ -1365,34 +1387,34 @@
         #1 / submittors-semi-detailed .code:n = \tl_gset:cn {g_TUDa_ex_headline_#1_tl} { % Diese Option ist eher für Einzelabgaben gedacht, da sie sonst sehr viel Platz weg nimmt
             \textbf{\g_TUDa_shorttitle_tl}
             \tl_if_empty:NF \g_rubos_document_semester_tl {\space{}im\space\textbf{\g_rubos_document_semester_tl}}
-            \tl_if_empty:NF \g_rubos_document_dozent_tl {\space{}bei\space\textbf{\g_rubos_document_dozent_tl}}
+            \tl_if_empty:NF \g_rubos_document_lecturer_tl {\space{}bei\space\textbf{\g_rubos_document_lecturer_tl}}
             \hfill Übungsblatt\space{}\padzeroes[2]{\g_TUDa_ex_sheetnum_tl}
             \par
             \seq_if_empty:NF\g_ptxcd_submittors_seq {
-                \textbf{Abgabe\space{}von:}\space
+                \textbf{\submissionname \space{}\byname :}\space
                 \seq_use:Nnnn \g_ptxcd_submittors_seq {~\authorandname{}~} {,~} {~\authorandname{}~}
             }
         },
         #1 / submittors .code:n = {\tl_gset:cn {g_TUDa_ex_headline_#1_tl} {
-                \textbf{\textsf{\g_TUDa_shorttitle_tl\space{}Abgabe}}
+                \textbf{\textsf{\g_TUDa_shorttitle_tl\space{}\submissionname }}
                 \seq_if_empty:NF\g_ptxcd_submittors_seq {
-                    \textbf{\textsf{\space{}von:}}\space
+                    \textbf{\textsf{\space{}\byname :}}\space
                     \seq_use:Nnnn \g_ptxcd_submittors_seq {~\authorandname{}~} {,~} {~\authorandname{}~}
                 }
             }
         },
         #1 / submittors-centered .code:n = {
             \tl_gset:cn {g_TUDa_ex_headline_#1_tl} {
-                \centering\textbf{\textsf{\g_TUDa_shorttitle_tl\space{}Abgabe}}
+                \centering\textbf{\textsf{\g_TUDa_shorttitle_tl\space{}\submissionname }}
                 \seq_if_empty:NF\g_ptxcd_submittors_seq {
-                    \textbf{\textsf{\space{}von:}}\space
+                    \textbf{\textsf{\space{}\byname :}}\space
                     \seq_use:Nnnn \g_ptxcd_submittors_seq {~\authorandname{}~} {,~} {~\authorandname{}~}
                 }
             }
         },
         #1 / summary-centered .code:n = \tl_gset:cn {g_TUDa_ex_headline_#1_tl} {%
-            \centering\textbf{\sffamily\g_TUDa_shorttitle_tl\space{}Zusammenfassung}
-            \space{}von\space{}
+            \centering\textbf{\sffamily\g_TUDa_shorttitle_tl\space{}\summaryname}
+            \space{}\byname \space{}
             \seq_use:Nnnn \g_TUDa_author_seq {~\authorandname{}~} {,~} {~\authorandname{}~}
         },
         #1 / fulltitle-centered .code:n = \tl_gset:cn {g_TUDa_ex_headline_#1_tl} {
