@@ -1,7 +1,7 @@
 \documentclass[
     ngerman,
     color=1b,
-    load_common, % läd oft benutzte Pakete, erhöht aber die Compile-Time drastisch
+    % load_common, % läd oft benutzte Pakete, erhöht aber die Compile-Time drastisch
     submission,
     submission,
     dark_mode,
@@ -18,7 +18,12 @@
 %%------------%%
 % (nicht in Class File um CompileTime zu verbessern)
 
-% \usepackage{forest}
+\usepackage{forest}
+\usepackage{tabularx}
+\usepackage[color=accentcolor,textcolor=white,textwidth=.8cm,textsize=small,loadshadowlibrary]{todonotes}
+\usepackage{tikz}
+
+\usetikzlibrary{positioning}
 
 %%-----------------------%%
 %%--Abgabeeinstellungen--%%

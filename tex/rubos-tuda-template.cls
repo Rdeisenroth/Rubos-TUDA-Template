@@ -2,7 +2,7 @@
 \NeedsTeXFormat{LaTeX2e}
 \RequirePackage{expl3}
 % Identification of the class and its date and version.
-\ProvidesExplClass{rubos-tuda-template}{2024-10-17}{1.0.1-Snapshot}{LaTeX Vorlage für Hausübungen, Zusammenfassungen und Abgaben basierend auf TuDaExercise}
+\ProvidesExplClass{rubos-tuda-template}{2025-02-06}{1.0.1-Snapshot}{LaTeX Vorlage für Hausübungen, Zusammenfassungen und Abgaben basierend auf TuDaExercise}
 
 % Made by Ruben Deisenroth, 2022
 % Available at https://github.com/Rdeisenroth/TUDA-Hausuebungstemplate/blob/main/rubos-tuda-template.cls
@@ -81,7 +81,7 @@
 \RequirePackage{silence}
 % \RequirePackage{amssymb}
 % \RequirePackage[T1]{fontenc}
-\WarningFilter[sillyfonterror]{latex}{Font~shape~declaration~has}
+\WarningFilter[sillyfonterror]{latex}{Font~shape~}
 \ActivateWarningFilters[sillyfonterror]
 \ifLuaTeX
     % Fix Font warnings for mathdesign
