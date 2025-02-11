@@ -2,7 +2,7 @@
 \NeedsTeXFormat{LaTeX2e}
 \RequirePackage{expl3}
 % Identification of the class and its date and version.
-\ProvidesExplClass{rubos-tuda-template}{2025-02-06}{1.0.2-Snapshot}{LaTeX Vorlage für Hausübungen, Zusammenfassungen und Abgaben basierend auf TuDaExercise}
+\ProvidesExplClass{rubos-tuda-template}{2025-02-11}{1.1.0-Snapshot}{LaTeX Vorlage für Hausübungen, Zusammenfassungen und Abgaben basierend auf TuDaExercise}
 
 % Made by Ruben Deisenroth, 2022
 % Available at https://github.com/Rdeisenroth/TUDA-Hausuebungstemplate/blob/main/rubos-tuda-template.cls
@@ -200,7 +200,7 @@
     }
 }
 
-\IfTudaciVersionAtLeastTF{3.13}{
+\IfTudaciVersionBetweenTF{3.13}{3.40}{
     \tl_gclear_new:N \g__ptxcd_task_properties_collector_tl
     \tl_gclear_new:N \g__ptxcd_task_properties_loaded_tl
 
@@ -405,243 +405,249 @@
         }
         {}
     }
-}{}
+    % #1: Token List which is a nested Property List (like: {3={a)=3,b)=2,},4={a)=5,b)=3,c)=8}})
+    % #2: Comma List (List of the keys to get the desired value)
+    % returns: Tokenlist
+    \cs_new:Npn \rubos_prop_nested_get:nn #1#2 {
+        \tl_clear_new:N \l_rubos_nestedcurr_tl
+        \tl_set:Nn \l_rubos_nestedcurr_tl {#1}
+        \prop_clear_new:N \l_rubos_nestedcurr_prop
+        \clist_map_inline:nn {#2}{
+            % Check if Current Tokenlist is a Property List
+            \__rubos_is_prop_list:nTF {\tl_use:N \l_rubos_nestedcurr_tl} {
+                % Current List is a Property List
+                % Parse Property List
+                \exp_args:NNf \prop_set_from_keyval:Nn \l_rubos_nestedcurr_prop {
+                    \l_rubos_nestedcurr_tl
+                }
+                % Make sure key is present
+                \prop_if_in:NnTF \l_rubos_nestedcurr_prop {##1} {
+                    % Key is present
+                    \prop_get:NnN \l_rubos_nestedcurr_prop {##1} \l_rubos_nestedcurr_tl
+                } {
+                    % Key is not present
+                    \ClassError{rubos_tuda_template}{Subproperty~##1~does~not~exist~the~nested~property~list!}{Subproperty~##1~does~not~exist~the~nested~property~list!}
+                }
+            }{
+                % Current List is no Property List
+                \ClassError{rubos_tuda_template}{Subproperty~##1~could~not~be~found~because~toplist~is~no~property~list!}{toplist~is~no~property~list}
+            }
+        }
+        % Put result in Output stream
+        \tl_use:N \l_rubos_nestedcurr_tl
+    }
 
-% #1: Token List which is a nested Property List (like: {3={a)=3,b)=2,},4={a)=5,b)=3,c)=8}})
-% #2: Comma List (List of the keys to get the desired value)
-% returns: Tokenlist
-\cs_new:Npn \rubos_prop_nested_get:nn #1#2 {
-    \tl_clear_new:N \l_rubos_nestedcurr_tl
-    \tl_set:Nn \l_rubos_nestedcurr_tl {#1}
-    \prop_clear_new:N \l_rubos_nestedcurr_prop
-    \clist_map_inline:nn {#2}{
-        % Check if Current Tokenlist is a Property List
-        \__rubos_is_prop_list:nTF {\tl_use:N \l_rubos_nestedcurr_tl} {
-            % Current List is a Property List
-            % Parse Property List
-            \exp_args:NNf \prop_set_from_keyval:Nn \l_rubos_nestedcurr_prop {
+    \cs_set_eq:NN\nestedget \rubos_prop_nested_get:nn
+
+    \prg_new_protected_conditional:Npnn \rubos_prop_nested_get:NnN #1#2#3 { T, F, TF }{
+        \tl_clear_new:N \l_rubos_nestedcurr_tl
+        \tl_set_eq:NN \l_rubos_nestedcurr_tl #1
+        \bool_set_true:N \l_rubos_nestedcontains_bool
+        \prop_clear_new:N \l_rubos_nestedcurr_prop
+        \clist_map_inline:nn {#2}{
+            \bool_if:NT \l_rubos_nestedcontains_bool {
+
+                % Check if Current Tokenlist is a Property List
+                \exp_args:Nf \__rubos_is_prop_list:nTF {\l_rubos_nestedcurr_tl} {
+                    % Current List is a Property List
+                    % Parse Property List
+                    \exp_args:NNf \prop_set_from_keyval:Nn \l_rubos_nestedcurr_prop {
+                        \l_rubos_nestedcurr_tl
+                    }
+                    % Make sure key is present
+                    \prop_if_in:NnTF \l_rubos_nestedcurr_prop {##1} {
+                        % Key is present
+                        \prop_get:NnN \l_rubos_nestedcurr_prop {##1} \l_rubos_nestedcurr_tl
+                    } {
+                        % Key is not present
+                        \bool_set_false:N \l_rubos_nestedcontains_bool
+                    }
+                }{
+                    % Current List is no Property List
+                    \bool_set_false:N \l_rubos_nestedcontains_bool
+                }
+            }
+        }
+        \bool_if:NTF \l_rubos_nestedcontains_bool {
+            % Copy Result to output list
+            \tl_set_eq:NN #3 \l_rubos_nestedcurr_tl
+            \prg_return_true:
+        }{
+            \prg_return_false:
+        }
+    }
+
+    \prg_generate_conditional_variant:Nnn \rubos_prop_nested_get:NnN { NV , Nv , No, Nx , c , cV , cv , co, cx } { T, F, TF }
+
+    % #1: Token List which is a nested Property List (will throw class error if token List is faulty!!)
+    % #2: Comma List (List of the keys to get the desired value)
+    % #3: The Value to set (token List)
+    % returns: Tokenlist
+    \cs_new:Npn \rubos_prop_nested_set:Nnn #1#2#3 {
+        \tl_clear_new:N \l_rubos_nestedcurr_tl
+        \tl_set_eq:NN \l_rubos_nestedcurr_tl {#1}
+        \clist_clear_new:N \l_rubos_nestedkeys_remaining_clist
+        \clist_set:Nn \l_rubos_nestedkeys_remaining_clist {#2}
+        \clist_clear_new:N \l_rubos_nestedkeys_done_clist
+        \str_clear_new:N \l_rubos_nestedkeys_current_key_tl
+        \seq_clear_new:N \l_rubos_nestedstack_seq
+        \prop_clear_new:N \l_rubos_nestedcurr_prop
+        \bool_set_true:N \l_rubos_nestediterate_bool
+        % Fill Stack and find out insertion point
+        \bool_while_do:Nn \l_rubos_nestediterate_bool {
+            % Keys remain
+            \clist_pop:NNTF \l_rubos_nestedkeys_remaining_clist \l_rubos_nestedkeys_current_key_tl {
+                \exp_args:NNe \clist_push:Nn \l_rubos_nestedkeys_done_clist {\l_rubos_nestedkeys_current_key_tl}
+                % Check if Current Tokenlist is a Property List
+                \__rubos_is_prop_list:nTF {\l_rubos_nestedcurr_tl} {
+                    % Current List is a Property List
+                    % Parse Property List
+                    \exp_args:NNf \prop_set_from_keyval:Nn \l_rubos_nestedcurr_prop {
+                        \l_rubos_nestedcurr_tl
+                    }
+                    \exp_args:NNf \seq_put_left:Nn \l_rubos_nestedstack_seq {\l_rubos_nestedcurr_tl}
+                    % Test if key is present
+                    \exp_args:NNf \prop_get:NnNF \l_rubos_nestedcurr_prop {\l_rubos_nestedkeys_current_key_tl} \l_rubos_nestedcurr_tl {
+                        % Key is not Present
+                        \bool_set_false:N \l_rubos_nestediterate_bool
+                    }
+                }{
+                    % Current List is no Property List
+                    \bool_set_false:N \l_rubos_nestediterate_bool
+                    \ClassError{rubos_tuda_template}{List~that~should~contain~Property~\tl_use:N \l_rubos_nestedkeys_current_key_tl~is~no~property~list!}{Token~List~is~no~property~list}
+                }
+            } {
+                % no keys remain
+                \bool_set_false:N \l_rubos_nestediterate_bool
+            }
+        }
+
+        % Create nested Property List to insert based on insertion point
+        \tl_clear_new:N \l_rubos_new_nestedprop_tl
+        \tl_set:Nn \l_rubos_new_nestedprop_tl {#3}
+        \clist_reverse:N \l_rubos_nestedkeys_remaining_clist
+        \clist_map_inline:Nn \l_rubos_nestedkeys_remaining_clist {
+            \prop_clear:N \l_rubos_nestedcurr_prop
+            \prop_put:Noo \l_rubos_nestedcurr_prop {##1} {\l_rubos_new_nestedprop_tl}
+            \tl_clear:N \l_rubos_new_nestedprop_tl
+            \prop_map_inline:Nn \l_rubos_nestedcurr_prop {
+                \tl_put_right:Nn \l_rubos_new_nestedprop_tl {####1={####2},}
+            }
+        }
+
+        % Insert at insertion point using the stack
+        \clist_map_inline:Nn \l_rubos_nestedkeys_done_clist {
+            % ##1,
+            % Parse Next Prop List from Stack
+            \prop_clear:N \l_rubos_nestedcurr_prop
+            \seq_pop_left:NN \l_rubos_nestedstack_seq \l_rubos_nestedcurr_tl
+            \exp_args:NNo \prop_set_from_keyval:Nn \l_rubos_nestedcurr_prop {
                 \l_rubos_nestedcurr_tl
             }
-            % Make sure key is present
-            \prop_if_in:NnTF \l_rubos_nestedcurr_prop {##1} {
-                % Key is present
-                \prop_get:NnN \l_rubos_nestedcurr_prop {##1} \l_rubos_nestedcurr_tl
-            } {
-                % Key is not present
-                \ClassError{rubos_tuda_template}{Subproperty~##1~does~not~exist~the~nested~property~list!}{Subproperty~##1~does~not~exist~the~nested~property~list!}
-            }
-        }{
-            % Current List is no Property List
-            \ClassError{rubos_tuda_template}{Subproperty~##1~could~not~be~found~because~toplist~is~no~property~list!}{toplist~is~no~property~list}
-        }
-    }
-    % Put result in Output stream
-    \tl_use:N \l_rubos_nestedcurr_tl
-}
+            % \tl_set:Nx \l_rubos_nestedstack_tl {\tl_tail:N \l_rubos_nestedstack_tl}
+            \prop_put:Noo \l_rubos_nestedcurr_prop {##1} {\l_rubos_new_nestedprop_tl}
 
-\cs_set_eq:NN\nestedget \rubos_prop_nested_get:nn
-
-\prg_new_protected_conditional:Npnn \rubos_prop_nested_get:NnN #1#2#3 { T, F, TF }{
-    \tl_clear_new:N \l_rubos_nestedcurr_tl
-    \tl_set_eq:NN \l_rubos_nestedcurr_tl #1
-    \bool_set_true:N \l_rubos_nestedcontains_bool
-    \prop_clear_new:N \l_rubos_nestedcurr_prop
-    \clist_map_inline:nn {#2}{
-        \bool_if:NT \l_rubos_nestedcontains_bool {
-
-            % Check if Current Tokenlist is a Property List
-            \exp_args:Nf \__rubos_is_prop_list:nTF {\l_rubos_nestedcurr_tl} {
-                % Current List is a Property List
-                % Parse Property List
-                \exp_args:NNf \prop_set_from_keyval:Nn \l_rubos_nestedcurr_prop {
-                    \l_rubos_nestedcurr_tl
-                }
-                % Make sure key is present
-                \prop_if_in:NnTF \l_rubos_nestedcurr_prop {##1} {
-                    % Key is present
-                    \prop_get:NnN \l_rubos_nestedcurr_prop {##1} \l_rubos_nestedcurr_tl
-                } {
-                    % Key is not present
-                    \bool_set_false:N \l_rubos_nestedcontains_bool
-                }
-            }{
-                % Current List is no Property List
-                \bool_set_false:N \l_rubos_nestedcontains_bool
+            \tl_clear:N \l_rubos_new_nestedprop_tl
+            \prop_map_inline:Nn \l_rubos_nestedcurr_prop {
+                \tl_put_right:Nn \l_rubos_new_nestedprop_tl {####1={####2},}
             }
         }
-    }
-    \bool_if:NTF \l_rubos_nestedcontains_bool {
-        % Copy Result to output list
-        \tl_set_eq:NN #3 \l_rubos_nestedcurr_tl
-        \prg_return_true:
-    }{
-        \prg_return_false:
-    }
-}
 
-\prg_generate_conditional_variant:Nnn \rubos_prop_nested_get:NnN { NV , Nv , No, Nx , c , cV , cv , co, cx } { T, F, TF }
+        % % Copy result to Output List
+        \tl_set_eq:NN #1 \l_rubos_new_nestedprop_tl
+    }
 
-% #1: Token List which is a nested Property List (will throw class error if token List is faulty!!)
-% #2: Comma List (List of the keys to get the desired value)
-% #3: The Value to set (token List)
-% returns: Tokenlist
-\cs_new:Npn \rubos_prop_nested_set:Nnn #1#2#3 {
-    \tl_clear_new:N \l_rubos_nestedcurr_tl
-    \tl_set_eq:NN \l_rubos_nestedcurr_tl {#1}
-    \clist_clear_new:N \l_rubos_nestedkeys_remaining_clist
-    \clist_set:Nn \l_rubos_nestedkeys_remaining_clist {#2}
-    \clist_clear_new:N \l_rubos_nestedkeys_done_clist
-    \str_clear_new:N \l_rubos_nestedkeys_current_key_tl
-    \seq_clear_new:N \l_rubos_nestedstack_seq
-    \prop_clear_new:N \l_rubos_nestedcurr_prop
-    \bool_set_true:N \l_rubos_nestediterate_bool
-    % Fill Stack and find out insertion point
-    \bool_while_do:Nn \l_rubos_nestediterate_bool {
-        % Keys remain
-        \clist_pop:NNTF \l_rubos_nestedkeys_remaining_clist \l_rubos_nestedkeys_current_key_tl {
-            \exp_args:NNe \clist_push:Nn \l_rubos_nestedkeys_done_clist {\l_rubos_nestedkeys_current_key_tl}
-            % Check if Current Tokenlist is a Property List
-            \__rubos_is_prop_list:nTF {\l_rubos_nestedcurr_tl} {
-                % Current List is a Property List
-                % Parse Property List
-                \exp_args:NNf \prop_set_from_keyval:Nn \l_rubos_nestedcurr_prop {
-                    \l_rubos_nestedcurr_tl
+    \cs_generate_variant:Nn \rubos_prop_nested_set:Nnn { Nxx, Nxn, Noo, Nxo }
+
+    \cs_set_eq:NN\nestedset \rubos_prop_nested_set:nn
+
+    \prg_new_conditional:Npnn \__rubos_is_prop_list:n #1 { p, T, F, TF } {
+        \bool_if:nT {\tl_if_empty_p:n {#1} || \tl_if_blank_p:n {#1}} {\prg_return_true:}
+        \bool_set_true:N \l_rubos_is_prop_bool
+        \exp_args:Nf \clist_map_inline:nn {#1} {
+            \bool_if:NT \l_rubos_is_prop_bool {
+                % ##1
+                \bool_if:nF {\tl_if_empty_p:n {#1} || \tl_if_blank_p:n {#1}} {
+                    % Must contain =
+                    \tl_if_in:nnF {##1} {=} {\bool_set_false:N \l_rubos_is_prop_bool}
+                    % Must have at least length 3
+                    \int_compare:nF {\tl_count:n {##1} > 2} {\bool_set_false:N \l_rubos_is_prop_bool}
+                    \regex_match:nnF {.+=.+} {##1} {\bool_set_false:N \l_rubos_is_prop_bool}
+                    % Might refine Logic later
+                    % \int_zero_new:N \l_tmp_regex_match_count_int
+                    % \regex_count:nnN {=} {##1} \l_tmp_regex_match_count_int
+                    % \int_compare:nF {\l_tmp_regex_match_count_int = 1} {\int_use:N \l_tmp_regex_match_count_int \bool_set_false:N \l_rubos_is_prop_bool}
                 }
-                \exp_args:NNf \seq_put_left:Nn \l_rubos_nestedstack_seq {\l_rubos_nestedcurr_tl}
-                % Test if key is present
-                \exp_args:NNf \prop_get:NnNF \l_rubos_nestedcurr_prop {\l_rubos_nestedkeys_current_key_tl} \l_rubos_nestedcurr_tl {
-                    % Key is not Present
-                    \bool_set_false:N \l_rubos_nestediterate_bool
-                }
-            }{
-                % Current List is no Property List
-                \bool_set_false:N \l_rubos_nestediterate_bool
-                \ClassError{rubos_tuda_template}{List~that~should~contain~Property~\tl_use:N \l_rubos_nestedkeys_current_key_tl~is~no~property~list!}{Token~List~is~no~property~list}
             }
+        }
+        \bool_if:NTF \l_rubos_is_prop_bool {
+            \prg_return_true:
         } {
-            % no keys remain
-            \bool_set_false:N \l_rubos_nestediterate_bool
+            \prg_return_false:
         }
     }
 
-    % Create nested Property List to insert based on insertion point
-    \tl_clear_new:N \l_rubos_new_nestedprop_tl
-    \tl_set:Nn \l_rubos_new_nestedprop_tl {#3}
-    \clist_reverse:N \l_rubos_nestedkeys_remaining_clist
-    \clist_map_inline:Nn \l_rubos_nestedkeys_remaining_clist {
-        \prop_clear:N \l_rubos_nestedcurr_prop
-        \prop_put:Noo \l_rubos_nestedcurr_prop {##1} {\l_rubos_new_nestedprop_tl}
-        \tl_clear:N \l_rubos_new_nestedprop_tl
-        \prop_map_inline:Nn \l_rubos_nestedcurr_prop {
-            \tl_put_right:Nn \l_rubos_new_nestedprop_tl {####1={####2},}
-        }
-    }
-
-    % Insert at insertion point using the stack
-    \clist_map_inline:Nn \l_rubos_nestedkeys_done_clist {
-        % ##1,
-        % Parse Next Prop List from Stack
-        \prop_clear:N \l_rubos_nestedcurr_prop
-        \seq_pop_left:NN \l_rubos_nestedstack_seq \l_rubos_nestedcurr_tl
-        \exp_args:NNo \prop_set_from_keyval:Nn \l_rubos_nestedcurr_prop {
-            \l_rubos_nestedcurr_tl
-        }
-        % \tl_set:Nx \l_rubos_nestedstack_tl {\tl_tail:N \l_rubos_nestedstack_tl}
-        \prop_put:Noo \l_rubos_nestedcurr_prop {##1} {\l_rubos_new_nestedprop_tl}
-
-        \tl_clear:N \l_rubos_new_nestedprop_tl
-        \prop_map_inline:Nn \l_rubos_nestedcurr_prop {
-            \tl_put_right:Nn \l_rubos_new_nestedprop_tl {####1={####2},}
-        }
-    }
-
-    % % Copy result to Output List
-    \tl_set_eq:NN #1 \l_rubos_new_nestedprop_tl
-}
-
-\cs_generate_variant:Nn \rubos_prop_nested_set:Nnn { Nxx, Nxn, Noo, Nxo }
-
-\cs_set_eq:NN\nestedset \rubos_prop_nested_set:nn
-
-\prg_new_conditional:Npnn \__rubos_is_prop_list:n #1 { p, T, F, TF } {
-    \bool_if:nT {\tl_if_empty_p:n {#1} || \tl_if_blank_p:n {#1}} {\prg_return_true:}
-    \bool_set_true:N \l_rubos_is_prop_bool
-    \exp_args:Nf \clist_map_inline:nn {#1} {
-        \bool_if:NT \l_rubos_is_prop_bool {
-            % ##1
-            \bool_if:nF {\tl_if_empty_p:n {#1} || \tl_if_blank_p:n {#1}} {
-                % Must contain =
-                \tl_if_in:nnF {##1} {=} {\bool_set_false:N \l_rubos_is_prop_bool}
-                % Must have at least length 3
-                \int_compare:nF {\tl_count:n {##1} > 2} {\bool_set_false:N \l_rubos_is_prop_bool}
-                \regex_match:nnF {.+=.+} {##1} {\bool_set_false:N \l_rubos_is_prop_bool}
-                % Might refine Logic later
-                % \int_zero_new:N \l_tmp_regex_match_count_int
-                % \regex_count:nnN {=} {##1} \l_tmp_regex_match_count_int
-                % \int_compare:nF {\l_tmp_regex_match_count_int = 1} {\int_use:N \l_tmp_regex_match_count_int \bool_set_false:N \l_rubos_is_prop_bool}
-            }
-        }
-    }
-    \bool_if:NTF \l_rubos_is_prop_bool {
-        \prg_return_true:
-    } {
-        \prg_return_false:
-    }
-}
-
-% #1: Token List which is a nested Property List (like: {3={a)=3,b)=2,},4={a)=5,b)=3,c)=8}})
-% #2: Comma List (List of the keys to get the desired value)
-\prg_new_conditional:Npnn \__rubos_nested_contains:nn #1#2 { p, T, F, TF } {
-    \tl_clear_new:N \l_rubos_nestedcurr_tl
-    \tl_set:Nf \l_rubos_nestedcurr_tl {#1}
-    \prop_clear_new:N \l_rubos_nestedcurr_prop
-    % Since you can't use the return statement inside a map function...
-    \bool_set_true:N \l_rubos_nestedcontains_bool
-    \clist_map_inline:nn {#2}{
-        \bool_if:NT \l_rubos_nestedcontains_bool {
-            % Check if Current Tokenlist is a Property List
-            \tl_if_in:NnTF \l_rubos_nestedcurr_tl {=} {
-                % Current List is a Property List
-                % Parse Property List
-                \exp_args:NNf \prop_set_from_keyval:Nn \l_rubos_nestedcurr_prop {
-                    \l_rubos_nestedcurr_tl
-                }
-                % Make sure key is present
-                \prop_if_in:NnTF \l_rubos_nestedcurr_prop {##1} {
-                    % Key is present
-                    \prop_get:NnN \l_rubos_nestedcurr_prop {##1} \l_rubos_nestedcurr_tl
-                } {
-                    % Key is not present
+    % #1: Token List which is a nested Property List (like: {3={a)=3,b)=2,},4={a)=5,b)=3,c)=8}})
+    % #2: Comma List (List of the keys to get the desired value)
+    \prg_new_conditional:Npnn \__rubos_nested_contains:nn #1#2 { p, T, F, TF } {
+        \tl_clear_new:N \l_rubos_nestedcurr_tl
+        \tl_set:Nf \l_rubos_nestedcurr_tl {#1}
+        \prop_clear_new:N \l_rubos_nestedcurr_prop
+        % Since you can't use the return statement inside a map function...
+        \bool_set_true:N \l_rubos_nestedcontains_bool
+        \clist_map_inline:nn {#2}{
+            \bool_if:NT \l_rubos_nestedcontains_bool {
+                % Check if Current Tokenlist is a Property List
+                \tl_if_in:NnTF \l_rubos_nestedcurr_tl {=} {
+                    % Current List is a Property List
+                    % Parse Property List
+                    \exp_args:NNf \prop_set_from_keyval:Nn \l_rubos_nestedcurr_prop {
+                        \l_rubos_nestedcurr_tl
+                    }
+                    % Make sure key is present
+                    \prop_if_in:NnTF \l_rubos_nestedcurr_prop {##1} {
+                        % Key is present
+                        \prop_get:NnN \l_rubos_nestedcurr_prop {##1} \l_rubos_nestedcurr_tl
+                    } {
+                        % Key is not present
+                        \bool_set_false:N \l_rubos_nestedcontains_bool
+                    }
+                }{
+                    % Current List is no Property List
                     \bool_set_false:N \l_rubos_nestedcontains_bool
                 }
-            }{
-                % Current List is no Property List
-                \bool_set_false:N \l_rubos_nestedcontains_bool
             }
         }
+        % Wanted Key is contained
+        \bool_if:NTF \l_rubos_nestedcontains_bool {
+            \prg_return_true:
+        } {
+            \prg_return_false:
+        }
     }
-    % Wanted Key is contained
-    \bool_if:NTF \l_rubos_nestedcontains_bool {
-        \prg_return_true:
-    } {
-        \prg_return_false:
+
+    \prg_generate_conditional_variant:Nnn \rubos_prop_nested_get:nn { nx , ne } { p, T , F , TF }
+
+    \cs_set_eq:NN\IfNestedContainsT \__rubos_nested_contains:nnT
+    \cs_set_eq:NN\IfNestedContainsF \__rubos_nested_contains:nnF
+    \cs_set_eq:NN\IfNestedContainsTF \__rubos_nested_contains:nnTF
+
+    \cs_new:Npn \rubos_print_nested_tl:n #1 {
+        % \tl_set:Nf \l_tmpa_tl {#1}
+        \{
+        \exp_args:Nf \tl_to_str:n {#1}
+        \}
     }
-}
 
-\prg_generate_conditional_variant:Nnn \rubos_prop_nested_get:nn { nx , ne } { p, T , F , TF }
-
-\cs_set_eq:NN\IfNestedContainsT \__rubos_nested_contains:nnT
-\cs_set_eq:NN\IfNestedContainsF \__rubos_nested_contains:nnF
-\cs_set_eq:NN\IfNestedContainsTF \__rubos_nested_contains:nnTF
-
-\cs_new:Npn \rubos_print_nested_tl:n #1 {
-    % \tl_set:Nf \l_tmpa_tl {#1}
-    \{
-    \exp_args:Nf \tl_to_str:n {#1}
-    \}
-}
-
-\cs_set_eq:NN \printNested \rubos_print_nested_tl:n
+    \cs_set_eq:NN \printNested \rubos_print_nested_tl:n
+}{}
+\IfTudaciVersionAtLeastTF{4.0}{
+    \DeclareDocumentCommand{\getTaskProperty}{O{\@currenttasklabel}m}{
+        \prop_if_in:NnTF \g__ptxcd_property_collector_prop {#1-#2}
+        {\prop_item:Nn \g__ptxcd_property_collector_prop {#1-#2}}
+        {{\nfss@text{\reset@font\bfseries??}}}
+    }
+}{}
 
 \IfTudaciVersionBetweenTF{3.0}{3.19}{
     \cs_new:Nn \ptxcd_declare_caption:Nnnn {
@@ -924,158 +930,312 @@
 }
 
 \IfTudaciVersionAtLeastTF{3.0}{
-    \renewcommand*{\@maketitle}{%
-        % \maketerm{}% Might Move Term Creation here soon
-        \global\@topnum=\z@
-        \setparsizes{\z@}{\z@}{\z@\@plus 1fil}\par@updaterelative
-        \vspace*{-\dim_eval:n {
-                \headheight
-                -\c_ptxcd_largerule_dim -\c_ptxcd_rulesep_dim
-                +\headsep
-                +\ht\strutbox
-                +\p@
-            }}
-        \par
-        \nointerlineskip
-        \begingroup
-        \setlength{\fboxsep}{\z@}
-        \bool_if:NT \g_ptxcd_colorback_bool {\colorbox{accentcolor}}{\parbox[t]{\linewidth}{
-                \rule{0pt}{\bool_if:NTF \g_ptxcd_smalltitle_bool {.25} {.5}\c_ptxcd_logoheight_dim}
-                \par\nointerlineskip
-                \raisebox{-\height}{%
-                    \begin{minipage}[t]{\dimexpr\linewidth-2.2\c_ptxcd_logoheight_dim-1ex}
-                        \bool_if:NT \g_ptxcd_colorback_bool  {\begin{addmargin}{3mm}}
-                                \raggedright
-                                \bool_if:NT \g_ptxcd_colorback_bool {\color{textonaccentcolor}}
-                                \tl_if_empty:NF \@titlehead {\usekomafont{titlehead}{\@titlehead\par}}
-                                \leavevmode\usekomafont{title}%
-                                {\usekomafont{title}\bool_if:NTF \g_ptxcd_smalltitle_bool {\LARGE} {\huge} {\@title\par}}%
-                                \vskip 1em
-                                \bool_if:NF \g_ptxcd_ex_compatibility_bool
-                                {
-                                    {\ifx\@subtitle\@empty\else\usekomafont{subtitle}\@subtitle\par\fi}%
-                                    \gdef\@subtitle{}
-                                    \vskip .5em
-                                }
-                                % Standart Author Position
-                                % {
-                                %   \xdef\@author {\@author}
-                                %   \ifx\@author\@empty\else\usekomafont{author}\@author\par\fi
-                                % }
-                                \vskip .5em
-                                \bool_if:NTF \g_ptxcd_colorback_bool {\end{addmargin}} {\par}
-                    \end{minipage}}
-                \tl_if_empty:NF \g_ptxcd_logofile_tl {
-                    \hfill\raisebox{\dim_eval:n {
-                            \bool_if:NTF \g_ptxcd_colorback_bool
-                            {-\height}
-                            {-.9\c_ptxcd_logoheight_dim}
-                        }}
-                    [0pt]
-                    [\dim_eval:n {
-                            \bool_if:NTF \g_ptxcd_smalltitle_bool
-                            {\bool_if:NTF \g_ptxcd_colorback_bool {1.15}{1}}
-                            {\bool_if:NTF \g_ptxcd_colorback_bool {1.5}{1.3}
-                            }\c_ptxcd_logoheight_dim}]
-                    {\makebox[2.2\c_ptxcd_logoheight_dim][l]{\includegraphics[height=\c_ptxcd_logoheight_dim]{\g_ptxcd_logofile_tl}}}
-                }
-                \par\medskip
-            }}
-        \par
-        \nointerlineskip
-        \rule{\linewidth}{\g_ptxcd_titlerule_dim}
-        % subtitle fields if not compat
-        \exp_args:Nf \tl_if_empty:nF {\seq_use:Nnnn \g_ptxcd_author_seq {~\authorandname{}~} {,~} {~\&~}\seq_use:Nnnn \g_ptxcd_contributor_seq {~\authorandname{}~} {,~} {~\authorandname{}~}\g_ptxcd_ex_sheetnum_tl\@date\g_ptxcd_ex_term_tl\use:c {@subsubtitle}\@subtitle}{
-            \par\nointerlineskip
-            \bool_if:NT \g_ptxcd_colorback_bool {\colorbox{accentcolor}}{
-                \parbox{\linewidth}{
-                    \begin{minipage}{\linewidth}
-                        \bool_if:NT \g_ptxcd_colorback_bool {
-                            \color{textonaccentcolor}
-                            \begin{addmargin}{3mm}
-                                }
-                                \null\par
-                                % Term
-                                \bool_if:NTF \g_manual_term_bool{
-                                    \g_ptxcd_ex_term_tl
-                                }
-                                {
-                                    \def\ptxcd_nextsep{}
-                                    \bool_gset_true:N \g_tmpa_left_bool
-                                    \clist_map_inline:Nn \g_rubos_ex_term_order_clist {
-                                        % Process different term Styles
-                                        \str_case_e:nnF {\g_ptxcd_ex_term_style_tl} {
-                                            {left} {
-                                                \tl_if_empty:cF {##1} {
-                                                    \seq_put_right:cn {\bool_if:nTF \g_tmpa_left_bool {g_ptxcd_term_left_seq} {g_ptxcd_term_right_seq}} {\use:c {##1}}
-                                                }
-                                            }
-                                            {center} {
-                                                \tl_if_empty:cF {##1} {
-                                                    \seq_put_right:cn {\bool_if:nTF \g_tmpa_left_bool {g_ptxcd_term_left_seq} {g_ptxcd_term_right_seq}} {\use:c {##1}}
-                                                }
-                                            }
-                                            {left-right} {
-                                                \tl_if_empty:cF {##1} {
-                                                    \seq_put_right:cn {\bool_if:nTF \g_tmpa_left_bool {g_ptxcd_term_left_seq} {g_ptxcd_term_right_seq}} {\use:c {##1}}\bool_set:Nn \g_tmpa_left_bool {!\g_tmpa_left_bool}
-                                                }
-                                            }
-                                            {left-right-manual} {
-                                                % Do Nothing lol
-                                            }
-                                        }
-                                        {
-                                            \ClassError{rubos_tuda_template}{Unknown~Term~style~Option: \use:c {\g_ptxcd_ex_term_style_tl}}{Available~options~are:~left,~center,~left-right~(default)}
-                                        }
+    \IfTudaciVersionAtLeastTF{4.0}{
+        \renewcommand*{\@maketitle}{%
+            \global\@topnum=\z@
+            \setparsizes{\z@}{\z@}{\z@\@plus 1fil}\par@updaterelative
+            \vspace*{-\dim_eval:n {
+                    \headheight
+                    -\c_ptxcd_largerule_dim -\c_ptxcd_rulesep_dim
+                    +\headsep
+                    +\ht\strutbox
+                    +\p@
+                }}
+            \par
+            \nointerlineskip
+            \begingroup
+            \setlength{\fboxsep}{\z@}
+            \bool_if:NT \g_ptxcd_colorback_bool {\colorbox{accentcolor}}{\parbox[t]{\linewidth}{
+                    \rule{0pt}{\bool_if:NTF \g_ptxcd_smalltitle_bool {.25} {.5}\c_ptxcd_logoheight_dim}
+                    \par\nointerlineskip
+                    \raisebox{-\height}{%
+                        \begin{minipage}[t]{\dimexpr\linewidth-\__ptxcd_logowidth:-1ex}
+                            \bool_if:NT \g_ptxcd_colorback_bool  {\begin{addmargin}{3mm}}
+                                    \raggedright
+                                    \bool_if:NT \g_ptxcd_colorback_bool {\color{textonaccentcolor}}
+                                    \tl_if_empty:NF \@titlehead {\usekomafont{titlehead}{\@titlehead\par}}
+                                    \leavevmode\usekomafont{title}%
+                                    {\usekomafont{title}\bool_if:NTF \g_ptxcd_smalltitle_bool {\LARGE} {\huge} {\@title\par}}%
+                                    \vskip 1em
+                                    \bool_if:NF \g__ptxcd_compatibility_bool
+                                    {
+                                        {\ifx\@subtitle\@empty\else\usekomafont{subtitle}\@subtitle\par\fi}%
+                                        \gdef\@subtitle{}
+                                        \vskip .5em
                                     }
-                                    % Left Side
-                                    \begin{minipage}[t]{\seq_if_empty:NF {\g_ptxcd_term_right_seq}{.6}\linewidth}
-                                        \str_if_eq:eeT{\g_ptxcd_ex_term_style_tl} {center} {\centering}
-                                        \seq_use:Nnnn \g_ptxcd_term_left_seq {\mbox{}\par} {\mbox{}\par} {\mbox{}\par}
-                                        \gdef\ptxcd_nextsep{\par}
-                                    \end{minipage}
-                                    \seq_if_empty:NF {\g_ptxcd_term_right_seq}{
-                                        \begin{minipage}[t]{.4\linewidth}
-                                            \raggedleft
-                                            \begin{flushright}
-                                                \seq_use:Nnnn \g_ptxcd_term_right_seq {\mbox{}\par} {\mbox{}\par} {\mbox{}\par}
-                                            \end{flushright}
+                                    % standard Author Position
+                                    % {
+                                    %     \xdef\@author {\@author}
+                                    %     \ifx\@author\@empty\else\usekomafont{author}\@author\par\fi
+                                    % }
+                                    \vskip .5em
+                                    \bool_if:NTF \g_ptxcd_colorback_bool {\end{addmargin}} {\par}
+                        \end{minipage}}
+                    \tl_if_empty:NF \g_ptxcd_logofile_tl {
+                        \hfill\raisebox{\dim_eval:n {
+                                \bool_if:NTF \g_ptxcd_colorback_bool
+                                {-\height}
+                                {-.9\c_ptxcd_logoheight_dim}
+                            }}
+                        [0pt]
+                        [\dim_eval:n {
+                                \bool_if:NTF \g_ptxcd_smalltitle_bool
+                                {\bool_if:NTF \g_ptxcd_colorback_bool {1.15}{1}}
+                                {\bool_if:NTF \g_ptxcd_colorback_bool {1.5}{1.3}
+                                }\c_ptxcd_logoheight_dim}]
+                        {\makebox[\__ptxcd_logowidth:][l]{\__ptxcd_insert_logo:}}
+                    }
+                    \par\medskip
+                }}
+            \par
+            \nointerlineskip
+            \rule{\linewidth}{\g_ptxcd_titlerule_dim}
+            % subtitle fields if not compat
+            \exp_args:Nf \tl_if_empty:nF {\seq_use:Nnnn \g_ptxcd_author_seq {~\authorandname{}~} {,~} {~\&~}\seq_use:Nnnn \g_ptxcd_contributor_seq {~\authorandname{}~} {,~} {~\authorandname{}~}\g_ptxcd_ex_sheetnum_tl\@date\g_ptxcd_ex_term_tl\use:c {@subsubtitle}\@subtitle}{
+                \par\nointerlineskip
+                \bool_if:NT \g_ptxcd_colorback_bool {\colorbox{accentcolor}}{
+                    \parbox{\linewidth}{
+                        \begin{minipage}{\linewidth}
+                            \bool_if:NT \g_ptxcd_colorback_bool {
+                                \color{textonaccentcolor}
+                                \begin{addmargin}{3mm}
+                                    }
+                                    \null\par
+                                    % Term
+                                    \bool_if:NTF \g_manual_term_bool{
+                                        \g_ptxcd_ex_term_tl
+                                    }
+                                    {
+                                        \def\ptxcd_nextsep{}
+                                        \bool_gset_true:N \g_tmpa_left_bool
+                                        \clist_map_inline:Nn \g_rubos_ex_term_order_clist {
+                                            % Process different term Styles
+                                            \str_case_e:nnF {\g_ptxcd_ex_term_style_tl} {
+                                                {left} {
+                                                    \tl_if_empty:cF {##1} {
+                                                        \seq_put_right:cn {\bool_if:nTF \g_tmpa_left_bool {g_ptxcd_term_left_seq} {g_ptxcd_term_right_seq}} {\use:c {##1}}
+                                                    }
+                                                }
+                                                {center} {
+                                                    \tl_if_empty:cF {##1} {
+                                                        \seq_put_right:cn {\bool_if:nTF \g_tmpa_left_bool {g_ptxcd_term_left_seq} {g_ptxcd_term_right_seq}} {\use:c {##1}}
+                                                    }
+                                                }
+                                                {left-right} {
+                                                    \tl_if_empty:cF {##1} {
+                                                        \seq_put_right:cn {\bool_if:nTF \g_tmpa_left_bool {g_ptxcd_term_left_seq} {g_ptxcd_term_right_seq}} {\use:c {##1}}\bool_set:Nn \g_tmpa_left_bool {!\g_tmpa_left_bool}
+                                                    }
+                                                }
+                                                {left-right-manual} {
+                                                    % Do Nothing lol
+                                                }
+                                            }
+                                            {
+                                                \ClassError{rubos_tuda_template}{Unknown~Term~style~Option: \use:c {\g_ptxcd_ex_term_style_tl}}{Available~options~are:~left,~center,~left-right~(default)}
+                                            }
+                                        }
+                                        % Left Side
+                                        \begin{minipage}[t]{\seq_if_empty:NF {\g_ptxcd_term_right_seq}{.6}\linewidth}
+                                            \str_if_eq:eeT{\g_ptxcd_ex_term_style_tl} {center} {\centering}
+                                            \seq_use:Nnnn \g_ptxcd_term_left_seq {\mbox{}\par} {\mbox{}\par} {\mbox{}\par}
                                             \gdef\ptxcd_nextsep{\par}
                                         \end{minipage}
+                                        \seq_if_empty:NF {\g_ptxcd_term_right_seq}{
+                                            \begin{minipage}[t]{.4\linewidth}
+                                                \raggedleft
+                                                \begin{flushright}
+                                                    \seq_use:Nnnn \g_ptxcd_term_right_seq {\mbox{}\par} {\mbox{}\par} {\mbox{}\par}
+                                                \end{flushright}
+                                                \gdef\ptxcd_nextsep{\par}
+                                            \end{minipage}
+                                        }
+                                        % \vspace{-\abovedisplayskip}
+                                        \bool_if:nT { !\seq_if_empty_p:N \g_ptxcd_term_left_seq || !\seq_if_empty_p:N \g_ptxcd_term_right_seq } {
+                                            \vspace*{\lineskip}
+                                            \par
+                                        }
+                                        \tl_if_empty:NF \g_ptxcd_ex_term_tl {\g_ptxcd_ex_term_tl}
+                                        % \clist_map_inline:nn {@subtitle, @subsubtitle, g_ptxcd_ex_term_tl} {
+                                        %   \tl_if_empty:cF {##1} {\ptxcd_nextsep\use:c {##1}\def\ptxcd_nextsep{\\}}
+                                        % }
+                                        % \tl_if_empty:NF \g_ptxcd_ex_sheetnum_tl {\ptxcd_nextsep\sheetname\sheetsep\g_ptxcd_ex_sheetnum_tl}
                                     }
-                                    % \vspace{-\abovedisplayskip}
-                                    \bool_if:nT { !\seq_if_empty_p:N \g_ptxcd_term_left_seq || !\seq_if_empty_p:N \g_ptxcd_term_right_seq } {
-                                        \vspace*{\lineskip}
-                                        \par
-                                    }
-                                    \tl_if_empty:NF \g_ptxcd_ex_term_tl {\g_ptxcd_ex_term_tl}
-                                    % \clist_map_inline:nn {@subtitle, @subsubtitle, g_ptxcd_ex_term_tl} {
-                                    %   \tl_if_empty:cF {##1} {\ptxcd_nextsep\use:c {##1}\def\ptxcd_nextsep{\\}}
-                                    % }
-                                    % \tl_if_empty:NF \g_ptxcd_ex_sheetnum_tl {\ptxcd_nextsep\sheetname\sheetsep\g_ptxcd_ex_sheetnum_tl}
-                                }
 
-                                \bool_if:NT \g_ptxcd_colorback_bool {\end{addmargin}}
-                    \end{minipage}
-                    \vspace*{\dp\strutbox}
-                }}\par\nointerlineskip
-            \rule{\linewidth}{\g_ptxcd_titlerule_dim}
-        }
-        \par
-        \bool_if:NT  \g_ptxcd_headontitle_bool {
-            \if@twoside
-                \box_use:N \g_ptxcd_ex_headline_odd_box
-            \else
-                \box_use:N \g_ptxcd_ex_headline_oneside_box
-            \fi
+                                    \bool_if:NT \g_ptxcd_colorback_bool {\end{addmargin}}
+                        \end{minipage}
+                        \vspace*{\dp\strutbox}
+                    }}\par\nointerlineskip
+                \rule{\linewidth}{\g_ptxcd_titlerule_dim}
+            }
             \par
-            \rule{\linewidth}{\g_ptxcd_titlerule_dim}
+            \bool_if:NT  \g_ptxcd_headontitle_bool {
+                \if@twoside
+                    \box_use:N \g__ptxcd_headline_odd_box
+                \else
+                    \box_use:N \g__ptxcd_headline_oneside_box
+                \fi
+                \par
+                \rule{\linewidth}{\g_ptxcd_titlerule_dim}
+                \par
+            }
+            \endgroup
+            \vskip 2em
+            \ConfigureHeadline{}
+        }%
+    }{
+        \renewcommand*{\@maketitle}{%
+            % \maketerm{}% Might Move Term Creation here soon
+            \global\@topnum=\z@
+            \setparsizes{\z@}{\z@}{\z@\@plus 1fil}\par@updaterelative
+            \vspace*{-\dim_eval:n {
+                    \headheight
+                    -\c_ptxcd_largerule_dim -\c_ptxcd_rulesep_dim
+                    +\headsep
+                    +\ht\strutbox
+                    +\p@
+                }}
             \par
-        }
-        \endgroup
-        \vskip 2em
-        \ConfigureHeadline{}
-    }%
+            \nointerlineskip
+            \begingroup
+            \setlength{\fboxsep}{\z@}
+            \bool_if:NT \g_ptxcd_colorback_bool {\colorbox{accentcolor}}{\parbox[t]{\linewidth}{
+                    \rule{0pt}{\bool_if:NTF \g_ptxcd_smalltitle_bool {.25} {.5}\c_ptxcd_logoheight_dim}
+                    \par\nointerlineskip
+                    \raisebox{-\height}{%
+                        \begin{minipage}[t]{\dimexpr\linewidth-2.2\c_ptxcd_logoheight_dim-1ex}
+                            \bool_if:NT \g_ptxcd_colorback_bool  {\begin{addmargin}{3mm}}
+                                    \raggedright
+                                    \bool_if:NT \g_ptxcd_colorback_bool {\color{textonaccentcolor}}
+                                    \tl_if_empty:NF \@titlehead {\usekomafont{titlehead}{\@titlehead\par}}
+                                    \leavevmode\usekomafont{title}%
+                                    {\usekomafont{title}\bool_if:NTF \g_ptxcd_smalltitle_bool {\LARGE} {\huge} {\@title\par}}%
+                                    \vskip 1em
+                                    \bool_if:NF \g_ptxcd_ex_compatibility_bool
+                                    {
+                                        {\ifx\@subtitle\@empty\else\usekomafont{subtitle}\@subtitle\par\fi}%
+                                        \gdef\@subtitle{}
+                                        \vskip .5em
+                                    }
+                                    % Standart Author Position
+                                    % {
+                                    %   \xdef\@author {\@author}
+                                    %   \ifx\@author\@empty\else\usekomafont{author}\@author\par\fi
+                                    % }
+                                    \vskip .5em
+                                    \bool_if:NTF \g_ptxcd_colorback_bool {\end{addmargin}} {\par}
+                        \end{minipage}}
+                    \tl_if_empty:NF \g_ptxcd_logofile_tl {
+                        \hfill\raisebox{\dim_eval:n {
+                                \bool_if:NTF \g_ptxcd_colorback_bool
+                                {-\height}
+                                {-.9\c_ptxcd_logoheight_dim}
+                            }}
+                        [0pt]
+                        [\dim_eval:n {
+                                \bool_if:NTF \g_ptxcd_smalltitle_bool
+                                {\bool_if:NTF \g_ptxcd_colorback_bool {1.15}{1}}
+                                {\bool_if:NTF \g_ptxcd_colorback_bool {1.5}{1.3}
+                                }\c_ptxcd_logoheight_dim}]
+                        {\makebox[2.2\c_ptxcd_logoheight_dim][l]{\includegraphics[height=\c_ptxcd_logoheight_dim]{\g_ptxcd_logofile_tl}}}
+                    }
+                    \par\medskip
+                }}
+            \par
+            \nointerlineskip
+            \rule{\linewidth}{\g_ptxcd_titlerule_dim}
+            % subtitle fields if not compat
+            \exp_args:Nf \tl_if_empty:nF {\seq_use:Nnnn \g_ptxcd_author_seq {~\authorandname{}~} {,~} {~\&~}\seq_use:Nnnn \g_ptxcd_contributor_seq {~\authorandname{}~} {,~} {~\authorandname{}~}\g_ptxcd_ex_sheetnum_tl\@date\g_ptxcd_ex_term_tl\use:c {@subsubtitle}\@subtitle}{
+                \par\nointerlineskip
+                \bool_if:NT \g_ptxcd_colorback_bool {\colorbox{accentcolor}}{
+                    \parbox{\linewidth}{
+                        \begin{minipage}{\linewidth}
+                            \bool_if:NT \g_ptxcd_colorback_bool {
+                                \color{textonaccentcolor}
+                                \begin{addmargin}{3mm}
+                                    }
+                                    \null\par
+                                    % Term
+                                    \bool_if:NTF \g_manual_term_bool{
+                                        \g_ptxcd_ex_term_tl
+                                    }
+                                    {
+                                        \def\ptxcd_nextsep{}
+                                        \bool_gset_true:N \g_tmpa_left_bool
+                                        \clist_map_inline:Nn \g_rubos_ex_term_order_clist {
+                                            % Process different term Styles
+                                            \str_case_e:nnF {\g_ptxcd_ex_term_style_tl} {
+                                                {left} {
+                                                    \tl_if_empty:cF {##1} {
+                                                        \seq_put_right:cn {\bool_if:nTF \g_tmpa_left_bool {g_ptxcd_term_left_seq} {g_ptxcd_term_right_seq}} {\use:c {##1}}
+                                                    }
+                                                }
+                                                {center} {
+                                                    \tl_if_empty:cF {##1} {
+                                                        \seq_put_right:cn {\bool_if:nTF \g_tmpa_left_bool {g_ptxcd_term_left_seq} {g_ptxcd_term_right_seq}} {\use:c {##1}}
+                                                    }
+                                                }
+                                                {left-right} {
+                                                    \tl_if_empty:cF {##1} {
+                                                        \seq_put_right:cn {\bool_if:nTF \g_tmpa_left_bool {g_ptxcd_term_left_seq} {g_ptxcd_term_right_seq}} {\use:c {##1}}\bool_set:Nn \g_tmpa_left_bool {!\g_tmpa_left_bool}
+                                                    }
+                                                }
+                                                {left-right-manual} {
+                                                    % Do Nothing lol
+                                                }
+                                            }
+                                            {
+                                                \ClassError{rubos_tuda_template}{Unknown~Term~style~Option: \use:c {\g_ptxcd_ex_term_style_tl}}{Available~options~are:~left,~center,~left-right~(default)}
+                                            }
+                                        }
+                                        % Left Side
+                                        \begin{minipage}[t]{\seq_if_empty:NF {\g_ptxcd_term_right_seq}{.6}\linewidth}
+                                            \str_if_eq:eeT{\g_ptxcd_ex_term_style_tl} {center} {\centering}
+                                            \seq_use:Nnnn \g_ptxcd_term_left_seq {\mbox{}\par} {\mbox{}\par} {\mbox{}\par}
+                                            \gdef\ptxcd_nextsep{\par}
+                                        \end{minipage}
+                                        \seq_if_empty:NF {\g_ptxcd_term_right_seq}{
+                                            \begin{minipage}[t]{.4\linewidth}
+                                                \raggedleft
+                                                \begin{flushright}
+                                                    \seq_use:Nnnn \g_ptxcd_term_right_seq {\mbox{}\par} {\mbox{}\par} {\mbox{}\par}
+                                                \end{flushright}
+                                                \gdef\ptxcd_nextsep{\par}
+                                            \end{minipage}
+                                        }
+                                        % \vspace{-\abovedisplayskip}
+                                        \bool_if:nT { !\seq_if_empty_p:N \g_ptxcd_term_left_seq || !\seq_if_empty_p:N \g_ptxcd_term_right_seq } {
+                                            \vspace*{\lineskip}
+                                            \par
+                                        }
+                                        \tl_if_empty:NF \g_ptxcd_ex_term_tl {\g_ptxcd_ex_term_tl}
+                                        % \clist_map_inline:nn {@subtitle, @subsubtitle, g_ptxcd_ex_term_tl} {
+                                        %   \tl_if_empty:cF {##1} {\ptxcd_nextsep\use:c {##1}\def\ptxcd_nextsep{\\}}
+                                        % }
+                                        % \tl_if_empty:NF \g_ptxcd_ex_sheetnum_tl {\ptxcd_nextsep\sheetname\sheetsep\g_ptxcd_ex_sheetnum_tl}
+                                    }
+
+                                    \bool_if:NT \g_ptxcd_colorback_bool {\end{addmargin}}
+                        \end{minipage}
+                        \vspace*{\dp\strutbox}
+                    }}\par\nointerlineskip
+                \rule{\linewidth}{\g_ptxcd_titlerule_dim}
+            }
+            \par
+            \bool_if:NT  \g_ptxcd_headontitle_bool {
+                \if@twoside
+                    \box_use:N \g_ptxcd_ex_headline_odd_box
+                \else
+                    \box_use:N \g_ptxcd_ex_headline_oneside_box
+                \fi
+                \par
+                \rule{\linewidth}{\g_ptxcd_titlerule_dim}
+                \par
+            }
+            \endgroup
+            \vskip 2em
+            \ConfigureHeadline{}
+        }%
+    }
 }{
     \IfTudaciVersionBetweenTF{2.10}{2.11}{
         \renewcommand*{\@maketitle}{%
@@ -1231,7 +1391,7 @@
 
 
 % Better Task Titles
-\IfTudaciVersionAtLeastTF{3.13}{
+\IfTudaciVersionBetweenTF{3.13}{3.40}{
     \renewcommand*\sectionlinesformat[4]{%
         \parbox{\linewidth}{
             \bool_if:cT {g__ptxcd_ruled_#1_bool} {
