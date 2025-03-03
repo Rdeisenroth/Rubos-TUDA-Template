@@ -2,7 +2,7 @@
 \NeedsTeXFormat{LaTeX2e}
 \RequirePackage{expl3}
 % Identification of the class and its date and version.
-\ProvidesExplClass{rubos-tuda-template}{2025-02-11}{1.1.0-Snapshot}{LaTeX Vorlage für Hausübungen, Zusammenfassungen und Abgaben basierend auf TuDaExercise}
+\ProvidesExplClass{rubos-tuda-template}{2025-03-03}{1.1.0-Snapshot}{LaTeX Vorlage für Hausübungen, Zusammenfassungen und Abgaben basierend auf TuDaExercise}
 
 % Made by Ruben Deisenroth, 2022
 % Available at https://github.com/Rdeisenroth/TUDA-Hausuebungstemplate/blob/main/rubos-tuda-template.cls
@@ -162,10 +162,13 @@
 % \loadcommon{}
 
 % Discover tudaci-Version
+% Discover tudaci-Version
 \exp_args:NNnx \seq_set_split:Nnn \g_tuda_version_seq { ~ } { \use:c {ver@tudaexercise.cls} }
 \tl_set:Nx \g_tudaci_version_tl { \seq_item:Nn \g_tuda_version_seq { 2 } }
-\tl_set:Nx \g_tudaci_version_tl {\tl_tail:N \g_tudaci_version_tl}
-\regex_replace_once:nnN { [a-z] } { } \g_tudaci_version_tl
+\regex_extract_once:nVNF { (\d+(\.\d+)*) } \g_tudaci_version_tl \l_tudaci_version_seq {
+    \ClassError{algoexercise}{Could~not~determine~TUDA-Exercise~Version}{Please~update~your~TUDA-Exercise~Class}
+}
+\tl_gset:Nx \g_tudaci_version_tl { \seq_item:Nn \l_tudaci_version_seq { 1 } }
 
 \newcommand{\getTudaciVersion}[1]{
     \tl_use:N \g_tudaci_version_tl

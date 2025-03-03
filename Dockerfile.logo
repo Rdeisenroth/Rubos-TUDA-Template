@@ -1,5 +1,7 @@
 FROM archlinux:latest AS build
 WORKDIR /logo
+# Docker image too old atm
+RUN pacman -Syu --noconfirm
 # Dependencies
 RUN pacman -Sy --needed --noconfirm inkscape librsvg
 # Build logo
